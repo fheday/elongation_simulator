@@ -4,24 +4,23 @@
 #include <memory>
 #include <list>
 #include <eigen3/Eigen/Dense>
+#include "reactionsset.h"
 
 namespace Simulations {
 
 class Gillespie
 {
 public:
-Gillespie(int, const Eigen::MatrixXi&, const Eigen::MatrixXi&, const Eigen::ArrayXf&);
+Gillespie(int, const Eigen::MatrixXi&, const ReactionsSet&);
 void run();
 ~Gillespie();
     int iteration_limit;
     Eigen::MatrixXi initial_populations;
-    Eigen::MatrixXi reactions;
-    Eigen::ArrayXf ks;
+    ReactionsSet reactions;
     std::list<float> dt_history;
     std::list<Eigen::MatrixXi> population_history;
 
 };
-    void get_an(const Eigen::MatrixXi&, const Eigen::MatrixXi&, const Eigen::ArrayXf&, Eigen::ArrayXf&);
 }
 
 #endif // SIMULATIONS_GILLESPIE_H

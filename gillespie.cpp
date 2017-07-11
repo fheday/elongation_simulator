@@ -7,14 +7,13 @@
 #include <eigen3/Eigen/Dense>
 using namespace Simulations;
 
-Gillespie::Gillespie(int itera, const Eigen::MatrixXi& popul, const Eigen::MatrixXi& reac, const Eigen::ArrayXf& _ks)
+Gillespie::Gillespie(int itera, const Eigen::MatrixXi& popul, const ReactionsSet& reac)
 {
     iteration_limit = itera;
     dt_history.clear();
     population_history.clear();
     initial_populations = popul;
     reactions = reac;
-    ks = _ks;
 }
 
 void Gillespie::run()
@@ -38,9 +37,10 @@ void Gillespie::run()
         r2 = dis(gen);
         
         // calculate an
-        Eigen::ArrayXf as = Eigen::ArrayXf();
-        Simulations::get_an(reactions, populations, ks, as);
-        if (a0 == 0)
+        std::vector<float> as;
+        std::vector<int> reaction_index;
+        reactions.getAlphas(initial_populations, as, reaction_index);
+        if (as.empty())
         {
             // no available reactions, quit loop prematurely.
             break;
@@ -74,35 +74,6 @@ void Gillespie::run()
 
 }
 
-
-void Simulations::get_an(const Eigen::MatrixXi& reac, const Eigen::MatrixXi& pop, const Eigen::ArrayXf& ks, Eigen::ArrayXf& as)
-{
-        as = 0;
-        as.resize(1, pop.cols());
-        Eigen::MatrixXi indices = (reac.array() < 0).cast<int>();
-        std::cout<<"indices : "<< indices<<" Done!";
-        std::cout<<"population : "<< pop<<" Done!";
-        std::cout<<"reactions : "<< reac<<" Done!";
-        std::cout<<"ks : "<< ks<<" Done!\n";
-//         for ()
-        
-//         for (int i = 0; i < reac.size(); i++){
-//             
-//             if (reac(i) < 0 ) {
-//                 // compute an.
-//                 for (int j = 0 
-//                 
-//             }
-//             else {
-//                 as(i) = 0;
-//             }
-//         }
-        
-        
-//         alphas = pop * ks;
-//         return alphas.sum();
-
-}
 
 Gillespie::~Gillespie()
 {
