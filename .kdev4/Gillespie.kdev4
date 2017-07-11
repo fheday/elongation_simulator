@@ -33,7 +33,7 @@ parserArgumentsC=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-par
 Name=GCC
 
 [Filters]
-size=31
+size=32
 
 [Filters][0]
 inclusive=0
@@ -159,6 +159,11 @@ targets=2
 inclusive=0
 pattern=*.pyo
 targets=1
+
+[Filters][31]
+inclusive=0
+pattern=build
+targets=2
 
 [Filters][4]
 inclusive=0
