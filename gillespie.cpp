@@ -37,16 +37,17 @@ void Gillespie::run()
         r2 = dis(gen);
         
         // calculate an
-        std::vector<float> as;
-        std::vector<int> reaction_index;
+        Eigen::VectorXf as;
+        Eigen::VectorXi reaction_index;
         reactions.getAlphas(initial_populations, as, reaction_index);
-        if (as.empty())
+        if (as.size())
         {
             // no available reactions, quit loop prematurely.
             break;
         }
         tau = 1/a0 * log(1/r1);  // calculate time of next reaction
         // select next reaction to execute
+        
 //         select_next_reaction(r2);
         // put the new population on a temporary variable: this is to help
         // detecting negative populations.

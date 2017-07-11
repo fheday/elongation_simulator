@@ -28,10 +28,10 @@ void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  float k)
 //     std::cout << "Max: " << max <<  ", at: " << maxRow << "," << maxCol;
 }
 
-void ReactionsSet::getAlphas(const Eigen::MatrixXi species, std::vector<float>& as, std::vector<int>& reaction_number)
+void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXf& as_vector, Eigen::VectorXi& reaction_number_vector)
 {
-    as.clear(); //clear vector
-    reaction_number.clear(); //clear vector.
+    std::vector<float> as;
+    std::vector<int> reaction_number;
     for (int i = 0; i < k_pop_index.size(); i++){
         auto k_and_index = k_pop_index[i]; //get the first element.
         if (std::get<1>(k_and_index) < 0){
@@ -47,9 +47,12 @@ void ReactionsSet::getAlphas(const Eigen::MatrixXi species, std::vector<float>& 
             }
         }
     }
-    for ( int i =0; i < as.size(); i++){
-        std::cout<< " as = "<< as[i] << "\nreactions number = "<<reaction_number[i];
-    }
+    as_vector = Eigen::VectorXf::Map(as.data(), as.size());
+    reaction_number_vector = Eigen::VectorXi::Map(reaction_number.data(), reaction_number.size());    
+    std::cout<< " as = "<< as_vector << "\nreactions number = "<< reaction_number_vector;
+//     for ( int i =0; i < as.size(); i++){
+//         std::cout<< " as = "<< as[i] << "\nreactions number = "<<reaction_number[i];
+//     }
 }
 
 

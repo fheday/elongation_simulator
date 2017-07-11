@@ -23,8 +23,8 @@ int main(int argc, char **argv) {
     reactions_set.addReaction(reactions, 0.1);
     Eigen::MatrixXi population(4,10);
     population(1,1) = 800;
-    std::vector<float> as;
-    std::vector<int> reactions_numbers;
+    Eigen::VectorXf as;
+    Eigen::VectorXi reactions_numbers;
     reactions_set.getAlphas(population, as, reactions_numbers);
     return 0;
 }
