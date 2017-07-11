@@ -3,8 +3,9 @@ using namespace Simulations;
 
 ReactionsSet::ReactionsSet()
 {
-    reactions_vector.clear();
-    ks.clear();
+    reactions_vector.clear(); //remove all reactions from vector.
+    ks.clear(); // remove all propensities from vector.
+    
 }
 
 void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  float k)
