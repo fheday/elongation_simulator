@@ -5,7 +5,7 @@ ReactionsSet::ReactionsSet()
 {
     reactions_vector.clear(); //remove all reactions from vector.
     ks.clear(); // remove all propensities from vector.
-    
+    k_times_reaction.clear(); // also remove the pre-calculated values.
 }
 
 void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  float k)

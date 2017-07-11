@@ -162,8 +162,8 @@ targets=1
 
 [Filters][31]
 inclusive=0
-pattern=build
-targets=2
+pattern=build/
+targets=3
 
 [Filters][4]
 inclusive=0

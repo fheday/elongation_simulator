@@ -17,7 +17,7 @@ Eigen::MatrixXi getReaction(int);
     std::vector<float> ks;
 
 private:
-    Eigen::ArrayXf k_times_reaction;
+    std::vector<float> k_times_reaction;
 };
 }
 #endif // REACTIONSSET_H
