@@ -38,8 +38,8 @@ void Gillespie::run()
         
         // calculate an
         Eigen::VectorXf as;
-        Eigen::VectorXi reaction_index;
-        reactions.getAlphas(initial_populations, as, reaction_index);
+        Eigen::VectorXi reactions_index;
+        reactions.getAlphas(initial_populations, as, reactions_index);
         if (as.size())
         {
             // no available reactions, quit loop prematurely.
@@ -47,8 +47,14 @@ void Gillespie::run()
         }
         tau = 1/a0 * log(1/r1);  // calculate time of next reaction
         // select next reaction to execute
-        
-//         select_next_reaction(r2);
+        float a0 = as.sum();
+        float cumsum = 0;
+        int selected_index = -1;
+        while (cumsum < a0 * r2){
+            selected_index++;
+            cumsum += as[i];
+        }
+        selected_index = reactions_index[selected_index]; //index of selected reaction.
         // put the new population on a temporary variable: this is to help
         // detecting negative populations.
 //         updated_populations = populations + reactions.get_selected_reaction_population_change();
