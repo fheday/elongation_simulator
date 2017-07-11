@@ -18,9 +18,13 @@ int main(int argc, char **argv) {
 //     simulation.run();
     Eigen::MatrixXi reactions(4,10);
     reactions(1,1) = -1;
-    reactions(2,1) = -1;
+    reactions(2,1) = 1;
     Simulations::ReactionsSet reactions_set;
     reactions_set.addReaction(reactions, 0.1);
-
+    Eigen::MatrixXi population(4,10);
+    population(1,1) = 800;
+    std::vector<float> as;
+    std::vector<int> reactions_numbers;
+    reactions_set.getAlphas(population, as, reactions_numbers);
     return 0;
 }

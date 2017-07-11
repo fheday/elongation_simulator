@@ -12,6 +12,7 @@ public:
 ReactionsSet();
 void addReaction(Eigen::MatrixXi reaction,  float k);
 Eigen::MatrixXi getReaction(int);
+void getAlphas(const Eigen::MatrixXi,  std::vector<float>&,  std::vector<int>&);
 ~ReactionsSet();
     std::vector<Eigen::MatrixXi> reactions_vector;
     std::vector<float> ks;
