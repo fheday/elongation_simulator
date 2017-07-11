@@ -1,7 +1,0 @@
-/home/heday/kdeveop_projects/Gillespie/build/CMakeFiles/install/strip.dir
-/home/heday/kdeveop_projects/Gillespie/build/CMakeFiles/edit_cache.dir
-/home/heday/kdeveop_projects/Gillespie/build/CMakeFiles/rebuild_cache.dir
-/home/heday/kdeveop_projects/Gillespie/build/CMakeFiles/list_install_components.dir
-/home/heday/kdeveop_projects/Gillespie/build/CMakeFiles/gillespie.dir
-/home/heday/kdeveop_projects/Gillespie/build/CMakeFiles/install/local.dir
-/home/heday/kdeveop_projects/Gillespie/build/CMakeFiles/install.dir
