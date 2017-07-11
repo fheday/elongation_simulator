@@ -2,6 +2,7 @@
 #define REACTIONSSET_H
 
 #include <eigen3/Eigen/Dense>
+#include <vector>
 
 namespace Simulations {
 
@@ -13,7 +14,7 @@ void addReaction(Eigen::MatrixXi reaction,  float k);
 Eigen::MatrixXi getReaction(int);
 ~ReactionsSet();
     std::vector<Eigen::MatrixXi> reactions_vector;
-    Eigen::ArrayXf ks;
+    std::vector<float> ks;
 
 private:
     Eigen::ArrayXf k_times_reaction;

@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/heday/kdeveop_projects/Gillespie/build",
+  "command": "/usr/bin/c++    -g   -o CMakeFiles/gillespie.dir/main.cpp.o -c /home/heday/kdeveop_projects/Gillespie/main.cpp",
+  "file": "/home/heday/kdeveop_projects/Gillespie/main.cpp"
+}
+]
