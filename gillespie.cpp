@@ -5,7 +5,7 @@
 #include <boost/algorithm/cxx11/any_of.hpp>
 #include <boost/multi_array.hpp>
 #include <eigen3/Eigen/Dense>
- using namespace Simulations;
+using namespace Simulations;
 
 Gillespie::Gillespie(int itera, const Eigen::MatrixXi& popul, const Eigen::MatrixXi& reac, const Eigen::ArrayXf& _ks)
 {

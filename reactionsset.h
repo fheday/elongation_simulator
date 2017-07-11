@@ -17,7 +17,7 @@ Eigen::MatrixXi getReaction(int);
     std::vector<float> ks;
 
 private:
-    std::vector<float> k_times_reaction;
+    std::vector<std::tuple<float, int, int>> k_pop_index;
 };
 }
 #endif // REACTIONSSET_H
