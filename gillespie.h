@@ -16,6 +16,7 @@ namespace Simulations {
         void run();
         void setReactionsSet(const ReactionsSet&);
         void setInitialPopulation(const Eigen::MatrixXi&);
+        void setIterationLimit(int);
         ~Gillespie();
         int iteration_limit;
         Eigen::MatrixXi initial_populations;

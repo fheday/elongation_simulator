@@ -28,6 +28,12 @@ void Gillespie::setInitialPopulation(const Eigen::MatrixXi& popul)
     initial_populations = popul;
 }
 
+void Gillespie::setIterationLimit(int i)
+{
+    iteration_limit = i;
+}
+
+
 void Gillespie::setReactionsSet(const ReactionsSet& reac)
 {
     reactions = reac;
