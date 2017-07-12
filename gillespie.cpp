@@ -7,6 +7,13 @@
 #include <eigen3/Eigen/Dense>
 using namespace Simulations;
 
+Gillespie::Gillespie()
+{
+    iteration_limit = 0;
+    dt_history.clear();
+    population_history.clear();
+}
+
 Gillespie::Gillespie(int itera, const Eigen::MatrixXi& popul, const ReactionsSet& reac)
 {
     iteration_limit = itera;
@@ -14,6 +21,11 @@ Gillespie::Gillespie(int itera, const Eigen::MatrixXi& popul, const ReactionsSet
     population_history.clear();
     initial_populations = popul;
     reactions = reac;
+}
+
+void Gillespie::setInitialPopulation(const Eigen::MatrixXi& popul)
+{
+    initial_populations = popul;
 }
 
 void Gillespie::setReactionsSet(const ReactionsSet& reac)
