@@ -1,13 +1,21 @@
  #include <iostream>
  #include "gillespie.cpp"
  #include "reactionsset.cpp"
- #include <boost/numeric/ublas/matrix.hpp>
- #include <boost/numeric/ublas/vector.hpp>
- #include <boost/numeric/ublas/io.hpp>
+ #include "concentrations_reader.cpp"
+//  #include <boost/numeric/ublas/matrix.hpp>
+ #include <vector>
+//  #include <boost/numeric/ublas/io.hpp>
 
  
 int main(int argc, char **argv) {
     std::cout << "Hello, world!" << std::endl;
+    csv_utils::concentrations_reader cr;
+    std::vector<csv_utils::concentration_entry> concentrations_vector;
+    cr.get_contents(concentrations_vector);
+    //print
+    for (csv_utils::concentration_entry item: concentrations_vector) {
+        std::cout<<"codon: " << item.codon<<", "<<item.three_letter<< ", WC cognate: " << item.wc_cognate_conc << ", wobble = "<< item.wobblecognate_conc<<" nearcognate = "<<item.nearcognate_conc<<"\n";
+    }
     // create one reaction matrix
     Eigen::MatrixXi reactions(4,10);
     reactions.fill(0);
