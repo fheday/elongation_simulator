@@ -8,23 +8,23 @@
  
 int main(int argc, char **argv) {
     std::cout << "Hello, world!" << std::endl;
-//     Eigen::MatrixXi initial_population(1,1);
-//     initial_population(0) = 20;
-//     Eigen::MatrixXi reactions(1,1);
-//     reactions(0) = -1;
-//     Eigen::ArrayXf ks(1);
-//     ks(0)=0.1;
-//     Simulations::Gillespie simulation(300, initial_population, reactions, ks);
-//     simulation.run();
+    // create one reaction matrix
     Eigen::MatrixXi reactions(4,10);
+    reactions.fill(0);
     reactions(1,1) = -1;
     reactions(2,1) = 1;
+    // create a ReactionSet object and add the reaction there.
     Simulations::ReactionsSet reactions_set;
-    reactions_set.addReaction(reactions, 0.1);
+    // the reaction propensity is the second argument.
+    reactions_set.addReaction(reactions, .1);
+    // create a matrix with the initial species population.
     Eigen::MatrixXi population(4,10);
+    population.fill(0);
     population(1,1) = 800;
-    Eigen::VectorXf as;
-    Eigen::VectorXi reactions_numbers;
-    reactions_set.getAlphas(population, as, reactions_numbers);
+    std::cout<<"initial population = "<<population<<"\n------\n";
+    // create the Gillespie simulator object with the population and reactions
+    Simulations::Gillespie simulation(300, population, reactions_set);
+    //run the simulation.
+    simulation.run();
     return 0;
 }

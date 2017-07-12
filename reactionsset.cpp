@@ -33,7 +33,7 @@ void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXf& as
     std::vector<float> as;
     std::vector<int> reaction_number;
     for (int i = 0; i < k_pop_index.size(); i++){
-        auto k_and_index = k_pop_index[i]; //get the first element.
+        auto k_and_index = k_pop_index.at(i); //get the first element.
         if (std::get<1>(k_and_index) < 0){
             //zero order reaction. no need for species.
             as.push_back(std::get<0>(k_and_index));
@@ -49,16 +49,13 @@ void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXf& as
     }
     as_vector = Eigen::VectorXf::Map(as.data(), as.size());
     reaction_number_vector = Eigen::VectorXi::Map(reaction_number.data(), reaction_number.size());    
-    std::cout<< " as = "<< as_vector << "\nreactions number = "<< reaction_number_vector;
-//     for ( int i =0; i < as.size(); i++){
-//         std::cout<< " as = "<< as[i] << "\nreactions number = "<<reaction_number[i];
-//     }
+    //std::cout<< " as = "<< as_vector << "\nreactions number = "<< reaction_number_vector;
 }
 
 
 Eigen::MatrixXi ReactionsSet::getReaction(int index)
 {
-    return reactions_vector[index];
+    return reactions_vector.at(index);
 }
 
 

@@ -17,8 +17,8 @@ void run();
     int iteration_limit;
     Eigen::MatrixXi initial_populations;
     ReactionsSet reactions;
-    std::list<float> dt_history;
-    std::list<Eigen::MatrixXi> population_history;
+    std::vector<float> dt_history;
+    std::vector<Eigen::MatrixXi> population_history;
 
 };
 }
