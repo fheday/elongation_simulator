@@ -43,7 +43,7 @@ void Gillespie::run()
         // calculate an
         Eigen::VectorXf as;
         Eigen::VectorXi reactions_index;
-        reactions.getAlphas(initial_populations, as, reactions_index);
+        reactions.getAlphas(populations, as, reactions_index);
         
         if (!as.size())
         {
