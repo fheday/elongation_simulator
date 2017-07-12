@@ -6,7 +6,7 @@ Build Directory Count=1
 Current Build Directory Index=0
 
 [CMake][CMake Build Directory 0]
-Build Directory Path=/home/heday/kdeveop_projects/Gillespie/build
+Build Directory Path=/home/heday/Projects/Gillespie-Cpp/build
 Build Type=Debug
 CMake Binary=/usr/bin/cmake
 Environment Profile=
@@ -212,7 +212,7 @@ Dependency Action=Build
 Display Demangle Names=true
 Display Static Members=true
 EnvironmentGroup=
-Executable=file:///home/heday/kdeveop_projects/Gillespie/build/gillespie
+Executable=file:///home/heday/Projects/Gillespie-Cpp/build/gillespie
 External Terminal=konsole --noclose --workdir %workdir -e %exe
 GDB Path=
 Project Target=Gillespie,gillespie
@@ -221,7 +221,7 @@ Remote GDB Run Script=
 Remote GDB Shell Script=
 Start With=ApplicationOutput
 Use External Terminal=false
-Working Directory=file:///home/heday/kdeveop_projects/Gillespie/build
+Working Directory=file:///home/heday/Projects/Gillespie-Cpp/build
 isExecutable=true
 
 [Project]
