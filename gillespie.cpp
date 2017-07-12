@@ -33,7 +33,7 @@ void Gillespie::run()
     float r1, r2, a0, t = 0, tau = 0;
     for (int i =0; i < iteration_limit; i++)
     {
-        std::cout<<"iteration = "<<i<<"\n";
+//         std::cout<<"iteration = "<<i<<"\n";
         population_history.push_back(populations);
         dt_history.push_back(tau);
         // randomly generate parameter for calculating dt
@@ -80,10 +80,10 @@ void Gillespie::run()
     }
     // finished. Plot population snapshots
     std::cout<<"Finished simulation.\n";
-    for (int i = 0; i < population_history.size(); i++){
-        std::cout<<"population = "<<population_history[i]<<"    delta_time = "<< dt_history[i] <<"\n";
-    }
-    std::cout<<"Total time: "<<t;
+//     for (int i = 0; i < population_history.size(); i++){
+//         std::cout<<"population = "<<population_history[i]<<"    delta_time = "<< dt_history[i] <<"\n";
+//     }
+//     std::cout<<"Total time: "<<t;
 }
 
 
