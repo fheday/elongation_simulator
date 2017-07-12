@@ -16,6 +16,11 @@ Gillespie::Gillespie(int itera, const Eigen::MatrixXi& popul, const ReactionsSet
     reactions = reac;
 }
 
+void Gillespie::setReactionsSet(const ReactionsSet& reac)
+{
+    reactions = reac;
+}
+
 void Gillespie::run()
 {
     std::cout<<"Starting simulation... iteration_limit = "<<iteration_limit<<"\n";

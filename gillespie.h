@@ -13,6 +13,7 @@ class Gillespie
 public:
 Gillespie(int, const Eigen::MatrixXi&, const ReactionsSet&);
 void run();
+void setReactionsSet(const ReactionsSet&);
 ~Gillespie();
     int iteration_limit;
     Eigen::MatrixXi initial_populations;
