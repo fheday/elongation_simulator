@@ -5,17 +5,9 @@
  #include <vector>
  #include "ribosomesimulator.cpp"
 
- 
-int main(int argc, char **argv) {
-    std::cout << "Hello, world!" << std::endl;
-    csv_utils::concentrations_reader cr;
-    std::vector<csv_utils::concentration_entry> concentrations_vector;
-//     cr.get_contents(concentrations_vector);
-//     //print
-//     for (csv_utils::concentration_entry item: concentrations_vector) {
-//         std::cout<<"codon: " << item.codon<<", "<<item.three_letter<< ", WC cognate: " << item.wc_cognate_conc << ", wobble = "<< item.wobblecognate_conc<<" nearcognate = "<<item.nearcognate_conc<<"\n";
-//     }
-    Simulations::RibosomeSimulator rs(cr);
+
+ void testGillespie()
+ {
     // create one reaction matrix
     Eigen::MatrixXi reactions(4,10);
     reactions.fill(0);
@@ -34,5 +26,24 @@ int main(int argc, char **argv) {
     Simulations::Gillespie simulation(300, population, reactions_set);
     //run the simulation.
     simulation.run();
+ }
+ 
+int main(int argc, char **argv) {
+    std::cout << "Hello, world!" << std::endl;
+    csv_utils::concentrations_reader cr;
+    std::vector<csv_utils::concentration_entry> concentrations_vector;
+    Simulations::RibosomeSimulator rs(cr);
+    rs.setIterationLimit(1000);
+    // create a matrix with the initial species population.
+    Eigen::MatrixXi population(32, 1);
+    population.fill(0);
+    population(0,0) = 1;
+    rs.setInitialPopulation(population);
+    std::string codon = "AAA";
+    rs.setCodonForSimulation(codon);
+    rs.run();
+    for (float dt:rs.dt_history) {
+        std::cout<<"dt = "<<dt<<"\n";
+    }
     return 0;
 }
