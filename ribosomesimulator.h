@@ -13,6 +13,7 @@ namespace Simulations {
     {
     public:
         RibosomeSimulator(csv_utils::concentrations_reader&);
+        void setCodonForSimulation(const std::string&);
         csv_utils::concentrations_reader concentrations_reader;
         std::map<std::string, ReactionsSet> reactions_map;
     private:
