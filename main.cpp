@@ -33,6 +33,13 @@ int main(int argc, char **argv) {
     csv_utils::concentrations_reader cr;
     std::vector<csv_utils::concentration_entry> concentrations_vector;
     Simulations::RibosomeSimulator rs(cr);
+//         for (std::pair<std::string, ReactionsSet> element:rs.reactions_map){
+//         std::cout<<"Starting new reactions set: "<< element.first <<"\n ++++++++++++\n";
+//         for (Eigen::MatrixXi m: element.second.reactions_vector) {
+//             std::cout<<"Reaction Matrix = \n"<< m<<"\n---------\n";
+//         }
+//         std::cout<<"Finished reactions set\n ++++++++++++\n";
+//     }
     rs.setIterationLimit(1000);
     // create a matrix with the initial species population.
     Eigen::MatrixXi population(32, 1);
