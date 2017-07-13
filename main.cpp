@@ -48,9 +48,11 @@ int main(int argc, char **argv) {
     rs.setInitialPopulation(population);
     std::string codon = "AAA";
     rs.setCodonForSimulation(codon);
-    rs.run();
-    for (float dt:rs.dt_history) {
-        std::cout<<"dt = "<<dt<<"\n";
-    }
+    float decoding, translocating;
+    rs.run_and_get_times(decoding, translocating);
+    std::cout<<" decoding time = "<< decoding << ", translocating time = " << translocating<<", Total time = "<<rs.total_time<<"\n";
+//     for (float dt:rs.dt_history) {
+//         std::cout<<"dt = "<<dt<<"\n";
+//     }
     return 0;
 }

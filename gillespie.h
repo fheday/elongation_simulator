@@ -23,6 +23,7 @@ namespace Simulations {
         ReactionsSet reactions;
         std::vector<float> dt_history;
         std::vector<Eigen::MatrixXi> population_history;
+        float total_time;
         
     };
 }

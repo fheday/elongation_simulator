@@ -32,6 +32,26 @@ void RibosomeSimulator::setCodonForSimulation(const std::string& codon)
     setReactionsSet(reactions_map.at(codon));
 }
 
+void RibosomeSimulator::run_and_get_times(float& decoding_time, float& translocation_time)
+{
+    Gillespie::run();
+    getDecodingAndTranslocationTimes(decoding_time, translocation_time);
+}
+
+void RibosomeSimulator::getDecodingAndTranslocationTimes(float& decoding_time, float& translocation_time)
+{
+    Eigen::MatrixXi population;
+     translocation_time = 0;
+    for (int i = population_history.size() - 1; i > -1; i--) {
+        population = population_history.at(i);
+        if (population(23,0) == 1) {
+            translocation_time += dt_history.at(i);
+            break;
+        }
+    }
+    decoding_time = total_time - translocation_time;
+}
+
 ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration_entry& codon)
 {
     float totalconc = 1.9e-4;

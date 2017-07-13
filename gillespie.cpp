@@ -85,6 +85,7 @@ void Gillespie::run()
         updated_populations = populations + reac;
         if ((updated_populations.array() < 0).any())
         {
+            total_time = t;
             break;
         }  
         else
@@ -101,7 +102,8 @@ void Gillespie::run()
 //     for (int i = 0; i < population_history.size(); i++){
 //         std::cout<<"population = "<<population_history[i]<<"    delta_time = "<< dt_history[i] <<"\n";
 //     }
-//     std::cout<<"Total time: "<<t;
+    total_time = t;
+    std::cout<<"Total time: "<<t<<"\n";
 }
 
 
