@@ -31,6 +31,8 @@ concentrations_reader::concentrations_reader(std::string file_name)
         wobblecognate_conc = std::atof(tmp_str.c_str());
         std::getline ( ist, tmp_str, '\n' );
         nearcognate_conc = std::atof(tmp_str.c_str());
+        codon.erase(std::remove(codon.begin(), codon.end(), '\"'), codon.end()); // remove \" from string.
+        three_letter.erase(std::remove(three_letter.begin(), three_letter.end(), '\"'), three_letter.end()); //remove \" from string.
         contents.push_back(concentration_entry{codon, three_letter, wc_cognate_conc, wobblecognate_conc, nearcognate_conc});
     }
 }
