@@ -2,9 +2,10 @@
 #include <vector>
 #include <random>
 #include <math.h>
-#include <boost/algorithm/cxx11/any_of.hpp>
-#include <boost/multi_array.hpp>
+// #include <boost/algorithm/cxx11/any_of.hpp>
+// #include <boost/multi_array.hpp>
 #include <eigen3/Eigen/Dense>
+#include <limits>
 using namespace Simulations;
 
 Gillespie::Gillespie()
@@ -41,17 +42,20 @@ void Gillespie::setReactionsSet(const ReactionsSet& reac)
 
 void Gillespie::run()
 {
-    std::cout<<"Starting simulation... iteration_limit = "<<iteration_limit<<"\n";
+    dt_history.clear();
+    population_history.clear();
     Eigen::MatrixXi populations = initial_populations;
     Eigen::MatrixXi updated_populations;
+    Eigen::VectorXf as;
+    Eigen::VectorXi reactions_index;
     // initialize the random generator
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_real_distribution<> dis(0, 1);
-    float r1, r2, a0, t = 0, tau = 0;
-    for (int i =0; i < iteration_limit; i++)
+    std::uniform_real_distribution<> dis(std::numeric_limits<float>::min(), 1.0);
+    float r1 = 0, r2 = 0;
+    float tau = 0, clock = 0.0;
+    for (int i = 0; i < iteration_limit; i++)
     {
-//         std::cout<<"iteration = "<<i<<"\n";
         population_history.push_back(populations);
         dt_history.push_back(tau);
         // randomly generate parameter for calculating dt
@@ -59,22 +63,18 @@ void Gillespie::run()
         // randomly generate parameter for selecting reaction
         r2 = dis(gen);
         // calculate an
-        Eigen::VectorXf as;
-        Eigen::VectorXi reactions_index;
         reactions.getAlphas(populations, as, reactions_index);
-        
-        if (!as.size())
+        if (as.size() == 0)
         {
             // no available reactions, quit loop prematurely.
             break;
         }
         float a0 = as.sum();
-        tau = 1.0/a0 * log(1.0/r1);  // calculate time of next reaction
+        tau = (1.0/a0) * log(1.0/r1);  // calculate time of next reaction
         // select next reaction to execute
         float cumsum = 0;
         int selected_index = -1;
         do {
-//             std::cout<<"selecting reaction. cumsum = "<<cumsum <<", selected_index = "<<selected_index<<", a0*r2 = "<<(a0*r2)<<", r2 = "<<r2<<", a0= "<<a0<<"\n";
             selected_index++;
             cumsum += as[selected_index]; 
         } while (cumsum < a0 * r2);
@@ -85,25 +85,19 @@ void Gillespie::run()
         updated_populations = populations + reac;
         if ((updated_populations.array() < 0).any())
         {
-            total_time = t;
             break;
         }  
         else
         {
             // update time / clock
-            t += tau;
+            clock += tau;
             // update population
             populations = updated_populations;
         }
 
     }
     // finished. Plot population snapshots
-    std::cout<<"Finished simulation.\n";
-//     for (int i = 0; i < population_history.size(); i++){
-//         std::cout<<"population = "<<population_history[i]<<"    delta_time = "<< dt_history[i] <<"\n";
-//     }
-    total_time = t;
-    std::cout<<"Total time: "<<t<<"\n";
+    total_time = clock;
 }
 
 
