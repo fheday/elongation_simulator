@@ -199,8 +199,8 @@ targets=2
 Launch Configurations=Launch Configuration 0
 
 [Launch][Launch Configuration 0]
-Configured Launch Modes=execute
-Configured Launchers=nativeAppLauncher
+Configured Launch Modes=execute,debug
+Configured Launchers=nativeAppLauncher,gdb
 Name=gillespie
 Type=Native Application
 
@@ -219,7 +219,7 @@ Project Target=Gillespie,gillespie
 Remote GDB Config Script=
 Remote GDB Run Script=
 Remote GDB Shell Script=
-Start With=ApplicationOutput
+Start With=GdbConsole
 Use External Terminal=false
 Working Directory=file:///home/heday/Projects/Gillespie-Cpp/build
 isExecutable=true
