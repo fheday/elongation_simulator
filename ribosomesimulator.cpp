@@ -1,12 +1,13 @@
 /*
 <%
 cfg['dependencies'] = ['reactionsset.h', 'gillespie.h']
-cfg['include_dirs'] = ['/opt/anaconda/include/', '/opt/anaconda/include/eigen3', '/opt/anaconda/include/python3.6m/']
+
 cfg['sources'] = ['reactionsset.cpp', 'gillespie.cpp', 'concentrations_reader.cpp']
 
 setup_pybind11(cfg)
 %>
 */
+//cfg['include_dirs'] = ['/opt/anaconda/include/', '/opt/anaconda/include/eigen3']
 //cfg['compiler_args'] = ['-std=c++11', '-stdlib=libc++', '-std=c++14', '-shared-libgcc', '-static-libstdc++']
 //cfg['compiler_args'] = ['-std=c++14']
 //cfg['parallel'] = False
@@ -15,7 +16,6 @@ setup_pybind11(cfg)
 #ifndef CMAKE_BUILD
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/eigen.h>
 namespace py = pybind11;
 
 #endif
@@ -90,10 +90,9 @@ void RibosomeSimulator::run_and_get_times(float& decoding_time, float& transloca
 
 void RibosomeSimulator::getDecodingAndTranslocationTimes(float& decoding_time, float& translocation_time)
 {
-    float sum = 0;
     int translocation_index = 0, i = 0;
-    decoding_time = 0;
-    translocation_time = 0;
+    decoding_time = 0; // avoid propagating errors.
+    translocation_time = 0; // avoid propagating errors.
     for (Eigen::MatrixXi population:population_history) {
         if (population(24,0) == 1) translocation_index = i;
         i++;
@@ -102,7 +101,6 @@ void RibosomeSimulator::getDecodingAndTranslocationTimes(float& decoding_time, f
         decoding_time += dt_history[ii];
     }
     for (unsigned int ii = translocation_index; ii < dt_history.size(); ii++) translocation_time += dt_history[ii];
-    sum = std::accumulate(dt_history.begin(), dt_history.end(), 0.0f);
 }
 ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration_entry& codon)
 {
