@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <tuple>
 #include "concentrations_reader.h"
 #include "reactionsset.h"
 #include "gillespie.h"
@@ -12,7 +13,8 @@ namespace Simulations {
     class RibosomeSimulator : public Gillespie
     {
     public:
-        RibosomeSimulator(csv_utils::concentrations_reader&);
+        RibosomeSimulator(const std::string);
+        void setNumberOfRibosomes(int);
         void setCodonForSimulation(const std::string&);
         void run_and_get_times(float&, float&);
         void getDecodingAndTranslocationTimes(float&, float&);

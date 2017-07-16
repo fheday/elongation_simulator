@@ -1,17 +1,26 @@
+#ifndef CMAKE_BUILD
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+namespace py = pybind11;
+#endif
+
 #include "concentrations_reader.h"
 #include <fstream>
 #include <error.h>
 using namespace csv_utils;
 
 
+concentrations_reader::concentrations_reader()
+{
+    contents.clear();
+}
 
-concentrations_reader::concentrations_reader(std::string file_name)
+void concentrations_reader::load_concentrations(std::string file_name)
 {
     std::ifstream ist{file_name};
-    
+
     if (!ist) {
-        std::cout<<"can't open input file "<< file_name;
-        throw -1;
+        throw std::runtime_error("can't open input file: "+ file_name);
     }
     contents.clear();
     std::string codon;
@@ -20,6 +29,8 @@ concentrations_reader::concentrations_reader(std::string file_name)
     float wobblecognate_conc;
     float nearcognate_conc;
     std::string tmp_str;
+    std::vector<std::string> stop_codons = {"UAG", "UAA", "UGA"}; // list of stop codons.
+    bool header = true;
     while(ist.good()) {
         if (!std::getline ( ist, codon, ',' )){
             break;
@@ -33,7 +44,13 @@ concentrations_reader::concentrations_reader(std::string file_name)
         nearcognate_conc = std::atof(tmp_str.c_str());
         codon.erase(std::remove(codon.begin(), codon.end(), '\"'), codon.end()); // remove \" from string.
         three_letter.erase(std::remove(three_letter.begin(), three_letter.end(), '\"'), three_letter.end()); //remove \" from string.
-        contents.push_back(concentration_entry{codon, three_letter, wc_cognate_conc, wobblecognate_conc, nearcognate_conc});
+        if (!header){
+            auto result = std::find(stop_codons.begin(), stop_codons.end(), codon);
+            //only add if not a stop codon.
+            if (result == end(stop_codons)) contents.push_back(concentration_entry{codon, three_letter, wc_cognate_conc, wobblecognate_conc, nearcognate_conc});
+        } else {
+            header = false;
+        }
     }
 }
 
@@ -41,4 +58,13 @@ concentrations_reader::concentrations_reader(std::string file_name)
 void concentrations_reader::get_contents(std::vector<concentration_entry>& result)
 {
     result = contents;
+}
+
+
+void concentrations_reader::get_codons_vector(std::vector<std::string>& codons_vector)
+{
+    codons_vector.clear();
+    for (concentration_entry entry:contents) {
+        codons_vector.push_back(entry.codon);
+    }
 }

@@ -1,11 +1,61 @@
+/*
+<%
+cfg['dependencies'] = ['reactionsset.h', 'gillespie.h']
+cfg['include_dirs'] = ['/opt/anaconda/include/', '/opt/anaconda/include/eigen3', '/opt/anaconda/include/python3.6m/']
+cfg['sources'] = ['reactionsset.cpp', 'gillespie.cpp', 'concentrations_reader.cpp']
+
+setup_pybind11(cfg)
+%>
+*/
+//cfg['compiler_args'] = ['-std=c++11', '-stdlib=libc++', '-std=c++14', '-shared-libgcc', '-static-libstdc++']
+//cfg['compiler_args'] = ['-std=c++14']
+//cfg['parallel'] = False
+//
+
+#ifndef CMAKE_BUILD
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/eigen.h>
+namespace py = pybind11;
+
+#endif
+
 #include "ribosomesimulator.h"
 #include <eigen3/Eigen/Dense>
 #include "concentrations_reader.h"
+#include <numeric>
 using namespace Simulations;
 
-RibosomeSimulator::RibosomeSimulator(csv_utils::concentrations_reader& cr)
+#ifndef CMAKE_BUILD
+PYBIND11_PLUGIN(ribosomesimulator){
+    pybind11::module mod("ribosomesimulator", "auto-compiled c++ extension");
+
+    py::class_<Gillespie> (mod, "gillespie")
+    .def(py::init<>()) //constructor
+    .def("setInitialPopulation", &Gillespie::setInitialPopulation)
+    .def("setIterationLimit", &Gillespie::setIterationLimit)
+    .def("run", &Gillespie::run);
+
+    py::class_<RibosomeSimulator, Gillespie> (mod, "ribosomesimulator")
+    .def(py::init<std::string&>()) //constructor
+    .def("setNumberOfRibosomes", &RibosomeSimulator::setNumberOfRibosomes)
+    .def("setCodonForSimulation", &RibosomeSimulator::setCodonForSimulation)
+    .def("run_and_get_times", [](RibosomeSimulator &rs) {float d=0.0; float t=0.0; rs.run_and_get_times(d, t); return std::make_tuple(d, t); });
+    
+    return mod.ptr();
+
+}
+#endif
+
+
+RibosomeSimulator::RibosomeSimulator(const std::string file_name)
 {
+    csv_utils::concentrations_reader cr;
+    cr.load_concentrations(file_name);
+    std::vector<csv_utils::concentration_entry> concentrations_vector;
     concentrations_reader = cr;
+    // copied code from RibosomeSimulator(csv_utils::concentrations_reader& cr)
+    //TODO: NEEDS TO IMPROVE software engineering here.
     std::vector<std::string> stop_codons = {"UAG", "UAA", "UGA"};
     std::vector<csv_utils::concentration_entry> codons_concentrations;
     cr.get_contents(codons_concentrations);
@@ -17,14 +67,14 @@ RibosomeSimulator::RibosomeSimulator(csv_utils::concentrations_reader& cr)
             reactions_map[entry.codon] = rs;
         }
     }
-//     //print all reactions.
-//     for (std::pair<std::string, ReactionsSet> element:reactions_map){
-//         std::cout<<"Starting new reactions set: "<< element.first <<"\n ++++++++++++\n";
-//         for (Eigen::MatrixXi m: element.second.reactions_vector) {
-//             std::cout<<"Reaction Matrix = \n"<< m<<"\n---------\n";
-//         }
-//         std::cout<<"Finished reactions set\n ++++++++++++\n";
-//     }
+}
+
+void RibosomeSimulator::setNumberOfRibosomes(int nrib)
+{
+    Eigen::MatrixXi population(32, 1);
+    population.fill(0);
+    population(0,0) = nrib;
+    Gillespie::setInitialPopulation(population);
 }
 
 void RibosomeSimulator::setCodonForSimulation(const std::string& codon)
@@ -40,18 +90,20 @@ void RibosomeSimulator::run_and_get_times(float& decoding_time, float& transloca
 
 void RibosomeSimulator::getDecodingAndTranslocationTimes(float& decoding_time, float& translocation_time)
 {
-    Eigen::MatrixXi population;
-     translocation_time = 0;
-    for (int i = population_history.size() - 1; i > -1; i--) {
-        population = population_history.at(i);
-        if (population(23,0) == 1) {
-            translocation_time += dt_history.at(i);
-            break;
-        }
+    float sum = 0;
+    int translocation_index = 0, i = 0;
+    decoding_time = 0;
+    translocation_time = 0;
+    for (Eigen::MatrixXi population:population_history) {
+        if (population(24,0) == 1) translocation_index = i;
+        i++;
     }
-    decoding_time = total_time - translocation_time;
+    for (int ii = 0; ii < translocation_index; ii++) {
+        decoding_time += dt_history[ii];
+    }
+    for (unsigned int ii = translocation_index; ii < dt_history.size(); ii++) translocation_time += dt_history[ii];
+    sum = std::accumulate(dt_history.begin(), dt_history.end(), 0.0f);
 }
-
 ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration_entry& codon)
 {
     float totalconc = 1.9e-4;
@@ -93,7 +145,7 @@ ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration
     float near5f = 1000;
     float neardiss = 1000;
     float near6f = 60;
-    float near7f = 200;
+//    float near7f = 200;
 
     // constants for noncognate interaction in 1/sec.
     // Non-cognates are assumed to not undergo any significant

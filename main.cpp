@@ -1,4 +1,5 @@
  #include <iostream>
+ #include <iomanip>
  #include "gillespie.cpp"
  #include "reactionsset.cpp"
  #include "concentrations_reader.cpp"
@@ -6,6 +7,7 @@
  #include "ribosomesimulator.cpp"
 
 
+ 
  void testGillespie()
  {
     // create one reaction matrix
@@ -31,28 +33,24 @@
 int main(int argc, char **argv) {
     std::cout << "Hello, world!" << std::endl;
     csv_utils::concentrations_reader cr;
-    std::vector<csv_utils::concentration_entry> concentrations_vector;
-    Simulations::RibosomeSimulator rs(cr);
-//         for (std::pair<std::string, ReactionsSet> element:rs.reactions_map){
-//         std::cout<<"Starting new reactions set: "<< element.first <<"\n ++++++++++++\n";
-//         for (Eigen::MatrixXi m: element.second.reactions_vector) {
-//             std::cout<<"Reaction Matrix = \n"<< m<<"\n---------\n";
-//         }
-//         std::cout<<"Finished reactions set\n ++++++++++++\n";
-//     }
+    cr.load_concentrations("../../../Projects/RSim/data_with_times/concentrations.csv");
+    Simulations::RibosomeSimulator rs("../../../Projects/RSim/data_with_times/concentrations.csv");
     rs.setIterationLimit(1000);
     // create a matrix with the initial species population.
-    Eigen::MatrixXi population(32, 1);
-    population.fill(0);
-    population(0,0) = 1;
-    rs.setInitialPopulation(population);
-    std::string codon = "AAA";
-    rs.setCodonForSimulation(codon);
+    rs.setNumberOfRibosomes(1);
+    
     float decoding, translocating;
-    rs.run_and_get_times(decoding, translocating);
-    std::cout<<" decoding time = "<< decoding << ", translocating time = " << translocating<<", Total time = "<<rs.total_time<<"\n";
-//     for (float dt:rs.dt_history) {
-//         std::cout<<"dt = "<<dt<<"\n";
-//     }
+    std::vector<std::string> codons;
+    cr.get_codons_vector(codons);
+     std::cout<<std::setprecision(10);
+    for (std::string codon:codons){
+        rs.setCodonForSimulation(codon);
+        std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"<<"                      "<<codon<<"                        \n"<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+        for (int i = 0 ; i < 10000; i++){
+            rs.run_and_get_times(decoding, translocating);
+            std::cout<<" decoding time = "<< decoding << ", translocating time = " << translocating<<", Total time = "<<(decoding + translocating)<<"\n";
+        }
+    }
+
     return 0;
 }

@@ -25,14 +25,13 @@ void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  float k)
         maxCol = -1;
     }
     k_pop_index.push_back(std::make_tuple(k, maxRow, maxCol));
-//     std::cout << "Max: " << max <<  ", at: " << maxRow << "," << maxCol;
 }
 
 void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXf& as_vector, Eigen::VectorXi& reaction_number_vector)
 {
     std::vector<float> as;
     std::vector<int> reaction_number;
-    for (int i = 0; i < k_pop_index.size(); i++){
+    for (unsigned int i = 0; i < k_pop_index.size(); i++){
         auto k_and_index = k_pop_index.at(i); //get the first element.
         if (std::get<1>(k_and_index) < 0){
             //zero order reaction. no need for species.
@@ -48,8 +47,7 @@ void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXf& as
         }
     }
     as_vector = Eigen::VectorXf::Map(as.data(), as.size());
-    reaction_number_vector = Eigen::VectorXi::Map(reaction_number.data(), reaction_number.size());    
-    //std::cout<< " as = "<< as_vector << "\nreactions number = "<< reaction_number_vector;
+    reaction_number_vector = Eigen::VectorXi::Map(reaction_number.data(), reaction_number.size());
 }
 
 

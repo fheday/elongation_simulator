@@ -2,8 +2,6 @@
 #include <vector>
 #include <random>
 #include <math.h>
-// #include <boost/algorithm/cxx11/any_of.hpp>
-// #include <boost/multi_array.hpp>
 #include <eigen3/Eigen/Dense>
 #include <limits>
 using namespace Simulations;

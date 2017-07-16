@@ -14,9 +14,10 @@ namespace csv_utils {
     class concentrations_reader
     {
     public:
-        concentrations_reader(std::string);
-        concentrations_reader() : concentrations_reader("../../../Projects/RSim/data_with_times/concentrations.csv") {};
+        concentrations_reader();
+        void load_concentrations(std::string);
         void get_contents(std::vector<concentration_entry>&);
+        void get_codons_vector(std::vector<std::string>&);
         std::vector<concentration_entry> contents;
     };
 }
