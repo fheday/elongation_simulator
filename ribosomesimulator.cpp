@@ -32,7 +32,6 @@ PYBIND11_PLUGIN(ribosomesimulator){
 
     py::class_<Gillespie> (mod, "gillespie")
     .def(py::init<>()) //constructor
-    .def("setInitialPopulation", &Gillespie::setInitialPopulation)
     .def("setIterationLimit", &Gillespie::setIterationLimit)
     .def("run", &Gillespie::run);
 
