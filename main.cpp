@@ -33,8 +33,8 @@
 int main(int argc, char **argv) {
     std::cout << "Hello, world!" << std::endl;
     csv_utils::concentrations_reader cr;
-    cr.load_concentrations("../../../Projects/RSim/data_with_times/concentrations.csv");
-    Simulations::RibosomeSimulator rs("../../../Projects/RSim/data_with_times/concentrations.csv");
+    cr.load_concentrations("/home/heday/Projects/RSim/data_with_times/concentrations.csv");
+    Simulations::RibosomeSimulator rs("/home/heday/Projects/RSim/data_with_times/concentrations.csv");
     rs.setIterationLimit(1000);
     // create a matrix with the initial species population.
     rs.setNumberOfRibosomes(1);
@@ -42,14 +42,19 @@ int main(int argc, char **argv) {
     float decoding, translocating;
     std::vector<std::string> codons;
     cr.get_codons_vector(codons);
-     std::cout<<std::setprecision(10);
+    std::cout<<std::setprecision(10);
+    float total_time = 0;
     for (std::string codon:codons){
         rs.setCodonForSimulation(codon);
-        std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"<<"                      "<<codon<<"                        \n"<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+        total_time = 0;
+        std::cout<<"\"" <<codon<<"\"";
+//         std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"<<"                      "<<codon<<"                        \n"<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
         for (int i = 0 ; i < 10000; i++){
             rs.run_and_get_times(decoding, translocating);
-            std::cout<<" decoding time = "<< decoding << ", translocating time = " << translocating<<", Total time = "<<(decoding + translocating)<<"\n";
+//             std::cout<<" decoding time = "<< decoding << ", translocating time = " << translocating<<", Total time = "<<(decoding + translocating)<<"\n";
+            total_time+= decoding + translocating;
         }
+        std::cout<<", "<<(total_time/10000.0f)<<"\n";
     }
 
     return 0;
