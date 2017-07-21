@@ -25,9 +25,9 @@ void concentrations_reader::load_concentrations(std::string file_name)
     contents.clear();
     std::string codon;
     std::string three_letter;
-    float wc_cognate_conc;
-    float wobblecognate_conc;
-    float nearcognate_conc;
+    double wc_cognate_conc;
+    double wobblecognate_conc;
+    double nearcognate_conc;
     std::string tmp_str;
     std::vector<std::string> stop_codons = {"UAG", "UAA", "UGA"}; // list of stop codons.
     bool header = true;

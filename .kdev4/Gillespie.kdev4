@@ -7,7 +7,7 @@ Current Build Directory Index=0
 
 [CMake][CMake Build Directory 0]
 Build Directory Path=/home/heday/Projects/Gillespie-Cpp/build
-Build Type=Debug
+Build Type=RelWithDebInfo
 CMake Binary=/usr/bin/cmake
 Environment Profile=
 Extra Arguments=

@@ -10,15 +10,15 @@ class ReactionsSet
 {
 public:
     ReactionsSet();
-    void addReaction(Eigen::MatrixXi reaction,  float k);
+    void addReaction(Eigen::MatrixXi reaction,  double k);
     Eigen::MatrixXi getReaction(int);
-    void getAlphas(const Eigen::MatrixXi&, Eigen::VectorXf&,  Eigen::VectorXi&);
+    void getAlphas(const Eigen::MatrixXi&, Eigen::VectorXd&,  Eigen::VectorXi&);
     ~ReactionsSet();
     std::vector<Eigen::MatrixXi> reactions_vector;
-    std::vector<float> ks;
+    std::vector<double> ks;
 
 private:
-    std::vector<std::tuple<float, int, int>> k_pop_index;
+    std::vector<std::tuple<double, int, int>> k_pop_index;
 };
 }
 #endif                                                      // REACTIONSSET_H

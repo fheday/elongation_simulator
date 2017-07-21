@@ -44,22 +44,35 @@ void Gillespie::run()
     population_history.clear();
     Eigen::MatrixXi populations = initial_populations;
     Eigen::MatrixXi updated_populations;
-    Eigen::VectorXf as;
+    Eigen::VectorXd as;
     Eigen::VectorXi reactions_index;
     // initialize the random generator
+//     std::random_device rd;  //Will be used to obtain a seed for the random number engine
+//     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+//     std::uniform_real_distribution<> dis(std::numeric_limits<float>::min(), 1.0);
+    
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_real_distribution<> dis(std::numeric_limits<float>::min(), 1.0);
-    float r1 = 0, r2 = 0;
-    float tau = 0, clock = 0.0;
+    std::uniform_real_distribution<> dis(0, 1);
+     
+//     std::random_device rd;
+//     std::mt19937 e2(rd());
+//     std::uniform_real_distribution<> dist(0, 1);
+    
+//     auto gen = bind(std::uniform_real_distribution<>{0,1}, std::default_random_engine{});
+//     auto gen = bind(std::normal_distribution<double>{0.5,0.125}, std::default_random_engine{});
+
+    
+    double r1 = 0, r2 = 0;
+    double tau = 0, clock = 0.0;
     for (int i = 0; i < iteration_limit; i++)
     {
         population_history.push_back(populations);
         dt_history.push_back(tau);
         // randomly generate parameter for calculating dt
-        r1 = dis(gen);
+        r1 = dis(gen);//dis(gen);
         // randomly generate parameter for selecting reaction
-        r2 = dis(gen);
+        r2 = dis(gen);//dis(gen);
         // calculate an
         reactions.getAlphas(populations, as, reactions_index);
         if (as.size() == 0)
@@ -67,10 +80,10 @@ void Gillespie::run()
             // no available reactions, quit loop prematurely.
             break;
         }
-        float a0 = as.sum();
+        double a0 = as.sum();
         tau = (1.0/a0) * log(1.0/r1);  // calculate time of next reaction
         // select next reaction to execute
-        float cumsum = 0;
+        double cumsum = 0;
         int selected_index = -1;
         do {
             selected_index++;

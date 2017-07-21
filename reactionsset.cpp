@@ -8,15 +8,15 @@ ReactionsSet::ReactionsSet()
     k_pop_index.clear(); // also remove the pre-calculated values.
 }
 
-void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  float k)
+void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  double k)
 {
     reactions_vector.push_back(reaction); // add reaction to the list
     ks.push_back(k); // add propensity coefficient to the list.
     // now we get the index of the consumed species from the reaction.
     Eigen::MatrixXi indexes = (reaction.array() < 0).cast<int>();
     //get location of maximum (we expect only one value=1, others zero.
-    Eigen::MatrixXf::Index maxRow, maxCol;
-    float max = indexes.maxCoeff(&maxRow, &maxCol);
+    Eigen::MatrixXd::Index maxRow, maxCol;
+    double max = indexes.maxCoeff(&maxRow, &maxCol);
     //add the tuple k, row, col to the k_pop_index vector.
     //this will help us to calculate the alphas later.
     if (max == 0){ 
@@ -27,9 +27,9 @@ void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  float k)
     k_pop_index.push_back(std::make_tuple(k, maxRow, maxCol));
 }
 
-void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXf& as_vector, Eigen::VectorXi& reaction_number_vector)
+void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXd& as_vector, Eigen::VectorXi& reaction_number_vector)
 {
-    std::vector<float> as;
+    std::vector<double> as;
     std::vector<int> reaction_number;
     for (unsigned int i = 0; i < k_pop_index.size(); i++){
         auto k_and_index = k_pop_index.at(i); //get the first element.
@@ -46,7 +46,7 @@ void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXf& as
             }
         }
     }
-    as_vector = Eigen::VectorXf::Map(as.data(), as.size());
+    as_vector = Eigen::VectorXd::Map(as.data(), as.size());
     reaction_number_vector = Eigen::VectorXi::Map(reaction_number.data(), reaction_number.size());
 }
 

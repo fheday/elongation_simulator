@@ -39,7 +39,7 @@ PYBIND11_PLUGIN(ribosomesimulator){
     .def(py::init<std::string&>()) //constructor
     .def("setNumberOfRibosomes", &RibosomeSimulator::setNumberOfRibosomes)
     .def("setCodonForSimulation", &RibosomeSimulator::setCodonForSimulation)
-    .def("run_and_get_times", [](RibosomeSimulator &rs) {float d=0.0; float t=0.0; rs.run_and_get_times(d, t); return std::make_tuple(d, t); });
+    .def("run_and_get_times", [](RibosomeSimulator &rs) {double d=0.0; double t=0.0; rs.run_and_get_times(d, t); return std::make_tuple(d, t); });
     
     return mod.ptr();
 
@@ -81,13 +81,13 @@ void RibosomeSimulator::setCodonForSimulation(const std::string& codon)
     setReactionsSet(reactions_map.at(codon));
 }
 
-void RibosomeSimulator::run_and_get_times(float& decoding_time, float& translocation_time)
+void RibosomeSimulator::run_and_get_times(double& decoding_time, double& translocation_time)
 {
     Gillespie::run();
     getDecodingAndTranslocationTimes(decoding_time, translocation_time);
 }
 
-void RibosomeSimulator::getDecodingAndTranslocationTimes(float& decoding_time, float& translocation_time)
+void RibosomeSimulator::getDecodingAndTranslocationTimes(double& decoding_time, double& translocation_time)
 {
     int translocation_index = 0, i = 0;
     decoding_time = 0; // avoid propagating errors.
@@ -103,67 +103,67 @@ void RibosomeSimulator::getDecodingAndTranslocationTimes(float& decoding_time, f
 }
 ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration_entry& codon)
 {
-    float totalconc = 1.9e-4;
-    float nonconc = totalconc - codon.wc_cognate_conc - codon.wobblecognate_conc - codon.nearcognate_conc;
+    double totalconc = 1.9e-4;
+    double nonconc = totalconc - codon.wc_cognate_conc - codon.wobblecognate_conc - codon.nearcognate_conc;
     // based on yeast value of 226000 molecules per cell as determined
     // in von der Haar 2008 (PMID 18925958)
-    float eEF2conc = 1.36e-5;
+    double eEF2conc = 1.36e-5;
     // constants for WCcognate interaction in 1/sec
-    float WC1f = 1.4e8*codon.wc_cognate_conc;
-    float WC1r = 85;
-    float WC2f = 190;
-    float WC2r = 0.23;
-    float WC3f = 260;
-    float WC4f = 1000;
-    float WC5f = 1000;
-    float WCdiss = 60;
-    float WC6f = 1000;
-    float WC7f = 200;
+    double WC1f = 1.4e8*codon.wc_cognate_conc;
+    double WC1r = 85;
+    double WC2f = 190;
+    double WC2r = 0.23;
+    double WC3f = 260;
+    double WC4f = 1000;
+    double WC5f = 1000;
+    double WCdiss = 60;
+    double WC6f = 1000;
+    double WC7f = 200;
 
     // constants for wobblecognate interaction in 1/sec
-    float wobble1f = 1.4e8*codon.wobblecognate_conc;
-    float wobble1r = 85;
-    float wobble2f = 190;
-    float wobble2r = 1;
-    float wobble3f = 25;
-    float wobble4f = 1000;
-    float wobble5f = 1000;
-    float wobblediss = 1.1;
-    float wobble6f = 1.6;
-    float wobble7f = 200;
+    double wobble1f = 1.4e8*codon.wobblecognate_conc;
+    double wobble1r = 85;
+    double wobble2f = 190;
+    double wobble2r = 1;
+    double wobble3f = 25;
+    double wobble4f = 1000;
+    double wobble5f = 1000;
+    double wobblediss = 1.1;
+    double wobble6f = 1.6;
+    double wobble7f = 200;
 
     // constants for nearcognate interaction in 1/sec
-    float near1f = 1.4e8*codon.nearcognate_conc;
-    float near1r = 85;
-    float near2f = 190;
-    float near2r = 80;
-    float near3f = 0.4;
-    float near4f = 1000;
-    float near5f = 1000;
-    float neardiss = 1000;
-    float near6f = 60;
-//    float near7f = 200;
+    double near1f = 1.4e8*codon.nearcognate_conc;
+    double near1r = 85;
+    double near2f = 190;
+    double near2r = 80;
+    double near3f = 0.4;
+    double near4f = 1000;
+    double near5f = 1000;
+    double neardiss = 1000;
+    double near6f = 60;
+    double near7f = 200;
 
     // constants for noncognate interaction in 1/sec.
     // Non-cognates are assumed to not undergo any significant
     // interaction but to simply dissociate quickly.
-    float non1f = 1.4e8*nonconc;
-    float non1r = 1e5;
+    double non1f = 1.4e8*nonconc;
+    double non1r = 1e5;
 
     // constants for translocation in 1/sec
     // 150 uM-1 s-1 = is from Fluitt et al 2007 (PMID 17897886)
-    float trans1f = eEF2conc*1.5e8;
-    float trans1r = 140;
-    float trans2 = 250;
-    float trans3 = 350;
-    float trans4 = 1000;
-    float trans5 = 1000;
-    float trans6 = 1000;
-    float trans7 = 1000;
-    float trans8 = 1000;
-    float trans9 = 1000;
+    double trans1f = eEF2conc*1.5e8;
+    double trans1r = 140;
+    double trans2 = 250;
+    double trans3 = 350;
+    double trans4 = 1000;
+    double trans5 = 1000;
+    double trans6 = 1000;
+    double trans7 = 1000;
+    double trans8 = 1000;
+    double trans9 = 1000;
     
-    std::vector<float> ks = {non1f, near1f, wobble1f, WC1f, non1r, near1r, near2f, near2r, near3f, near4f, near5f, neardiss, near6f, near4f, trans1f, wobble1r, wobble2f, wobble2r, wobble3f, wobble4f, wobble5f, wobblediss, wobble6f, wobble7f, trans1f, WC1r, WC2f, WC2r, WC3f, WC4f, WC5f, WCdiss, WC6f, WC7f, trans1f, trans1r, trans2, trans3, trans4, trans5, trans6, trans7, trans8, trans9};
+    std::vector<double> ks = {non1f, near1f, wobble1f, WC1f, non1r, near1r, near2f, near2r, near3f, near4f, near5f, neardiss, near6f, near7f, trans1f, wobble1r, wobble2f, wobble2r, wobble3f, wobble4f, wobble5f, wobblediss, wobble6f, wobble7f, trans1f, WC1r, WC2f, WC2r, WC3f, WC4f, WC5f, WCdiss, WC6f, WC7f, trans1f, trans1r, trans2, trans3, trans4, trans5, trans6, trans7, trans8, trans9};
 
     Eigen::MatrixXi reactionMatrix[44];
     // build the vector of reactions.
