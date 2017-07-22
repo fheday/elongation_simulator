@@ -9,6 +9,7 @@
  #include "ribosomesimulator.cpp"
  #include "enlogationsimulator.cpp"
  #include "ratecalculator.cpp"
+ #include "mrna_reader.cpp"
  
  
  
@@ -130,13 +131,10 @@
  
  int main(int argc, char **argv) {
      std::cout << "Hello, world!" << std::endl;
-//      calculate_codons_times("../../RSim/data_with_times/concentrations.csv", 10000,  "../data/codons/average_time.csv", "../data/codons/samplevectors.csv");
-     RateCalculator rc;
-     rc.loadRates("../data/codons/average_time.csv");
-     for(auto elem : rc.codon_rates)
-    {
-        std::cout << elem.first << " " << elem.second << "\n";
-    }
+     mRNAReader mrr;
+     mrr.loadRateCalculatorFile("../data/codons/average_time.csv");
+     mrr.loadmRNAFile("../../PolisomeSimulator/mRNA/S288C_YOR271C_FSF1_coding.fsa");
+     std::cout<<"mRNA = "<<"\n"<<mrr.mRNA_sequence;
      return 0;
  }
  
