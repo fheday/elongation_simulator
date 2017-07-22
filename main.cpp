@@ -137,7 +137,8 @@
      std::cout<<"mRNA = "<<"\n"<<mrr.mRNA_sequence;
      mrr.generateInitialPopulation();
      std::cout<<"initial population = \n";
-     std::cout<<mrr.initial_population;
+     std::cout<<mrr.initial_population<<"\n";
+     mrr.generateReactions();
      return 0;
  }
  
