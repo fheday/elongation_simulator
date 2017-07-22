@@ -8,6 +8,12 @@ ReactionsSet::ReactionsSet()
     k_pop_index.clear(); // also remove the pre-calculated values.
 }
 
+void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  double k, std::string reaction_id)
+{
+    addReaction(reaction, k);
+    decrptions.push_back(reaction_id); //reaction's description. e.g.: in a mRNA it would be the codon.
+}
+
 void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  double k)
 {
     reactions_vector.push_back(reaction); // add reaction to the list
