@@ -135,6 +135,9 @@
      mrr.loadRateCalculatorFile("../data/codons/average_time.csv");
      mrr.loadmRNAFile("../../PolisomeSimulator/mRNA/S288C_YOR271C_FSF1_coding.fsa");
      std::cout<<"mRNA = "<<"\n"<<mrr.mRNA_sequence;
+     mrr.generateInitialPopulation();
+     std::cout<<"initial population = \n";
+     std::cout<<mrr.initial_population;
      return 0;
  }
  

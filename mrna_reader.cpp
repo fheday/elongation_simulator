@@ -37,6 +37,11 @@ void mRNAReader::loadmRNAFile(std::string mRNA_file_name)
 
 void mRNAReader::generateInitialPopulation()
 {
+        int n_codons = mRNA_sequence.size()/3;
+        initial_population = Eigen::MatrixXi(4, n_codons);
+        initial_population.fill(0);
+        initial_population.row(0).setOnes();
+        initial_population.row(1).setOnes();
 }
 
 void mRNAReader::generateReactions()
