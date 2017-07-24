@@ -69,7 +69,6 @@ void Gillespie::run()
             break;
         }
         double a0 = as.sum();
-        tau = (1.0/a0) * log(1.0/r1);  // calculate time of next reaction
         // select next reaction to execute
         double cumsum = 0;
         int selected_index = -1;
@@ -88,6 +87,8 @@ void Gillespie::run()
         }  
         else
         {
+            std::string codon_name = reactions.decrptions[selected_index];
+            tau = getReactionTime(a0, r1, codon_name);// calculate time of next reaction
             // update time / clock
             clock += tau;
             // update population
@@ -97,6 +98,11 @@ void Gillespie::run()
     }
     // finished. Plot population snapshots
     total_time = clock;
+}
+
+double Gillespie::getReactionTime(double a0, double r1, std::string codon)
+{
+    return (1.0/a0) * log(1.0/r1);  // calculate time of next reaction
 }
 
 

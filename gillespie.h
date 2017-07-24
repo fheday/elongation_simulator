@@ -17,6 +17,7 @@ namespace Simulations {
         void setReactionsSet(const ReactionsSet&);
         void setInitialPopulation(const Eigen::MatrixXi&);
         void setIterationLimit(int);
+        virtual double getReactionTime(double, double, std::string);
         ~Gillespie();
         int iteration_limit;
         Eigen::MatrixXi initial_populations;
