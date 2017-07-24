@@ -4,18 +4,18 @@
 namespace py = pybind11;
 #endif
 
-#include "concentrations_reader.h"
+#include "concentrationsreader.h"
 #include <fstream>
 #include <error.h>
 using namespace csv_utils;
 
 
-concentrations_reader::concentrations_reader()
+ConcentrationsReader::ConcentrationsReader()
 {
     contents.clear();
 }
 
-void concentrations_reader::load_concentrations(std::string file_name)
+void ConcentrationsReader::loadConcentrations(std::string file_name)
 {
     std::ifstream ist{file_name};
 
@@ -55,13 +55,13 @@ void concentrations_reader::load_concentrations(std::string file_name)
 }
 
 
-void concentrations_reader::get_contents(std::vector<concentration_entry>& result)
+void ConcentrationsReader::getContents(std::vector<concentration_entry>& result)
 {
     result = contents;
 }
 
 
-void concentrations_reader::get_codons_vector(std::vector<std::string>& codons_vector)
+void ConcentrationsReader::getCodonsVector(std::vector<std::string>& codons_vector)
 {
     codons_vector.clear();
     for (concentration_entry entry:contents) {

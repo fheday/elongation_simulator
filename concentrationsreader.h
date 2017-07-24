@@ -11,13 +11,13 @@ namespace csv_utils {
         double nearcognate_conc;
     };
     
-    class concentrations_reader
+    class ConcentrationsReader
     {
     public:
-        concentrations_reader();
-        void load_concentrations(std::string);
-        void get_contents(std::vector<concentration_entry>&);
-        void get_codons_vector(std::vector<std::string>&);
+        ConcentrationsReader();
+        void loadConcentrations(std::string);
+        void getContents(std::vector<concentration_entry>&);
+        void getCodonsVector(std::vector<std::string>&);
         std::vector<concentration_entry> contents;
     };
 }
