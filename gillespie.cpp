@@ -47,22 +47,10 @@ void Gillespie::run()
     Eigen::VectorXd as;
     Eigen::VectorXi reactions_index;
     // initialize the random generator
-//     std::random_device rd;  //Will be used to obtain a seed for the random number engine
-//     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-//     std::uniform_real_distribution<> dis(std::numeric_limits<float>::min(), 1.0);
-    
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
     std::uniform_real_distribution<> dis(0, 1);
      
-//     std::random_device rd;
-//     std::mt19937 e2(rd());
-//     std::uniform_real_distribution<> dist(0, 1);
-    
-//     auto gen = bind(std::uniform_real_distribution<>{0,1}, std::default_random_engine{});
-//     auto gen = bind(std::normal_distribution<double>{0.5,0.125}, std::default_random_engine{});
-
-    
     double r1 = 0, r2 = 0;
     double tau = 0, clock = 0.0;
     for (int i = 0; i < iteration_limit; i++)
