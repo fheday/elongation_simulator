@@ -22,7 +22,7 @@ namespace py = pybind11;
 
 #include "ribosomesimulator.h"
 #include <eigen3/Eigen/Dense>
-#include "concentrations_reader.h"
+#include "concentrationsreader.h"
 #include <numeric>
 using namespace Simulations;
 
@@ -47,17 +47,22 @@ PYBIND11_PLUGIN(ribosomesimulator){
 #endif
 
 
-RibosomeSimulator::RibosomeSimulator(const std::string file_name)
+RibosomeSimulator::RibosomeSimulator()
 {
-    csv_utils::concentrations_reader cr;
-    cr.load_concentrations(file_name);
+    
+}
+
+void Simulations::RibosomeSimulator::loadConcentrations(std::string file_name)
+{
+    csv_utils::ConcentrationsReader cr;
+    cr.loadConcentrations(file_name);
     std::vector<csv_utils::concentration_entry> concentrations_vector;
     concentrations_reader = cr;
     // copied code from RibosomeSimulator(csv_utils::concentrations_reader& cr)
     //TODO: NEEDS TO IMPROVE software engineering here.
     std::vector<std::string> stop_codons = {"UAG", "UAA", "UGA"};
     std::vector<csv_utils::concentration_entry> codons_concentrations;
-    cr.get_contents(codons_concentrations);
+    cr.getContents(codons_concentrations);
     for (csv_utils::concentration_entry entry:codons_concentrations) {
         auto result = std::find(stop_codons.begin(), stop_codons.end(), entry.codon);
         if (result == end(stop_codons)) {
@@ -67,6 +72,7 @@ RibosomeSimulator::RibosomeSimulator(const std::string file_name)
         }
     }
 }
+
 
 void RibosomeSimulator::setNumberOfRibosomes(int nrib)
 {
@@ -164,6 +170,8 @@ ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration
     double trans9 = 1000;
     
     std::vector<double> ks = {non1f, near1f, wobble1f, WC1f, non1r, near1r, near2f, near2r, near3f, near4f, near5f, neardiss, near6f, near7f, trans1f, wobble1r, wobble2f, wobble2r, wobble3f, wobble4f, wobble5f, wobblediss, wobble6f, wobble7f, trans1f, WC1r, WC2f, WC2r, WC3f, WC4f, WC5f, WCdiss, WC6f, WC7f, trans1f, trans1r, trans2, trans3, trans4, trans5, trans6, trans7, trans8, trans9};
+    
+    std::vector<std::string> reactions_identifiers = {"non1f", "near1f", "wobble1f", "WC1f", "non1r", "near1r", "near2f", "near2r", "near3f", "near4f", "near5f", "neardiss", "near6f", "near7f", "trans1f", "wobble1r", "wobble2f", "wobble2r", "wobble3f", "wobble4f", "wobble5f", "wobblediss", "wobble6f", "wobble7f", "trans1f", "WC1r", "WC2f", "WC2r", "WC3f", "WC4f", "WC5f", "WCdiss", "WC6f", "WC7f", "trans1f", "trans1r", "trans2", "trans3", "trans4", "trans5", "trans6", "trans7", "trans8", "trans9"};
 
     Eigen::MatrixXi reactionMatrix[44];
     // build the vector of reactions.
@@ -434,7 +442,8 @@ ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration
     ReactionsSet rs;
     int ii = 0;
     for (Eigen::MatrixXi m:reactionMatrix) {
-        rs.addReaction(m, ks.at(ii++));
+        rs.addReaction(m, ks.at(ii), reactions_identifiers.at(ii));
+        ii++;
     }
     return rs;
 }
