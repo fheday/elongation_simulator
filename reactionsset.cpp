@@ -10,8 +10,8 @@ ReactionsSet::ReactionsSet()
 
 void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  double k, std::string reaction_id)
 {
-    addReaction(reaction, k);
-    decrptions.push_back(reaction_id); //reaction's description. e.g.: in a mRNA it would be the codon.
+    addReaction(reaction, k); // add the reaction.
+    decrptions.push_back(reaction_id); //add reaction's description. e.g.: in a mRNA it would be the codon.
 }
 
 void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  double k)
@@ -19,18 +19,15 @@ void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  double k)
     reactions_vector.push_back(reaction); // add reaction to the list
     ks.push_back(k); // add propensity coefficient to the list.
     // now we get the index of the consumed species from the reaction.
-    Eigen::MatrixXi indexes = (reaction.array() < 0).cast<int>();
-    //get location of maximum (we expect only one value=1, others zero.
-    Eigen::MatrixXd::Index maxRow, maxCol;
-    double max = indexes.maxCoeff(&maxRow, &maxCol);
-    //add the tuple k, row, col to the k_pop_index vector.
-    //this will help us to calculate the alphas later.
-    if (max == 0){ 
-        //zero order reactions will have a negative col, row as marker
-        maxRow = -1;
-        maxCol = -1;
+    std::vector<std::tuple<int,int>> reactants;
+    for (int i = 0; i < reaction.cols(); i++){
+        for (int j = 0; j < reaction.rows();  j++) {
+            if (reaction(j, i) < 0 ){
+                reactants.push_back(std::make_tuple(j, i));
+            }
+        }
     }
-    k_pop_index.push_back(std::make_tuple(k, maxRow, maxCol));
+    k_pop_index.push_back(std::make_tuple(k, reactants));
 }
 
 void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXd& as_vector, Eigen::VectorXi& reaction_number_vector)
@@ -38,16 +35,20 @@ void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXd& as
     std::vector<double> as;
     std::vector<int> reaction_number;
     for (unsigned int i = 0; i < k_pop_index.size(); i++){
-        auto k_and_index = k_pop_index.at(i); //get the first element.
-        if (std::get<1>(k_and_index) < 0){
+        std::tuple<double, std::vector<std::tuple<int, int>>> k_and_index = k_pop_index.at(i);
+        double k = std::get<0>(k_and_index);
+        if (std::get<1>(k_and_index).empty() && k > 0) {
             //zero order reaction. no need for species.
-            as.push_back(std::get<0>(k_and_index));
-            reaction_number.push_back(i); //save index number.
+            as.push_back(std::get<0>(k_and_index)); // a = propensity.
+            reaction_number.push_back(i);
         } else {
             // first order reaction. dependent on species.
-            int specie_population = species(std::get<1>(k_and_index), std::get<2>(k_and_index));
-            if (specie_population != 0){
-                as.push_back(std::get<0>(k_and_index) * specie_population);
+            int specie_population = 1;
+            for (std::tuple<int, int> element:std::get<1>(k_and_index)){
+                specie_population *= species(std::get<0>(element), std::get<1>(element));
+            }
+            if (k !=0 && specie_population != 0){
+                as.push_back(k * specie_population);
                 reaction_number.push_back(i); //save index number.
             }
         }

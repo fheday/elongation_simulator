@@ -18,9 +18,10 @@ public:
     std::vector<Eigen::MatrixXi> reactions_vector;
     std::vector<double> ks;
     std::vector<std::string> decrptions;
-
 private:
-    std::vector<std::tuple<double, int, int>> k_pop_index;
+    //the elements of this vector are: k (reaction propensity), 
+    //vector of indexes (col, row) of the reactants.
+    std::vector<std::tuple<double, std::vector<std::tuple<int, int>>>> k_pop_index;
 };
 }
 #endif                                                      // REACTIONSSET_H
