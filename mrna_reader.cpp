@@ -35,6 +35,24 @@ void mRNAReader::loadmRNAFile(std::string mRNA_file_name)
     }
 }
 
+void mRNAReader::setInitiationRate(double val)
+{
+    if (val > 0) {
+        initiation_rate = val;
+    } else {
+        throw std::runtime_error("invalid initiation rate.");
+    }
+}
+
+void mRNAReader::setTerminationRate(double val)
+{
+    if (val > 0) {
+        termination_rate = val;
+    } else {
+        throw std::runtime_error("invalid termination rate.");
+    }
+}
+
 void mRNAReader::generateInitialPopulation()
 {
     int n_codons = mRNA_sequence.size()/3;
@@ -58,7 +76,7 @@ void mRNAReader::generateReactions()
     reactions_set.addReaction(matrix, initiation_rate, start_codon);
 
     for(int i =0; i< n_codons; i++) {
-        codon = mRNA_sequence.substr(i * 3,3 + i * 3);
+        codon = mRNA_sequence.substr(i * 3, 3);
         // Decoding
         matrix = Eigen::MatrixXi(4, n_codons);
         matrix.fill(0);

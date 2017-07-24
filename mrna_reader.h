@@ -16,6 +16,8 @@ namespace mRNA_utils {
         void loadmRNAFile(std::string);
         void generateInitialPopulation();
         void generateReactions();
+        void setInitiationRate(double);
+        void setTerminationRate(double);
         std::string mRNA_sequence;
         double termination_rate;
         double initiation_rate;
