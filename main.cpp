@@ -4,7 +4,7 @@
  #include <fstream>
  #include "gillespie.cpp"
  #include "reactionsset.cpp"
- #include "concentrations_reader.cpp"
+ #include "concentrationsreader.cpp"
  #include <vector>
  #include "ribosomesimulator.cpp"
  #include "enlogationsimulator.cpp"
@@ -48,9 +48,10 @@
   */
  std::map<std::string, double> calculate_codons_times(std::string concentrations_file_name, int iterations, std::string average_times_file_name, std::string times_vector_file_name)
  {
-     csv_utils::concentrations_reader cr;
-     cr.load_concentrations(concentrations_file_name);
-     Simulations::RibosomeSimulator rs(concentrations_file_name);
+     csv_utils::ConcentrationsReader cr;
+     cr.loadConcentrations(concentrations_file_name);
+     Simulations::RibosomeSimulator rs;
+     rs.loadConcentrations(concentrations_file_name);
      rs.setIterationLimit(2000);
      // create a matrix with the initial species population.
      rs.setNumberOfRibosomes(1);
@@ -58,7 +59,7 @@
      double decoding, translocating;
      std::vector<std::string> codons;
      std::map<std::string, double> codons_times;
-     cr.get_codons_vector(codons);
+     cr.getCodonsVector(codons);
      
      double total_translocating = 0, total_decoding=0, n = 0;
      std::ofstream averageTimesFile;
@@ -129,8 +130,27 @@
     return codons_times;
  }
  
- int main(int argc, char **argv) {
-     std::cout << "Hello, world!" << std::endl;
+ void test_ribosome_simulator(std::string concentrations_file_name="../../RSim/data_with_times/concentrations.csv")
+ {
+     csv_utils::ConcentrationsReader cr;
+     cr.loadConcentrations(concentrations_file_name);
+     Simulations::RibosomeSimulator rs;
+     rs.loadConcentrations(concentrations_file_name);
+     rs.setIterationLimit(2000);
+     // create a matrix with the initial species population.
+     rs.setNumberOfRibosomes(1);
+     rs.setCodonForSimulation("AAA");
+     rs.run();
+     for (float dt:rs.dt_history) {
+         std::cout<<"dt = "<<dt<<"\n";
+     }
+     double decoding, translocating;
+     rs.run_and_get_times(decoding, translocating);
+     std::cout<< "decoding : "<< decoding<<", translocating = "<<translocating<<"\n";
+ }
+ 
+ void test_mRNA_reader()
+ {
      mRNAReader mrr;
      mrr.loadRateCalculatorFile("../data/codons/average_time.csv");
      mrr.loadmRNAFile("../../PolisomeSimulator/mRNA/S288C_YOR271C_FSF1_coding.fsa");
@@ -139,6 +159,24 @@
      std::cout<<"initial population = \n";
      std::cout<<mrr.initial_population<<"\n";
      mrr.generateReactions();
+ }
+ 
+ int main(int argc, char **argv) {
+     std::cout << "Hello, world!" << std::endl;
+//      test_ribosome_simulator();
+     //run enlogation simulator.
+     Simulations::EnlogationSimulator es;
+     es.setAverageTimesFileName("../data/codons/average_time.csv");
+     es.set_concentrations_file_name("../../RSim/data_with_times/concentrations.csv");
+     es.set_mRna_file_name("../../PolisomeSimulator/mRNA/mRNA_sample_MinCFLuc.txt");
+     es.set_initiation_rate(1);
+     es.set_termination_rate(10);
+     es.setIterationLimit(1e6);
+     es.run();
+    for (float dt:es.dt_history) {
+         std::cout<<"dt = "<<dt<<"\n";
+     }
+     
      return 0;
  }
  
