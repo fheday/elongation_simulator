@@ -18,6 +18,7 @@ namespace Simulations {
         void set_concentrations_file_name(std::string);
         void setAverageTimesFileName(std::string);
         double getReactionTime(double, double, std::string) override;
+        void updateRibosomeHistory();
         double termination_rate = -1;
         double initiation_rate = -1;
         std::string mRNAFileName;
@@ -25,6 +26,7 @@ namespace Simulations {
         std::string average_times_file_name;
         mRNA_utils::mRNAReader mrna_reader;
         RibosomeSimulator ribosome_simulator;
+        std::vector<std::vector<int>> ribosome_positions_history;
     private:
         void intializeMRNAReader();
         std::vector<double> translocation_times;

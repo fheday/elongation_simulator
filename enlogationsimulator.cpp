@@ -103,3 +103,11 @@ double EnlogationSimulator::getReactionTime(double a0, double r1, std::string co
     return result;
 }
 
+void EnlogationSimulator::updateRibosomeHistory()
+{
+    std::vector<int> positions;
+    for (Eigen::MatrixXi population: population_history) {
+        for (int i = 0; i < population.cols(); i++)  if (population(i,2) > 0 || population(i,3) > 0 ) positions.push_back(i);
+            ribosome_positions_history.push_back(positions);
+        }
+}
