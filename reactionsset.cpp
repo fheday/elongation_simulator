@@ -34,8 +34,8 @@ void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXd& as
 {
     std::vector<double> as;
     std::vector<int> reaction_number;
-    for (unsigned int i = 0; i < k_pop_index.size(); i++){
-        std::tuple<double, std::vector<std::tuple<int, int>>> k_and_index = k_pop_index.at(i);
+    int i = 0;
+    for (std::tuple<double, std::vector<std::tuple<int, int>>> k_and_index : k_pop_index){
         double k = std::get<0>(k_and_index);
         if (std::get<1>(k_and_index).empty() && k > 0) {
             //zero order reaction. no need for species.
@@ -44,14 +44,14 @@ void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXd& as
         } else {
             // first order reaction. dependent on species.
             int specie_population = 1;
-            for (std::tuple<int, int> element:std::get<1>(k_and_index)){
-                specie_population *= species(std::get<0>(element), std::get<1>(element));
-            }
-            if (k !=0 && specie_population != 0){
+            for (std::tuple<int, int> element:std::get<1>(k_and_index)) specie_population *= species(std::get<0>(element), std::get<1>(element));
+            // store the reaction's propensity and the locations of the reactants in the species matrix.
+            if (k!=0 && specie_population != 0){
                 as.push_back(k * specie_population);
                 reaction_number.push_back(i); //save index number.
             }
         }
+        i++;
     }
     as_vector = Eigen::VectorXd::Map(as.data(), as.size());
     reaction_number_vector = Eigen::VectorXi::Map(reaction_number.data(), reaction_number.size());
