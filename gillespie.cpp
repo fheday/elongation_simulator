@@ -50,7 +50,7 @@ void Gillespie::run()
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
     std::uniform_real_distribution<> dis(0, 1);
-     
+
     double r1 = 0, r2 = 0;
     double tau = 0, clock = 0.0;
     for (int i = 0; i < iteration_limit; i++)
@@ -84,7 +84,7 @@ void Gillespie::run()
         if ((updated_populations.array() < 0).any())
         {
             break;
-        }  
+        }
         else
         {
             std::string codon_name = reactions.decrptions[selected_index];
@@ -100,7 +100,7 @@ void Gillespie::run()
     total_time = clock;
 }
 
-double Gillespie::getReactionTime(double a0, double r1, std::string codon)
+double Gillespie::getReactionTime(double& a0, double& r1, std::string& codon)
 {
     return (1.0/a0) * log(1.0/r1);  // calculate time of next reaction
 }
