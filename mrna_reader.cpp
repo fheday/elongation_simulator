@@ -1,4 +1,5 @@
 #include "mrna_reader.h"
+#include <fstream>
 
 using namespace mRNA_utils;
 
@@ -57,9 +58,10 @@ void mRNAReader::generateInitialPopulation()
 {
     int n_codons = mRNA_sequence.size()/3;
     initial_population = Eigen::MatrixXi(4, n_codons);
-    initial_population.fill(0);
     initial_population.row(0).setOnes();
     initial_population.row(1).setOnes();
+    initial_population.row(2).setZero();
+    initial_population.row(3).setZero();
 }
 
 void mRNAReader::generateReactions()
@@ -67,12 +69,12 @@ void mRNAReader::generateReactions()
     int n_codons = mRNA_sequence.size()/3;
     std::string codon;
     Eigen::MatrixXi matrix;
-    
+
     // initiation
     matrix = Eigen::MatrixXi(4, n_codons);
     matrix.fill(0);
     matrix.col(0) << 0, -1, 1, 0;
-    std::string start_codon = mRNA_sequence.substr(0, 3);
+    std::string start_codon = "ini";
     reactions_set.addReaction(matrix, initiation_rate, start_codon);
 
     for(int i =0; i< n_codons; i++) {
@@ -80,7 +82,7 @@ void mRNAReader::generateReactions()
         // Decoding
         matrix = Eigen::MatrixXi(4, n_codons);
         matrix.fill(0);
-        matrix.col(i) << -1, 0, -1, 1;
+        matrix.col(i) << -1, 0, -1, +1;
         reactions_set.addReaction(matrix, rate_calculator.codon_rates[codon], codon);
         if (i < n_codons - 1){
             // Translocating reactions  - to be optimised
@@ -88,23 +90,23 @@ void mRNAReader::generateReactions()
             matrix.fill(0);
             matrix(3, i) = -1;
             matrix.col(i+1) << 0, -1, +1, 0;
-            if (i > 9 && i <= n_codons - 2){
+            if (i > 8 && i <= n_codons - 2){
                 // we need to replenish the mRNA slots
-                matrix(0, i - 10) = 1;
-                matrix(1, i - 10) = 1;
+                matrix(0, i - 9) = 1;
+                matrix(1, i - 9) = 1;
             }
             reactions_set.addReaction(matrix, rate_calculator.codon_rates["tra"], "tra");
         }
     }
     // termination
-    std::string termination_codon = mRNA_sequence.substr((n_codons-1)*3, (n_codons-1)*3 +2);
     matrix = Eigen::MatrixXi(4, n_codons);
     matrix.fill(0);
-    matrix.col(n_codons - 1) << 0, 0, 0, -1;
+    matrix.col(matrix.cols()- 1) << 0, 0, 0, -1;
     // we need to replenish the mRNA slots
     for (int j = n_codons - 10; j < n_codons; j++) {
         matrix(0, j) = 1;
         matrix(1, j) = 1;
     }
-    reactions_set.addReaction(matrix, termination_rate, termination_codon);
+
+    reactions_set.addReaction(matrix, termination_rate, "ter");
 }
