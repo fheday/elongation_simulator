@@ -1,14 +1,59 @@
+/*
+<%
+
+cfg['compiler_args'] = ['-O3']
+cfg['sources'] = ['reactionsset.cpp', 'gillespie.cpp', 'concentrationsreader.cpp', 'ribosomesimulator.cpp', 'ratecalculator.cpp', 'mrna_reader.cpp']
+
+setup_pybind11(cfg)
+%>
+*/
+
+#ifndef CMAKE_BUILD
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+namespace py = pybind11;
+
+#endif
+
 #include <fstream>
 #include "enlogationsimulator.h"
+#include <set>
 
 using namespace Simulations;
+
+#ifndef CMAKE_BUILD
+PYBIND11_PLUGIN(enlogationsimulator){
+    pybind11::module mod("enlogationsimulator", "auto-compiled c++ extension");
+
+    py::class_<Gillespie> (mod, "gillespie")
+    .def(py::init<>()) //constructor
+    .def("setIterationLimit", &Gillespie::setIterationLimit)
+    .def("run", &Gillespie::run);
+
+    py::class_<EnlogationSimulator, Gillespie> (mod, "enlogationsimulator")
+    .def(py::init<>()) //constructor
+    .def("setAverageTimesFileName", &EnlogationSimulator::setAverageTimesFileName)
+    .def("setConcentrationsFileName", &EnlogationSimulator::setConcentrationsFileName)
+    .def("setMRnaFileName", &EnlogationSimulator::setMRnaFileName)
+    .def("setInitiationRate", &EnlogationSimulator::setInitiationRate)
+    .def("setTerminationRate", &EnlogationSimulator::setTerminationRate)
+    .def("setIterationLimit", &EnlogationSimulator::setIterationLimit)
+    .def("updateRibosomeHistory", &EnlogationSimulator::updateRibosomeHistory)
+    .def_readonly("ribosome_positions_history", &EnlogationSimulator::ribosome_positions_history)
+    .def_readonly("dt_history", &EnlogationSimulator::dt_history);
+
+    return mod.ptr();
+
+}
+#endif
+
 
 EnlogationSimulator::EnlogationSimulator()
 {
 
 }
 
-void EnlogationSimulator::set_initiation_rate(double ir)
+void EnlogationSimulator::setInitiationRate(double ir)
 {
     if (ir > 0) {
         initiation_rate = ir;
@@ -18,7 +63,7 @@ void EnlogationSimulator::set_initiation_rate(double ir)
     intializeMRNAReader();
 }
 
-void EnlogationSimulator::set_termination_rate(double tr)
+void EnlogationSimulator::setTerminationRate(double tr)
 {
     if (tr > 0) {
         termination_rate = tr;
@@ -28,7 +73,7 @@ void EnlogationSimulator::set_termination_rate(double tr)
     intializeMRNAReader();
 }
 
-void EnlogationSimulator::set_mRna_file_name(std::string file_name)
+void EnlogationSimulator::setMRnaFileName(std::string file_name)
 {
     std::ifstream ist{file_name};
 
@@ -69,7 +114,7 @@ void EnlogationSimulator::setAverageTimesFileName(std::string file_name)
 }
 
 
-void EnlogationSimulator::set_concentrations_file_name(std::string file_name)
+void EnlogationSimulator::setConcentrationsFileName(std::string file_name)
 {
     std::ifstream ist{file_name};
 
@@ -86,12 +131,14 @@ void EnlogationSimulator::set_concentrations_file_name(std::string file_name)
 }
 
 
-double EnlogationSimulator::getReactionTime(double a0, double r1, std::string codon)
+double EnlogationSimulator::getReactionTime(double& a0, double& r1, std::string& codon)
 {
     double result = 0;
     if (codon == "tra") {
         result = translocation_times.back();
         translocation_times.pop_back();
+    } else if (codon =="ter" || codon=="ini" || std::find(stop_codons.begin(), stop_codons.end(), codon) != end(stop_codons)){
+        result = Gillespie::getReactionTime(a0, r1, codon);
     } else {
         //calculate the time.
         double translocating;
@@ -103,11 +150,26 @@ double EnlogationSimulator::getReactionTime(double a0, double r1, std::string co
     return result;
 }
 
-void EnlogationSimulator::updateRibosomeHistory()
+void EnlogationSimulator::updateRibosomeHistory(bool clear_population_history)
 {
-    std::vector<int> positions;
+    ribosome_positions_history.clear();
     for (Eigen::MatrixXi population: population_history) {
-        for (int i = 0; i < population.cols(); i++)  if (population(i,2) > 0 || population(i,3) > 0 ) positions.push_back(i);
-            ribosome_positions_history.push_back(positions);
+        std::set<int> positions_set;
+        std::vector<int> positions_vector;
+        for (int i = 0; i < population.cols(); i++)  {
+            if (population(2, i) > 0 || population(3, i) > 0 ) {
+                positions_set.insert(i);
+            }
         }
+        positions_vector.clear();
+        positions_vector.insert(positions_vector.end(), positions_set.begin(), positions_set.end());
+        ribosome_positions_history.push_back(positions_vector);
+    }
+    if (clear_population_history) population_history.clear();
 }
+
+void EnlogationSimulator::calculateAverageTimes()
+{
+
+}
+

@@ -12,13 +12,14 @@ namespace Simulations {
     {
     public:
         EnlogationSimulator();
-        void set_termination_rate(double);
-        void set_initiation_rate(double);
-        void set_mRna_file_name(std::string);
-        void set_concentrations_file_name(std::string);
+        void setTerminationRate(double);
+        void setInitiationRate(double);
+        void setMRnaFileName(std::string);
+        void setConcentrationsFileName(std::string);
         void setAverageTimesFileName(std::string);
-        double getReactionTime(double, double, std::string) override;
-        void updateRibosomeHistory();
+        double getReactionTime(double&, double&, std::string&) override;
+        void updateRibosomeHistory(bool=false);
+        void calculateAverageTimes();
         double termination_rate = -1;
         double initiation_rate = -1;
         std::string mRNAFileName;
@@ -30,6 +31,7 @@ namespace Simulations {
     private:
         void intializeMRNAReader();
         std::vector<double> translocation_times;
+        std::vector<std::string> stop_codons = {"UAG", "UAA", "UGA"}; // list of stop codons.
     };
 }
 
