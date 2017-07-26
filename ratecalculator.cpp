@@ -1,3 +1,9 @@
+#ifndef CMAKE_BUILD
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+namespace py = pybind11;
+#endif
+
 #include "ratecalculator.h"
 #include <vector>
 #include <fstream>
@@ -48,6 +54,15 @@ void RateCalculator::loadRates(std::string file_name)
             }
         } else {
             header = false;
+        }
+    }
+    // check if stop codons where added or not: This will depend if the file has them or not: 
+    // if it does, they where added in the previous loop.
+    for (std::string codon:stop_codons) {
+        auto result = std::find(stop_codons.begin(), stop_codons.end(), codon);
+        if (result != end(stop_codons)) {
+            //This stop codon was not previously added. Add now. It has a fixed decoding rate.
+            codon_rates[codon] = 1.0;
         }
     }
 }
