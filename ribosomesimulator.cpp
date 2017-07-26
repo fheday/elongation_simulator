@@ -1,8 +1,8 @@
 /*
 <%
 cfg['dependencies'] = ['reactionsset.h', 'gillespie.h']
-
-cfg['sources'] = ['reactionsset.cpp', 'gillespie.cpp', 'concentrations_reader.cpp']
+cfg['compiler_args'] = ['-O3']
+cfg['sources'] = ['reactionsset.cpp', 'gillespie.cpp', 'concentrationsreader.cpp']
 
 setup_pybind11(cfg)
 %>
@@ -36,7 +36,7 @@ PYBIND11_PLUGIN(ribosomesimulator){
     .def("run", &Gillespie::run);
 
     py::class_<RibosomeSimulator, Gillespie> (mod, "ribosomesimulator")
-    .def(py::init<std::string&>()) //constructor
+    .def(py::init<>()) //constructor
     .def("setNumberOfRibosomes", &RibosomeSimulator::setNumberOfRibosomes)
     .def("setCodonForSimulation", &RibosomeSimulator::setCodonForSimulation)
     .def("run_and_get_times", [](RibosomeSimulator &rs) {double d=0.0; double t=0.0; rs.run_and_get_times(d, t); return std::make_tuple(d, t); });
