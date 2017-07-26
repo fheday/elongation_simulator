@@ -28,6 +28,12 @@ namespace Simulations {
         mRNA_utils::mRNAReader mrna_reader;
         RibosomeSimulator ribosome_simulator;
         std::vector<std::vector<int>> ribosome_positions_history;
+        // array with the total times the ribosomes spent in the codons
+        std::vector<double> total_time;
+        // number of times a codon was occupied
+        std::vector<int> n_times_occupied;
+        // average occupation time
+        std::vector<double> codons_average_occupation_time;
     private:
         void intializeMRNAReader();
         std::vector<double> translocation_times;

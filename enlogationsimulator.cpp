@@ -170,6 +170,37 @@ void EnlogationSimulator::updateRibosomeHistory(bool clear_population_history)
 
 void EnlogationSimulator::calculateAverageTimes()
 {
+    int number_codons = mrna_reader.mRNA_sequence.size() / 3;
+    // initialize the total_time vector.
+    total_time = std::vector<double>(number_codons);
+    std::fill(total_time.begin(), total_time.end(), 0);
+    // initialize the n_times_occupied vector.
+    n_times_occupied = std::vector<int>(number_codons);
+    std::fill(n_times_occupied.begin(), n_times_occupied.end(), 0);
+    // iteration where we last seen the codon being occupied.
+    std::vector<int> last_index_occupied(number_codons);
+    std::fill(last_index_occupied.begin(), last_index_occupied.end(), -1);
+    int iteration_number = 0;
+    for (std::vector<int> ribosome_vector:ribosome_positions_history) {
+        for (int position:ribosome_vector) {
+            total_time[position] += dt_history[iteration_number];
+            if (last_index_occupied[position] == -1 || last_index_occupied[position] != iteration_number - 1){
+                //we are facing a re-entering ribosome. We need to add the previous occupation.
+                n_times_occupied[position]++;
+            }
+            //update the last time this position was occupied.
+            last_index_occupied[position] = iteration_number;
+        }
+        iteration_number++;
+    }
+    //the above procedure does not count for the last time a position has been occupied: it ignores it.
+    //we could try to fix this in a number of ways, but I guess it wouldn't matter much in the big picture.
 
+    //now we calculate the averages.
+    codons_average_occupation_time.clear();
+    codons_average_occupation_time = std::vector<double>(number_codons);
+    for (int codon_position = 0; codon_position < number_codons; codon_position++) {
+        codons_average_occupation_time[codon_position] = n_times_occupied[codon_position] > 0 ? total_time[codon_position] / n_times_occupied[codon_position]: 0;
+    }
 }
 
