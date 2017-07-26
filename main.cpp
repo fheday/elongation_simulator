@@ -109,25 +109,25 @@
  {
      std::ifstream ist{average_times_file_name};
      std::map<std::string, double> codons_times;
-
-    if (!ist) {
-        throw std::runtime_error("can't open input file: "+ average_times_file_name);
-    }
-    bool header = true;
-    std::string codon, tmp_str;
-    while(ist.good()) {
-        if (!std::getline ( ist, codon, ',' )){
-            break;
-        }
-        std::getline ( ist, codon, ',' );
-        std::getline ( ist, tmp_str, ',' );
-        if (!header){
-            codons_times[codon] = std::atof(tmp_str.c_str());
-        } else {
-            header = false;
-        }
-    }
-    return codons_times;
+     
+     if (!ist) {
+         throw std::runtime_error("can't open input file: "+ average_times_file_name);
+     }
+     bool header = true;
+     std::string codon, tmp_str;
+     while(ist.good()) {
+         if (!std::getline ( ist, codon, ',' )){
+             break;
+         }
+         std::getline ( ist, codon, ',' );
+         std::getline ( ist, tmp_str, ',' );
+         if (!header){
+             codons_times[codon] = std::atof(tmp_str.c_str());
+         } else {
+             header = false;
+         }
+     }
+     return codons_times;
  }
  
  void test_ribosome_simulator(std::string concentrations_file_name="../../RSim/data_with_times/concentrations.csv")
@@ -161,22 +161,32 @@
      mrr.generateReactions();
  }
  
- int main(int argc, char **argv) {
-     std::cout << "Hello, world!" << std::endl;
-//      test_ribosome_simulator();
+ void test_enlogation_simulator(std::string average_times_file_name="../data/codons/average_time.csv", std::string concentrations_file_name="../../RSim/data_with_times/concentrations.csv", int init_rate = 1, int term_rate = 10, int iterations = 100000)
+ {
      //run enlogation simulator.
      Simulations::EnlogationSimulator es;
-     es.setAverageTimesFileName("../data/codons/average_time.csv");
-     es.set_concentrations_file_name("../../RSim/data_with_times/concentrations.csv");
-     es.set_mRna_file_name("../../PolisomeSimulator/mRNA/mRNA_sample_MinCFLuc.txt");
-     es.set_initiation_rate(1);
-     es.set_termination_rate(10);
-     es.setIterationLimit(1e6);
+     es.setAverageTimesFileName(average_times_file_name);
+     es.setConcentrationsFileName(concentrations_file_name);
+     es.setMRnaFileName("../../PolisomeSimulator/mRNA/mRNA_sample_MinCFLuc.txt");
+     es.setInitiationRate(init_rate);
+     es.setTerminationRate(term_rate);
+     es.setIterationLimit(iterations);
      es.run();
-    for (float dt:es.dt_history) {
-         std::cout<<"dt = "<<dt<<"\n";
+     es.updateRibosomeHistory();
+     int i = 0;
+     for (std::vector<int> rib_pos_vec:es.ribosome_positions_history) {
+         std::cout<<"iteration = "<< i <<"positions = ";
+         for (int pos:rib_pos_vec) std::cout<<" "<<pos;
+         std::cout<<"\n";
+         i++;
      }
+ }
+ 
+ int main(int argc, char **argv) {
+     std::cout << "Hello, world!" << std::endl;
+     test_enlogation_simulator();
      
      return 0;
  }
+ 
  
