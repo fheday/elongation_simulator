@@ -39,8 +39,12 @@ PYBIND11_PLUGIN(enlogationsimulator){
     .def("setTerminationRate", &EnlogationSimulator::setTerminationRate)
     .def("setIterationLimit", &EnlogationSimulator::setIterationLimit)
     .def("updateRibosomeHistory", &EnlogationSimulator::updateRibosomeHistory)
+    .def("calculateAverageTimes", &EnlogationSimulator::calculateAverageTimes)
     .def_readonly("ribosome_positions_history", &EnlogationSimulator::ribosome_positions_history)
-    .def_readonly("dt_history", &EnlogationSimulator::dt_history);
+    .def_readonly("dt_history", &EnlogationSimulator::dt_history)
+    .def_readonly("total_time", &EnlogationSimulator::total_time)
+    .def_readonly("n_times_occupied", &EnlogationSimulator::n_times_occupied)
+    .def_readonly("average_times", &EnlogationSimulator::codons_average_occupation_time);
 
     return mod.ptr();
 
