@@ -180,6 +180,12 @@
          std::cout<<"\n";
          i++;
      }
+     es.calculateAverageTimes();
+     i = 0;
+     for (double time:es.codons_average_occupation_time) {
+         std::cout<<"codon = "<< i <<", average time spent = "<<time<<"\n";
+         i++;
+     }
  }
  
  int main(int argc, char **argv) {
