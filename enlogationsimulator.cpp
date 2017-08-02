@@ -38,7 +38,7 @@ PYBIND11_PLUGIN(enlogationsimulator){
     .def("setInitiationRate", &EnlogationSimulator::setInitiationRate)
     .def("setTerminationRate", &EnlogationSimulator::setTerminationRate)
     .def("setIterationLimit", &EnlogationSimulator::setIterationLimit)
-    .def("updateRibosomeHistory", &EnlogationSimulator::updateRibosomeHistory)
+    .def("updateRibosomeHistory", &EnlogationSimulator::updateRibosomeHistory, py::arg("clear_population_history") = false)
     .def("calculateAverageTimes", &EnlogationSimulator::calculateAverageTimes)
     .def_readonly("ribosome_positions_history", &EnlogationSimulator::ribosome_positions_history)
     .def_readonly("dt_history", &EnlogationSimulator::dt_history)
@@ -139,6 +139,14 @@ double EnlogationSimulator::getReactionTime(double& a0, double& r1, std::string&
 {
     double result = 0;
     if (codon == "tra") {
+        if (translocation_times.empty()) {
+            //calculate the time.
+            double translocating;
+            ribosome_simulator.setCodonForSimulation("AUG");
+            ribosome_simulator.run_and_get_times(result, translocating);
+            //add the translocating time to our pool.
+            translocation_times.push_back(translocating);
+        }
         result = translocation_times.back();
         translocation_times.pop_back();
     } else if (codon =="ter" || codon=="ini" || std::find(stop_codons.begin(), stop_codons.end(), codon) != end(stop_codons)){
