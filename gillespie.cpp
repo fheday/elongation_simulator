@@ -40,7 +40,9 @@ void Gillespie::setReactionsSet(const ReactionsSet& reac)
 
 void Gillespie::run()
 {
+    dt_history = std::vector<double>(iteration_limit);
     dt_history.clear();
+    population_history = std::vector<Eigen::MatrixXi>(iteration_limit);
     population_history.clear();
     Eigen::MatrixXi populations = initial_populations;
     Eigen::MatrixXi updated_populations;
@@ -72,6 +74,7 @@ void Gillespie::run()
         // select next reaction to execute
         double cumsum = 0;
         int selected_index = -1;
+        // TODO: need to vectorize this loop!!!
         do {
             selected_index++;
             cumsum += as[selected_index]; 
