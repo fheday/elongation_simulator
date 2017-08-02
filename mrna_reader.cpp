@@ -71,19 +71,19 @@ void mRNAReader::generateReactions()
     Eigen::MatrixXi matrix;
 
     // initiation
-    matrix = Eigen::MatrixXi(4, n_codons);
-    matrix.fill(0);
-    matrix.col(0) << 0, -1, 1, 0;
-    std::string start_codon = "ini";
-    reactions_set.addReaction(matrix, initiation_rate, start_codon);
 
-    for(int i =0; i< n_codons; i++) {
+    for(int i = 0; i< n_codons; i++) {
         codon = mRNA_sequence.substr(i * 3, 3);
         // Decoding
         matrix = Eigen::MatrixXi(4, n_codons);
         matrix.fill(0);
-        matrix.col(i) << -1, 0, -1, +1;
-        reactions_set.addReaction(matrix, rate_calculator.codon_rates[codon], codon);
+        if (i == 0) {
+            matrix.col(i) << -1, -1, 0, 1;
+            reactions_set.addReaction(matrix, initiation_rate, "ini");
+        } else {
+            matrix.col(i) << -1, 0, -1, +1;
+            reactions_set.addReaction(matrix, rate_calculator.codon_rates[codon], codon);
+        }
         if (i < n_codons - 1){
             // Translocating reactions  - to be optimised
             matrix = Eigen::MatrixXi(4, n_codons);
