@@ -52,7 +52,7 @@
      cr.loadConcentrations(concentrations_file_name);
      Simulations::RibosomeSimulator rs;
      rs.loadConcentrations(concentrations_file_name);
-     rs.setIterationLimit(2000);
+     rs.setIterationLimit(30000);
      // create a matrix with the initial species population.
      rs.setNumberOfRibosomes(1);
      
@@ -77,14 +77,19 @@
      timesVectorFile<<"\n";
      //calculate times and generate the vectors.
      std::vector<double> vector (2 * iterations, 0);
+     int codon_total_translocating = 0;
      for (std::string codon:codons){
          total_decoding=0;
+         codon_total_translocating = 0;
          rs.setCodonForSimulation(codon);
          averageTimesFile<<"\"" <<codon<<"\"";
+         std::cout<< "Starting codon: "<< codon;
          for (int i = 0 ; i < iterations; i++){
              rs.run_and_get_times(decoding, translocating);
+             if (decoding == 0 | translocating == 0) throw std::runtime_error("decoding nor translocation can be zero.");
              total_decoding += decoding;
              total_translocating += translocating;
+             codon_total_translocating += translocating;
              n++;
              //save vector.
              vector[i] = decoding;
@@ -95,10 +100,12 @@
          for (int j=0; j < (2 * iterations) - 1; j++) timesVectorFile<<vector[j]<<",";
          timesVectorFile<<vector[(2 * iterations) - 1]<<vector[(2 * iterations) - 1]<<"\n";
          codons_times[codon] = decoding;
+         std::cout<<". Finished. Average time: "<< ((total_decoding + codon_total_translocating)/iterations) <<"\n";
      }
      //save translocation times.
      averageTimesFile << "tra, "<<(total_translocating/n)<<"\n";
      codons_times["tra"] = (total_translocating/n);
+     std::cout<<"Average translocating time: "<< (total_translocating/n) << "\n";
      // close files.
      averageTimesFile.close();
      timesVectorFile.close();
@@ -153,7 +160,7 @@
  {
      mRNAReader mrr;
      mrr.loadRateCalculatorFile("../data/codons/average_time.csv");
-     mrr.loadmRNAFile("../../PolisomeSimulator/mRNA/S288C_YOR271C_FSF1_coding.fsa");
+     mrr.loadmRNAFile("../../PolisomeSimulator/mRNA/S288C_ _FSF1_coding.fsa");
      std::cout<<"mRNA = "<<"\n"<<mrr.mRNA_sequence;
      mrr.generateInitialPopulation();
      std::cout<<"initial population = \n";
@@ -161,7 +168,7 @@
      mrr.generateReactions();
  }
  
- void test_enlogation_simulator(std::string average_times_file_name="../data/codons/average_time.csv", std::string concentrations_file_name="../../RSim/data_with_times/concentrations.csv", int init_rate = 1, int term_rate = 10, int iterations = 100000)
+ void test_enlogation_simulator(std::string average_times_file_name="../data/codons/average_time.csv", std::string concentrations_file_name="../../RSim/data_with_times/concentrations.csv", int init_rate = 1, int term_rate = 10, int iterations = 1000000)
  {
      //run enlogation simulator.
      Simulations::EnlogationSimulator es;
@@ -190,9 +197,10 @@
  
  int main(int argc, char **argv) {
      std::cout << "Hello, world!" << std::endl;
-     test_enlogation_simulator();
-     
+//      test_enlogation_simulator();
+//      std::map<std::string, double> decoding_times_map;
+     calculate_codons_times(argv[1], std::stoi(argv[2]), argv[3], argv[4]);
+//       calculate_codons_times("../../RSim/vito.tRNASeq.B4/concentrations.csv", 10000, "../data/codons/average_time_vito.tRNASeq.B4.csv", "../data/codons/sample_vectors_vito.tRNASeq.B4.csv");
+
      return 0;
  }
- 
- 
