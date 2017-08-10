@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 2.6)
 project(gillespie)
 
+set(common_sources concentrationsreader.cpp concentrationsreader.h enlogationsimulator.cpp enlogationsimulator.h gillespie.cpp gillespie.h mrna_reader.cpp mrna_reader.h ratecalculator.cpp ratecalculator.h reactionsset.cpp reactionsset.h ribosomesimulator.cpp ribosomesimulator.h)
+
 add_definitions(-DCMAKE_BUILD)
 
-add_executable(gillespie main.cpp)
+add_executable(gillespie main.cpp ${common_sources})
+add_executable(calculateCodonsTimes calculateCodonsTimes.cpp ${common_sources})
 install(TARGETS gillespie RUNTIME DESTINATION bin)
 
 

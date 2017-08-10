@@ -17,9 +17,11 @@ namespace Simulations {
         void setReactionsSet(const ReactionsSet&);
         void setInitialPopulation(const Eigen::MatrixXi&);
         void setIterationLimit(int);
+        void setTimeLimit(double);
         virtual double getReactionTime(double&, double&, std::string&);
         ~Gillespie();
-        int iteration_limit;
+        int iteration_limit = -1;
+        double time_limit = -1;
         Eigen::MatrixXi initial_populations;
         ReactionsSet reactions;
         std::vector<double> dt_history;

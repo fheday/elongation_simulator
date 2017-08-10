@@ -27,17 +27,37 @@ void Gillespie::setInitialPopulation(const Eigen::MatrixXi& popul)
     initial_populations = popul;
 }
 
+
+/**
+ * @brief Set a iteration limit for the Gillespie simulation.
+ * 
+ * @param i integer with the maximum number of iterations. The algorithm halts before this condition is met if there are no possible reations left to be performed.
+ */
 void Gillespie::setIterationLimit(int i)
 {
-    iteration_limit = i;
+    if (i > 0) iteration_limit = i;
 }
 
+/**
+ * @brief Set a time limit for the Gillespie simulation. This time is in seconds, and it is compared against the simulation's clock.
+ * 
+ * @param t time limit in seconds.
+ */
+
+void Gillespie::setTimeLimit(double t)
+{
+    if (t > 0) time_limit = t;
+}
 
 void Gillespie::setReactionsSet(const ReactionsSet& reac)
 {
     reactions = reac;
 }
 
+/**
+ * @brief Execute Gillespie simulation with the informed parameters.
+ * 
+ */
 void Gillespie::run()
 {
     dt_history = std::vector<double>(iteration_limit);
@@ -55,7 +75,9 @@ void Gillespie::run()
 
     double r1 = 0, r2 = 0;
     double tau = 0, clock = 0.0;
-    for (int i = 0; i < iteration_limit; i++)
+    int i = 0;
+    while ((iteration_limit > 0  && i < iteration_limit) || (time_limit > 0 && clock < time_limit))
+//     for (int i = 0; i < iteration_limit; i++)
     {
         population_history.push_back(populations);
         dt_history.push_back(tau);
@@ -97,7 +119,7 @@ void Gillespie::run()
             // update population
             populations = updated_populations;
         }
-
+        i++; // update iteration number.
     }
     // finished. Plot population snapshots
     total_time = clock;

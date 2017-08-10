@@ -4,6 +4,8 @@
 namespace py = pybind11;
 #endif
 
+#include <string>
+#include <algorithm>
 #include "concentrationsreader.h"
 #include <fstream>
 #include <error.h>

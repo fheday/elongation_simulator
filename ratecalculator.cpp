@@ -4,6 +4,7 @@
 namespace py = pybind11;
 #endif
 
+#include <algorithm>
 #include "ratecalculator.h"
 #include <vector>
 #include <fstream>

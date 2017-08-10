@@ -162,6 +162,12 @@ double EnlogationSimulator::getReactionTime(double& a0, double& r1, std::string&
     return result;
 }
 
+
+/**
+ * @brief reads the population_history to calculate the ribosome positions, then populate the positions_set vector with the ribosome positions (in codon number, starting from 0) in each iteration.
+ * 
+ * @param clear_population_history p_clear_population_history:...if true, erase the population_history vector. This might be useful in simulations with large number of iterations and/or large mRNA sequences, since these factors will considerably increase the memory usage of this object. This options is for memory optimization only.
+ */
 void EnlogationSimulator::updateRibosomeHistory(bool clear_population_history)
 {
     ribosome_positions_history.clear();
