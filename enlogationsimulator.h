@@ -19,6 +19,7 @@ namespace Simulations {
         void setAverageTimesFileName(std::string);
         double getReactionTime(double&, double&, std::string&) override;
         void updateRibosomeHistory(bool=false);
+        std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> getEnlogationDuration();
         void calculateAverageTimes();
         double termination_rate = -1;
         double initiation_rate = -1;

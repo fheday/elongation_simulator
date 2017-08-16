@@ -3,6 +3,7 @@
 
 cfg['compiler_args'] = ['-O3']
 cfg['sources'] = ['reactionsset.cpp', 'gillespie.cpp', 'concentrationsreader.cpp', 'ribosomesimulator.cpp', 'ratecalculator.cpp', 'mrna_reader.cpp']
+cfg['parallel'] = True
 
 setup_pybind11(cfg)
 %>
@@ -18,6 +19,11 @@ namespace py = pybind11;
 #include <fstream>
 #include "enlogationsimulator.h"
 #include <set>
+#include <list>
+#include <tuple>
+#include <algorithm>
+#include <numeric>
+#include <iostream>
 
 using namespace Simulations;
 
@@ -36,9 +42,11 @@ PYBIND11_PLUGIN(enlogationsimulator){
     .def("setConcentrationsFileName", &EnlogationSimulator::setConcentrationsFileName)
     .def("setMRnaFileName", &EnlogationSimulator::setMRnaFileName)
     .def("setInitiationRate", &EnlogationSimulator::setInitiationRate)
+    .def("setTimeLimit", &Gillespie::setTimeLimit)
     .def("setTerminationRate", &EnlogationSimulator::setTerminationRate)
     .def("setIterationLimit", &EnlogationSimulator::setIterationLimit)
     .def("updateRibosomeHistory", &EnlogationSimulator::updateRibosomeHistory, py::arg("clear_population_history") = false)
+    .def("getEnlogationDuration", &EnlogationSimulator::getEnlogationDuration)
     .def("calculateAverageTimes", &EnlogationSimulator::calculateAverageTimes)
     .def_readonly("ribosome_positions_history", &EnlogationSimulator::ribosome_positions_history)
     .def_readonly("dt_history", &EnlogationSimulator::dt_history)
@@ -184,6 +192,51 @@ void EnlogationSimulator::updateRibosomeHistory(bool clear_population_history)
         ribosome_positions_history.push_back(positions_vector);
     }
     if (clear_population_history) population_history.clear();
+}
+
+/**
+ * @brief Returns a tuple where the first element is a vector with the enlogation duration of the ribosomes that terminated in the simulation, and the second element is a vector with the iteration where such ribosomes started enlogating. This method should be called after updateRibosomeHistory, since it uses the positions_vector to do its job.
+ * 
+ */
+
+std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> EnlogationSimulator::getEnlogationDuration()
+{
+    std::list<int> rib_initiation_iteration;
+    std::vector<double> result;
+    std::vector<int> initiation_iteration, termination_iteration;
+    std::vector<double> clock;
+    clock.clear();
+    result.clear();
+    termination_iteration.clear();
+    initiation_iteration.clear();
+    double cumsum = 0;
+    for (unsigned int i = 0; i < dt_history.size(); i++) {
+        cumsum += dt_history[i];
+        clock.push_back(cumsum);
+    }
+    bool previous_zero_occupied = false, previous_last_occupied = false;
+    bool current_zero_occupied = false, current_last_occupied = false;
+    int last_codon_position = (mrna_reader.mRNA_sequence.size()/3) - 1;
+    for (unsigned int i = 1; i < ribosome_positions_history.size(); i++)
+    {
+        std::vector<int>& ribosomes_positions = ribosome_positions_history[i];
+        current_zero_occupied = std::find(ribosomes_positions.begin(), ribosomes_positions.end(), 0) !=ribosomes_positions.end();
+        current_last_occupied = std::find(ribosomes_positions.begin(), ribosomes_positions.end(), last_codon_position) !=ribosomes_positions.end();
+        if (!previous_zero_occupied && current_zero_occupied){
+            //new ribosome.
+            rib_initiation_iteration.push_back(i);
+        } else if (previous_last_occupied && !current_last_occupied){
+            //ribosome left.
+            result.push_back(clock[i - 1] - clock[rib_initiation_iteration.front()]);
+            initiation_iteration.push_back(rib_initiation_iteration.front());
+            termination_iteration.push_back(i - 1);
+            rib_initiation_iteration.pop_front();
+        }
+        //update variables for next iteration.
+        previous_last_occupied = current_last_occupied;
+        previous_zero_occupied = current_zero_occupied;
+    }
+    return std::make_tuple(result, initiation_iteration, termination_iteration);
 }
 
 void EnlogationSimulator::calculateAverageTimes()
