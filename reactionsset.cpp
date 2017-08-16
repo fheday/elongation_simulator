@@ -30,6 +30,14 @@ void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  double k)
     k_pop_index.push_back(std::make_tuple(k, reactants));
 }
 
+
+/**
+ * @brief Given the species (reactants), calculate An for all n reactions. This method is an optimized version of the cannonical one: we only look into the valid reactions (e.g.: where k != 0 or k*population !=0).
+ * 
+ * @param species The Matrix with the reactants
+ * @param as_vector Eigen vector to store the An value (for 1st order reactions: k*population, for 0-order reactions: k), where k = reaction's propensity.
+ * @param reaction_number_vector Eigen vector to contain the index of the reaction in the reactionsSet object.
+ */
 void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXd& as_vector, Eigen::VectorXi& reaction_number_vector)
 {
     std::vector<double> as;
@@ -40,7 +48,7 @@ void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXd& as
         if (std::get<1>(k_and_index).empty() && k > 0) {
             //zero order reaction. no need for species.
             as.push_back(std::get<0>(k_and_index)); // a = propensity.
-            reaction_number.push_back(i);
+            reaction_number.push_back(i); //save index number.
         } else {
             // first order reaction. dependent on species.
             int specie_population = 1;
