@@ -11,7 +11,7 @@ ReactionsSet::ReactionsSet()
 void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  double k, std::string reaction_id)
 {
     addReaction(reaction, k); // add the reaction.
-    decrptions.push_back(reaction_id); //add reaction's description. e.g.: in a mRNA it would be the codon.
+    descriptions.push_back(reaction_id); //add reaction's description. e.g.: in a mRNA it would be the codon.
 }
 
 void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  double k)

@@ -17,7 +17,7 @@ public:
     ~ReactionsSet();
     std::vector<Eigen::MatrixXi> reactions_vector;
     std::vector<double> ks;
-    std::vector<std::string> decrptions;
+    std::vector<std::string> descriptions;
 private:
     //the elements of this vector are: k (reaction propensity), 
     //vector of indexes (col, row) of the reactants.

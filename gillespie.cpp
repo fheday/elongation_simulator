@@ -101,6 +101,20 @@ void Gillespie::run()
             selected_index++;
             cumsum += as[selected_index]; 
         } while (cumsum < a0 * r2);
+//         //calculate the cumulative sum of all an's.
+//         std::vector<double> cs;
+//         for (int i = 0; i < as.size(); i++){
+//             cumsum += as[i];
+//             cs.push_back(cumsum);
+//         }
+//         //now we select the reaction
+//         for (unsigned int i = 0; i < cs.size(); ++i){
+//             if ((i == 0 || cs[i - 1] < (a0 * r2)) && (a0 * r2) <= cs[i]){
+//                 selected_index = i;
+//                 break;
+//             }
+//         }
+        
         selected_index = reactions_index[selected_index]; //index of selected reaction.
         // put the new population on a temporary variable: this is to help
         // detecting negative populations.
@@ -112,7 +126,7 @@ void Gillespie::run()
         }
         else
         {
-            std::string codon_name = reactions.decrptions[selected_index];
+            std::string codon_name = reactions.descriptions[selected_index];
             tau = getReactionTime(a0, r1, codon_name);// calculate time of next reaction
             // update time / clock
             clock += tau;
