@@ -10,7 +10,9 @@
  #include "enlogationsimulator.h"
  #include "ratecalculator.h"
  #include "mrna_reader.h"
+
  
+#include "translation.h"
  
  
  void testGillespie()
@@ -62,24 +64,7 @@
      return codons_times;
  }
  
- void test_ribosome_simulator(std::string concentrations_file_name="../../RSim/data_with_times/concentrations.csv")
- {
-     csv_utils::ConcentrationsReader cr;
-     cr.loadConcentrations(concentrations_file_name);
-     Simulations::RibosomeSimulator rs;
-     rs.loadConcentrations(concentrations_file_name);
-     rs.setIterationLimit(2000);
-     // create a matrix with the initial species population.
-     rs.setNumberOfRibosomes(1);
-     rs.setCodonForSimulation("AAA");
-     rs.run();
-     for (float dt:rs.dt_history) {
-         std::cout<<"dt = "<<dt<<"\n";
-     }
-     double decoding, translocating;
-     rs.run_and_get_times(decoding, translocating);
-     std::cout<< "decoding : "<< decoding<<", translocating = "<<translocating<<"\n";
- }
+
  
  void test_mRNA_reader()
  {
@@ -93,36 +78,35 @@
      mrr.generateReactions();
  }
  
- void test_enlogation_simulator(std::string average_times_file_name="../data/codons/average_time.csv", std::string concentrations_file_name="../../RSim/data_with_times/concentrations.csv", int init_rate = 1, int term_rate = 10, int iterations = 1000000)
+ void test_enlogation_simulator(std::string average_times_file_name="../data/codons/average_time.csv", std::string concentrations_file_name="../../RSim/data_with_times/concentrations.csv", double init_rate = 0.0001, int term_rate = 10, int iterations = 100)
  {
+     Simulations::Translation t;
+     t.loadConcentrations(concentrations_file_name);
+//      t.loadMRNA("../../PolisomeSimulator/mRNA/mRNA_sample_MinCFLuc.txt");
+    t.loadMRNA("../../PolisomeSimulator/mRNA/test_small_1.txt");
+    t.setInitiationRate(init_rate);
+    t.setTerminationRate(term_rate);
+    t.setIterationLimit(iterations);
      //run enlogation simulator.
-     Simulations::EnlogationSimulator es;
-     es.setAverageTimesFileName(average_times_file_name);
-     es.setConcentrationsFileName(concentrations_file_name);
-     es.setMRnaFileName("../../PolisomeSimulator/mRNA/mRNA_sample_MinCFLuc.txt");
-     es.setInitiationRate(init_rate);
-     es.setTerminationRate(term_rate);
-     es.setIterationLimit(iterations);
-     es.run();
-     es.updateRibosomeHistory();
+     t.run();
      int i = 0;
-     for (std::vector<int> rib_pos_vec:es.ribosome_positions_history) {
+     for (std::vector<int> rib_pos_vec:t.ribosome_positions_history) {
          std::cout<<"iteration = "<< i <<"positions = ";
          for (int pos:rib_pos_vec) std::cout<<" "<<pos;
          std::cout<<"\n";
          i++;
      }
-     es.calculateAverageTimes();
-     i = 0;
-     for (double time:es.codons_average_occupation_time) {
-         std::cout<<"codon = "<< i <<", average time spent = "<<time<<"\n";
-         i++;
-     }
+//      es.calculateAverageTimes();
+//      i = 0;
+//      for (double time:es.codons_average_occupation_time) {
+//          std::cout<<"codon = "<< i <<", average time spent = "<<time<<"\n";
+//          i++;
+//      }
  }
  
  int main(int argc, char **argv) {
      std::cout << "Hello, world!" << std::endl;
-//      test_enlogation_simulator();
+     test_enlogation_simulator();
 //      std::map<std::string, double> decoding_times_map;
 //      calculate_codons_times(argv[1], std::stoi(argv[2]), argv[3], argv[4]);
 //       calculate_codons_times("../../RSim/vito.tRNASeq.B4/concentrations.csv", 10000, "../data/codons/average_time_vito.tRNASeq.B4.csv", "../data/codons/sample_vectors_vito.tRNASeq.B4.csv");
