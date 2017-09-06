@@ -49,7 +49,11 @@ PYBIND11_PLUGIN(ribosomesimulator){
 
 RibosomeSimulator::RibosomeSimulator()
 {
-    
+    // initialize the random generator
+    std::random_device rd;  //Will be used to obtain a seed for the random number engine
+    gen = std::mt19937(rd()); //Standard mersenne_twister_engine seeded with rd()
+    dis = std::uniform_real_distribution<>(0, 1);
+
 }
 
 void Simulations::RibosomeSimulator::loadConcentrations(std::string file_name)
@@ -79,7 +83,8 @@ void RibosomeSimulator::setNumberOfRibosomes(int nrib)
     Eigen::MatrixXi population(32, 1);
     population.fill(0);
     population(0,0) = nrib;
-    Gillespie::setInitialPopulation(population);
+//     Gillespie::setInitialPopulation(population);
+    current_population = population;
 }
 
 void RibosomeSimulator::setCodonForSimulation(const std::string& codon)
@@ -448,3 +453,70 @@ ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration
     return rs;
 }
 
+int Simulations::RibosomeSimulator::getState()
+{
+    Eigen::MatrixXi::Index state;
+    current_population.col(0).maxCoeff(&state);
+    return state;
+}
+void Simulations::RibosomeSimulator::setState(int s)
+{
+    current_population.fill(0);
+    current_population(s,0) = 1;
+}
+
+void Simulations::RibosomeSimulator::getAlphas(Eigen::VectorXd& as, Eigen::VectorXi& reactions_index)
+{
+    reactions.getAlphas(current_population, as, reactions_index);
+}
+
+float Simulations::RibosomeSimulator::runOnce()
+{
+    Eigen::MatrixXi updated_populations;
+    Eigen::VectorXd as;
+    Eigen::VectorXi reactions_index;
+
+    double r1 = 0, r2 = 0;
+    double tau = 0;
+//     int i = 0;
+
+    // randomly generate parameter for calculating dt
+    r1 = dis(gen);//dis(gen);
+    // randomly generate parameter for selecting reaction
+    r2 = dis(gen);//dis(gen);
+    // calculate an
+    reactions.getAlphas(current_population, as, reactions_index);
+    if (as.size() == 0)
+    {
+        // no available reactions, quit loop prematurely.
+        return -1;
+    }
+    double a0 = as.sum();
+    // select next reaction to execute
+    double cumsum = 0;
+    int selected_index = -1;
+    // TODO: need to vectorize this loop!!!
+    do {
+        selected_index++;
+        cumsum += as[selected_index]; 
+    } while (cumsum < a0 * r2);
+
+    selected_index = reactions_index[selected_index]; //index of selected reaction.
+    // put the new population on a temporary variable: this is to help
+    // detecting negative populations.
+    Eigen::MatrixXi reac = reactions.getReaction(selected_index);
+    updated_populations = current_population + reac;
+    if ((updated_populations.array() < 0).any())
+    {
+        return -1;
+    }
+    else
+    {
+        std::string codon_name = reactions.descriptions[selected_index];
+        tau = getReactionTime(a0, r1, codon_name);// calculate time of next reaction
+        //update population
+        current_population = updated_populations;
+        // return time.
+        return tau;
+    }
+}
