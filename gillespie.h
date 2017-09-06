@@ -13,7 +13,8 @@ namespace Simulations {
     public:
         Gillespie();
         Gillespie(int, const Eigen::MatrixXi&, const ReactionsSet&);
-        void run();
+        virtual void run();
+        void enableHistory(bool);
         void setReactionsSet(const ReactionsSet&);
         void setInitialPopulation(const Eigen::MatrixXi&);
         void setIterationLimit(int);
@@ -22,12 +23,12 @@ namespace Simulations {
         ~Gillespie();
         int iteration_limit = -1;
         double time_limit = -1;
-        Eigen::MatrixXi initial_populations;
+        Eigen::MatrixXi initial_population;
+        Eigen::MatrixXi current_population;
         ReactionsSet reactions;
         std::vector<double> dt_history;
         std::vector<Eigen::MatrixXi> population_history;
         double total_time;
-        
     };
 }
 
