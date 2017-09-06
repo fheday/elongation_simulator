@@ -12,6 +12,7 @@ void mRNAReader::loadRateCalculatorFile(std::string file_name)
     rate_calculator.loadRates(file_name);
 }
 
+
 void mRNAReader::loadmRNAFile(std::string mRNA_file_name)
 {
     std::ifstream ist{mRNA_file_name};
@@ -63,6 +64,13 @@ void mRNAReader::generateInitialPopulation()
     initial_population.row(2).setZero();
     initial_population.row(3).setZero();
 }
+
+
+std::string mRNA_utils::mRNAReader::getCodon(int codon_number)
+{
+    return mRNA_sequence.substr(codon_number * 3, 3);
+}
+
 
 void mRNAReader::generateReactions()
 {

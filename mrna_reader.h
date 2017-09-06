@@ -18,6 +18,7 @@ namespace mRNA_utils {
         void generateReactions();
         void setInitiationRate(double);
         void setTerminationRate(double);
+        std::string getCodon(int);
         std::string mRNA_sequence;
         double termination_rate;
         double initiation_rate;
