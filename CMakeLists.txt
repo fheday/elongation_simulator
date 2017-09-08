@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 project(gillespie)
 
-set(common_sources concentrationsreader.cpp concentrationsreader.h enlogationsimulator.cpp enlogationsimulator.h gillespie.cpp gillespie.h mrna_reader.cpp mrna_reader.h ratecalculator.cpp ratecalculator.h reactionsset.cpp reactionsset.h ribosomesimulator.cpp ribosomesimulator.h)
+set(common_sources concentrationsreader.cpp concentrationsreader.h enlogationsimulator.cpp enlogationsimulator.h gillespie.cpp gillespie.h mrna_reader.cpp mrna_reader.h ratecalculator.cpp ratecalculator.h reactionsset.cpp reactionsset.h ribosomesimulator.cpp ribosomesimulator.h ribosomesimulator.cpp enlongation_codon.h enlongation_codon.cpp initiationterminationcodon.h  initiationterminationcodon.cpp mrnaelement.h  
+translation.h translation.cpp)
 
 add_definitions(-DCMAKE_BUILD)
 

@@ -199,10 +199,10 @@ void Simulations::Translation::getAlphas()
 
 void Simulations::Translation::run()
 {
-    dt_history = std::vector<double>(iteration_limit > 0 ? iteration_limit:1000);
+    dt_history = std::vector<double>(iteration_limit > 0 ? iteration_limit:100000);
     dt_history.clear();
     
-    ribosome_positions_history = std::vector<std::vector<int>>(iteration_limit > 0 ? iteration_limit: 1000);
+    ribosome_positions_history = std::vector<std::vector<int>>(iteration_limit > 0 ? iteration_limit: 100000);
     ribosome_positions_history.clear();
     
     //Eigen::MatrixXi updated_populations;
