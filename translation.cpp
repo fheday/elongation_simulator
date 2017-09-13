@@ -9,7 +9,7 @@
 /*
 <%
 
-cfg['compiler_args'] = ['-O3']
+cfg['compiler_args'] = ['-O3', '-ffast-math']
 cfg['sources'] = ['mrna_reader.cpp', 'initiationterminationcodon.cpp', 'concentrationsreader.cpp', 'ribosomesimulator.cpp', 'mrnaelement.cpp', 'gillespie.cpp', 'enlongation_codon.cpp', 'reactionsset.cpp', 'ratecalculator.cpp']
 cfg['parallel'] = True
 
@@ -218,13 +218,19 @@ void Simulations::Translation::run()
 
     while ((iteration_limit > 0  && i < iteration_limit) || (time_limit > 0 && clock < time_limit))
     {
-        dt_history.push_back(tau);
         //get the vector with the positions of all ribosomes
         std::vector<int> rib_positions;
         for (unsigned int i = 0; i < codons_vector.size(); i++){
             if (codons_vector[i]->isOccupied) rib_positions.push_back(i);
         }
-        ribosome_positions_history.push_back(rib_positions);
+        if (rib_positions.size() > 0 && rib_positions.size() == ribosome_positions_history.back().size() && std::equal(rib_positions.begin(), rib_positions.end(), ribosome_positions_history.back().begin()) ){
+            //no ribosome movement. just update dt_history.
+            dt_history.back() +=tau;
+        } else {
+            // ribosome movement detected. create new entry in the history.
+            dt_history.push_back(tau);
+            ribosome_positions_history.push_back(rib_positions);
+        }
         // randomly generate parameter for calculating dt
         r1 = dis(gen) + DBL_MIN; // adding minumum double value in order to avoid division by zero and infinities.
         // randomly generate parameter for selecting reaction

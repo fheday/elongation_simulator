@@ -78,7 +78,7 @@
      mrr.generateReactions();
  }
  
- void test_enlogation_simulator(std::string average_times_file_name="../data/codons/average_time.csv", std::string concentrations_file_name="../../RSim/data_with_times/concentrations.csv", double init_rate = 0.0001, int term_rate = 10, int iterations = 100)
+ void test_enlogation_simulator(std::string average_times_file_name="../data/codons/average_time.csv", std::string concentrations_file_name="../../RSim/data_with_times/concentrations.csv", double init_rate = 0.0001, int term_rate = 10, int iterations = 1000000)
  {
      Simulations::Translation t;
      t.loadConcentrations(concentrations_file_name);
