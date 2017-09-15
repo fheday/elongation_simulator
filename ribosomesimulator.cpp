@@ -7,11 +7,6 @@ cfg['sources'] = ['reactionsset.cpp', 'gillespie.cpp', 'concentrationsreader.cpp
 setup_pybind11(cfg)
 %>
 */
-//cfg['include_dirs'] = ['/opt/anaconda/include/', '/opt/anaconda/include/eigen3']
-//cfg['compiler_args'] = ['-std=c++11', '-stdlib=libc++', '-std=c++14', '-shared-libgcc', '-static-libstdc++']
-//cfg['compiler_args'] = ['-std=c++14']
-//cfg['parallel'] = False
-//
 
 #ifndef CMAKE_BUILD
 #include <pybind11/pybind11.h>
@@ -82,8 +77,8 @@ void RibosomeSimulator::setNumberOfRibosomes(int nrib)
 {
     Eigen::MatrixXi population(32, 1);
     population.fill(0);
-    population(0,0) = nrib;
-//     Gillespie::setInitialPopulation(population);
+    population(0,0) = nrib; 
+    Gillespie::setInitialPopulation(population);
     current_population = population;
 }
 
@@ -112,6 +107,8 @@ void RibosomeSimulator::getDecodingAndTranslocationTimes(double& decoding_time, 
     }
     for (unsigned int ii = translocation_index; ii < dt_history.size(); ii++) translocation_time += dt_history[ii];
 }
+
+
 ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration_entry& codon)
 {
     double totalconc = 1.9e-4;
@@ -478,7 +475,7 @@ float Simulations::RibosomeSimulator::runOnce()
 
     double r1 = 0, r2 = 0;
     double tau = 0;
-//     int i = 0;
+
 
     // randomly generate parameter for calculating dt
     r1 = dis(gen);//dis(gen);
