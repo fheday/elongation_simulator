@@ -25,13 +25,7 @@ namespace py = pybind11;
 
 
 #ifndef CMAKE_BUILD
-PYBIND11_PLUGIN(translation){
-    pybind11::module mod("translation", "auto-compiled c++ extension");
-
-//     py::class_<Gillespie> (mod, "gillespie")
-//     .def(py::init<>()) //constructor
-//     .def("setIterationLimit", &Gillespie::setIterationLimit)
-//     .def("run", &Gillespie::run);
+PYBIND11_MODULE(translation, mod){
 
     py::class_<Simulations::Translation> (mod, "translation")
     .def(py::init<>()) //constructor
@@ -56,9 +50,6 @@ PYBIND11_PLUGIN(translation){
     .def_readonly("total_time", &Simulations::Translation::total_time)
     .def_readonly("n_times_occupied", &Simulations::Translation::n_times_occupied)
     .def_readonly("average_times", &Simulations::Translation::codons_average_occupation_time);
-
-
-    return mod.ptr();
 
 }
 #endif
@@ -257,15 +248,15 @@ void Simulations::Translation::run()
         if (codons_vector[codon_index[selected_alpha_vector_index]]->getState() == 31) {
             codons_vector[codon_index[selected_alpha_vector_index]]->setState(0);
             codons_vector[codon_index[selected_alpha_vector_index]]->isOccupied = false;
-            if (codon_index[selected_alpha_vector_index] + 1 <  codons_vector.size()){
+            if ((unsigned) (codon_index[selected_alpha_vector_index] + 1) <  codons_vector.size()){
                 //there is a next codon. move on to it.
                 codons_vector[codon_index[selected_alpha_vector_index]+ 1]->isOccupied = true;
                 codons_vector[codon_index[selected_alpha_vector_index]+ 1]->isAvailable = false;
             }
             //update free codons due to the size of the ribosome.
-            if (codon_index[selected_alpha_vector_index] > 8 && codon_index[selected_alpha_vector_index] < codons_vector.size() - 1){
+            if ((unsigned) codon_index[selected_alpha_vector_index] > 8 && (unsigned) codon_index[selected_alpha_vector_index] < codons_vector.size() - 1){
                 codons_vector[codon_index[selected_alpha_vector_index] - 9]->isAvailable = true;
-            } else if (codon_index[selected_alpha_vector_index] == codons_vector.size() - 1) {
+            } else if ((unsigned) codon_index[selected_alpha_vector_index] == codons_vector.size() - 1) {
                 //ribosome terminated. free codons positions occupied by it.
                 for (unsigned int i = codons_vector.size() - 10; i < codons_vector.size(); i++){
                     codons_vector[i]->isAvailable = true;

@@ -22,8 +22,7 @@ namespace py = pybind11;
 using namespace Simulations;
 
 #ifndef CMAKE_BUILD
-PYBIND11_PLUGIN(ribosomesimulator){
-    pybind11::module mod("ribosomesimulator", "auto-compiled c++ extension");
+PYBIND11_MODULE(ribosomesimulator, mod){
 
     py::class_<Gillespie> (mod, "gillespie")
     .def(py::init<>()) //constructor
@@ -36,8 +35,6 @@ PYBIND11_PLUGIN(ribosomesimulator){
     .def("setCodonForSimulation", &RibosomeSimulator::setCodonForSimulation)
     .def("run_and_get_times", [](RibosomeSimulator &rs) {double d=0.0; double t=0.0; rs.run_and_get_times(d, t); return std::make_tuple(d, t); });
     
-    return mod.ptr();
-
 }
 #endif
 
