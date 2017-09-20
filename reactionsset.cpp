@@ -1,4 +1,5 @@
 #include "reactionsset.h"
+#include <tuple>
 using namespace Simulations;
 
 ReactionsSet::ReactionsSet()
@@ -38,10 +39,12 @@ void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  double k)
  * @param as_vector Eigen vector to store the An value (for 1st order reactions: k*population, for 0-order reactions: k), where k = reaction's propensity.
  * @param reaction_number_vector Eigen vector to contain the index of the reaction in the reactionsSet object.
  */
-void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXd& as_vector, Eigen::VectorXi& reaction_number_vector)
+void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, std::vector<double>& as, std::vector<int>& reaction_number)
 {
-    std::vector<double> as;
-    std::vector<int> reaction_number;
+//     std::vector<double> as(k_pop_index.size());
+//     std::vector<int> reaction_number(k_pop_index.size());
+    as = std::vector<double>(k_pop_index.size());
+    reaction_number = std::vector<int>(k_pop_index.size());
     int i = 0;
     for (std::tuple<double, std::vector<std::tuple<int, int>>> k_and_index : k_pop_index){
         double k = std::get<0>(k_and_index);
@@ -54,15 +57,16 @@ void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, Eigen::VectorXd& as
             int specie_population = 1;
             for (std::tuple<int, int> element:std::get<1>(k_and_index)) specie_population *= species(std::get<0>(element), std::get<1>(element));
             // store the reaction's propensity and the locations of the reactants in the species matrix.
-            if (k!=0 && specie_population != 0){
-                as.push_back(k * specie_population);
+            double propensity = k * specie_population;
+            if (propensity > 0){
+                as.push_back(propensity);
                 reaction_number.push_back(i); //save index number.
             }
         }
         i++;
     }
-    as_vector = Eigen::VectorXd::Map(as.data(), as.size());
-    reaction_number_vector = Eigen::VectorXi::Map(reaction_number.data(), reaction_number.size());
+//     as_vector = Eigen::VectorXd::Map(as.data(), as.size());
+//     reaction_number_vector = Eigen::VectorXi::Map(reaction_number.data(), reaction_number.size());
 }
 
 

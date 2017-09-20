@@ -159,8 +159,8 @@ void Simulations::Translation::getAlphas()
     //populate the vectors.
     for (unsigned int i = 0; i < codons_vector.size(); i++){
         if ((i==0 && codons_vector[0]->isAvailable == true) || codons_vector[i]->isOccupied) {
-            Eigen::VectorXd t_as, as;
-            Eigen::VectorXi t_ri, ri;
+            std::vector<double> t_as, as;
+            std::vector<int> t_ri, ri;
             codons_vector[i]->getAlphas(t_as, t_ri);
             //check: in case of translocation, the next ribosome must be AVAILABLE.
             std::vector<double> as_vector;

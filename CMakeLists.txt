@@ -8,6 +8,7 @@ add_definitions(-DCMAKE_BUILD)
 
 add_executable(gillespie main.cpp ${common_sources})
 add_executable(calculateCodonsTimes calculateCodonsTimes.cpp ${common_sources})
+add_executable(run_translation run_translation.cpp ${common_sources})
 install(TARGETS gillespie RUNTIME DESTINATION bin)
 
 

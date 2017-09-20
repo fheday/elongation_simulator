@@ -4,13 +4,14 @@
 #include "mrnaelement.h"
 #include <random>
 #include <math.h>
+#include <eigen3/Eigen/Dense>
 
 namespace Simulations {
     class InitiationTerminationCodon : public mRNAElement
     {
     public:
         InitiationTerminationCodon(float, bool);
-        void getAlphas(Eigen::VectorXd& as, Eigen::VectorXi& reactions_index) override;
+        void getAlphas(std::vector<double>& as, std::vector<int>& reactions_index) override;
         void executeReaction(int) override;
         int getState() override;
         void setState(int ) override;

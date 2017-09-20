@@ -66,8 +66,8 @@ void Gillespie::run()
     population_history.clear();
     Eigen::MatrixXi populations = initial_population;
     Eigen::MatrixXi updated_populations;
-    Eigen::VectorXd as;
-    Eigen::VectorXi reactions_index;
+    std::vector<double> as;
+    std::vector<int> reactions_index;
     // initialize the random generator
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
@@ -92,7 +92,7 @@ void Gillespie::run()
             // no available reactions, quit loop prematurely.
             break;
         }
-        double a0 = as.sum();
+        double a0 = std::accumulate(as.begin(), as.end(), 0.0);
         // select next reaction to execute
         double cumsum = 0;
         int selected_index = -1;

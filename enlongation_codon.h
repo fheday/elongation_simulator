@@ -15,7 +15,7 @@ namespace Simulations {
         RibosomeSimulator ribosome;
         void setCodon(std::string);
         void loadConcentrations(std::string);
-        void getAlphas(Eigen::VectorXd& as, Eigen::VectorXi& reactions_index) override;
+        void getAlphas(std::vector<double>& as, std::vector<int>& reactions_index) override;
         void executeReaction(int) override;
         int getState() override;
         void setState(int) override;

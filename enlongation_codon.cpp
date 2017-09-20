@@ -29,7 +29,7 @@ void EnlongationCodon::setCodon(std::string cdn)
     ribosome.setCodonForSimulation(cdn);
 }
 
-void EnlongationCodon::getAlphas(Eigen::VectorXd& as, Eigen::VectorXi& reactions_index)
+void EnlongationCodon::getAlphas(std::vector<double>& as, std::vector<int>& reactions_index)
 {
     ribosome.getAlphas(as, reactions_index);
 }

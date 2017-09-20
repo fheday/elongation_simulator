@@ -459,7 +459,7 @@ void Simulations::RibosomeSimulator::setState(int s)
     current_population(s,0) = 1;
 }
 
-void Simulations::RibosomeSimulator::getAlphas(Eigen::VectorXd& as, Eigen::VectorXi& reactions_index)
+void Simulations::RibosomeSimulator::getAlphas(std::vector<double>& as, std::vector<int>& reactions_index)
 {
     reactions.getAlphas(current_population, as, reactions_index);
 }
@@ -467,8 +467,8 @@ void Simulations::RibosomeSimulator::getAlphas(Eigen::VectorXd& as, Eigen::Vecto
 float Simulations::RibosomeSimulator::runOnce()
 {
     Eigen::MatrixXi updated_populations;
-    Eigen::VectorXd as;
-    Eigen::VectorXi reactions_index;
+    std::vector<double> as;
+    std::vector<int> reactions_index;
 
     double r1 = 0, r2 = 0;
     double tau = 0;
@@ -485,7 +485,7 @@ float Simulations::RibosomeSimulator::runOnce()
         // no available reactions, quit loop prematurely.
         return -1;
     }
-    double a0 = as.sum();
+    double a0 = std::accumulate(as.begin(), as.end(), 0.0);
     // select next reaction to execute
     double cumsum = 0;
     int selected_index = -1;

@@ -18,7 +18,7 @@ namespace Simulations {
         float runOnce();
         int getState();
         void setState(int);
-        void getAlphas(Eigen::VectorXd&, Eigen::VectorXi&);
+        void getAlphas(std::vector<double>&, std::vector<int>&);
         void loadConcentrations(std::string);
         void setNumberOfRibosomes(int);
         void setCodonForSimulation(const std::string&);
