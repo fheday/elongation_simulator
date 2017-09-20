@@ -41,8 +41,6 @@ void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  double k)
  */
 void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, std::vector<double>& as, std::vector<int>& reaction_number)
 {
-//     std::vector<double> as(k_pop_index.size());
-//     std::vector<int> reaction_number(k_pop_index.size());
     as = std::vector<double>(k_pop_index.size());
     reaction_number = std::vector<int>(k_pop_index.size());
     int i = 0;
@@ -65,8 +63,6 @@ void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, std::vector<double>
         }
         i++;
     }
-//     as_vector = Eigen::VectorXd::Map(as.data(), as.size());
-//     reaction_number_vector = Eigen::VectorXi::Map(reaction_number.data(), reaction_number.size());
 }
 
 

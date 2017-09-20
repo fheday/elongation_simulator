@@ -159,27 +159,25 @@ void Simulations::Translation::getAlphas()
     //populate the vectors.
     for (unsigned int i = 0; i < codons_vector.size(); i++){
         if ((i==0 && codons_vector[0]->isAvailable == true) || codons_vector[i]->isOccupied) {
-            std::vector<double> t_as, as;
-            std::vector<int> t_ri, ri;
-            codons_vector[i]->getAlphas(t_as, t_ri);
+            std::vector<double> as;
+            std::vector<int> reactions_indexes;
+            codons_vector[i]->getAlphas(as, reactions_indexes);
             //check: in case of translocation, the next ribosome must be AVAILABLE.
-            std::vector<double> as_vector;
-            std::vector<int> ri_vector;
-            for (int j = 0; j <t_as.size(); j++) {
-                if (t_as[j] <=22) {
+            for (int j = 0; j < as.size(); j++) {
+                if (as[j] <=22) {
                     //still decoding. add.
-                    alphas.push_back(t_as[j]);
+                    alphas.push_back(as[j]);
                     codon_index.push_back(i);
-                    reaction_index.push_back(t_ri[j]);
+                    reaction_index.push_back(reactions_indexes[j]);
                 } else {
-                    if (t_as[j] == 24 && i <= codons_vector.size() - 1 && !codons_vector[i + 1]->isAvailable) {
+                    if (as[j] == 24 && i <= codons_vector.size() - 1 && !codons_vector[i + 1]->isAvailable) {
                         continue;
                     } 
                     if (i == codons_vector.size() - 1 || codons_vector[i + 1]->isAvailable){
                         //translocating. only add if next codon is available Or if termination codon.
-                        alphas.push_back(t_as[j]);
+                        alphas.push_back(as[j]);
                         codon_index.push_back(i);
-                        reaction_index.push_back(t_ri[j]);
+                        reaction_index.push_back(reactions_indexes[j]);
                     }
                 }
             }
