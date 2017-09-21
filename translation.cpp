@@ -149,18 +149,16 @@ void Simulations::Translation::setTimeLimit(double t)
 
 void Simulations::Translation::getAlphas()
 {
-    alphas = std::vector<double>();
     alphas.clear();
-    codon_index = std::vector<int>();
     codon_index.clear();
-    codon_index = std::vector<int>();
     reaction_index.clear();
+    
+    std::vector<double> as;
+    std::vector<int> reactions_indexes;
     
     //populate the vectors.
     for (unsigned int i = 0; i < codons_vector.size(); i++){
         if ((i==0 && codons_vector[0]->isAvailable == true) || codons_vector[i]->isOccupied) {
-            std::vector<double> as;
-            std::vector<int> reactions_indexes;
             codons_vector[i]->getAlphas(as, reactions_indexes);
             //check: in case of translocation, the next ribosome must be AVAILABLE.
             for (int j = 0; j < as.size(); j++) {
@@ -204,11 +202,11 @@ void Simulations::Translation::run()
     double r1 = 0, r2 = 0;
     double tau = 0, clock = 0.0;
     int i = 0;
-
+    std::vector<int> rib_positions(codons_vector.size());
     while ((iteration_limit > 0  && i < iteration_limit) || (time_limit > 0 && clock < time_limit))
     {
         //get the vector with the positions of all ribosomes
-        std::vector<int> rib_positions;
+        rib_positions.clear();
         for (unsigned int i = 0; i < codons_vector.size(); i++){
             if (codons_vector[i]->isOccupied) rib_positions.push_back(i);
         }
@@ -231,7 +229,7 @@ void Simulations::Translation::run()
             // no available reactions, quit loop prematurely.
             break;
         }
-        double a0 = std::accumulate(alphas.begin(), alphas.end(), 0);
+        double a0 = std::accumulate(alphas.begin(), alphas.end(), 0.0);
         // select next reaction to execute
         double cumsum = 0;
         int selected_alpha_vector_index = -1;
@@ -256,12 +254,9 @@ void Simulations::Translation::run()
                 codons_vector[codon_index[selected_alpha_vector_index] - 9]->isAvailable = true;
             } else if ((unsigned) codon_index[selected_alpha_vector_index] == codons_vector.size() - 1) {
                 //ribosome terminated. free codons positions occupied by it.
-                for (unsigned int i = codons_vector.size() - 10; i < codons_vector.size(); i++){
-                    codons_vector[i]->isAvailable = true;
-                }
+                for (unsigned int i = codons_vector.size() - 10; i < codons_vector.size(); i++) codons_vector[i]->isAvailable = true;
             }
         }
-
         //Update time
         tau = (1.0/a0) * log(1.0/r1);
         clock += tau;

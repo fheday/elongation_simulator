@@ -41,14 +41,14 @@ void ReactionsSet::addReaction(Eigen::MatrixXi reaction,  double k)
  */
 void ReactionsSet::getAlphas(const Eigen::MatrixXi& species, std::vector<double>& as, std::vector<int>& reaction_number)
 {
-    as = std::vector<double>(k_pop_index.size());
-    reaction_number = std::vector<int>(k_pop_index.size());
+    as.clear();
+    reaction_number.clear();
     int i = 0;
     for (std::tuple<double, std::vector<std::tuple<int, int>>> k_and_index : k_pop_index){
         double k = std::get<0>(k_and_index);
-        if (std::get<1>(k_and_index).empty() && k > 0) {
+        if (std::get<1>(k_and_index).empty()) {
             //zero order reaction. no need for species.
-            as.push_back(std::get<0>(k_and_index)); // a = propensity.
+            as.push_back(k); // a = propensity.
             reaction_number.push_back(i); //save index number.
         } else {
             // first order reaction. dependent on species.
