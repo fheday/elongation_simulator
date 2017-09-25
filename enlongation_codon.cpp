@@ -37,7 +37,7 @@ void EnlongationCodon::getAlphas(std::vector<double>& as, std::vector<int>& reac
 void EnlongationCodon::executeReaction(int r)
 {
     //execute reaction.
-    ribosome.current_population = ribosome.current_population + ribosome.reactions.getReaction(r);
+    ribosome.setState(r);
 }
 
 int Simulations::EnlongationCodon::getState()

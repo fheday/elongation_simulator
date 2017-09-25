@@ -30,6 +30,7 @@ namespace Simulations {
         std::uniform_real_distribution<> dis;
     private:
         ReactionsSet createReactionSet(const csv_utils::concentration_entry&);
+        std::vector<std::vector<std::tuple<double, int>>> reaction_index; //vector where the index is the ribosome state and the content is the index of the possible next reactions.
     };
 }
 

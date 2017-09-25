@@ -19,6 +19,7 @@ namespace py = pybind11;
 #include <eigen3/Eigen/Dense>
 #include "concentrationsreader.h"
 #include <numeric>
+
 using namespace Simulations;
 
 #ifndef CMAKE_BUILD
@@ -440,8 +441,17 @@ ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration
 
     ReactionsSet rs;
     int ii = 0;
+    reaction_index.resize(32);
+    std::fill(reaction_index.begin(), reaction_index.end(), std::vector<std::tuple<double, int>>());
     for (Eigen::MatrixXi m:reactionMatrix) {
-        rs.addReaction(m, ks.at(ii), reactions_identifiers.at(ii));
+        if (ks.at(ii) > 0){ 
+            rs.addReaction(m, ks.at(ii), reactions_identifiers.at(ii));
+            //populate the local index.
+            Eigen::Index maxRow, maxCol, minRow, minCol;
+            m.maxCoeff(&maxRow, &maxCol); // 1
+            m.minCoeff(&minRow, &minCol); // -1
+            reaction_index.at(minRow).push_back({ks.at(ii), maxRow});
+        }
         ii++;
     }
     return rs;
@@ -461,7 +471,19 @@ void Simulations::RibosomeSimulator::setState(int s)
 
 void Simulations::RibosomeSimulator::getAlphas(std::vector<double>& as, std::vector<int>& reactions_index)
 {
-    reactions.getAlphas(current_population, as, reactions_index);
+    //reactions.getAlphas(current_population, as, reactions_index);
+    as.clear();
+    reactions_index.clear();
+    Eigen::Index state;
+    current_population.col(0).maxCoeff(&state);
+    auto alphas_and_indexes = reaction_index[state];
+    double k;
+    int index;
+    for (auto element:alphas_and_indexes){
+        std::tie(k, index) = element;
+        as.push_back(k);
+        reactions_index.push_back(index);
+    }
 }
 
 float Simulations::RibosomeSimulator::runOnce()
