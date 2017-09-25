@@ -161,7 +161,7 @@ void Simulations::Translation::getAlphas()
         if ((i==0 && codons_vector[0]->isAvailable == true) || codons_vector[i]->isOccupied) {
             codons_vector[i]->getAlphas(as, reactions_indexes);
             //check: in case of translocation, the next ribosome must be AVAILABLE.
-            for (int j = 0; j < as.size(); j++) {
+            for (std::size_t j = 0; j < as.size(); j++) {
                 if (as[j] <=22) {
                     //still decoding. add.
                     alphas.push_back(as[j]);
@@ -290,7 +290,7 @@ std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> Simulations:
     int last_codon_position = codons_vector.size() - 1;
     for (unsigned int i = 1; i < ribosome_positions_history.size(); i++)
     {
-        std::vector<int>& ribosomes_positions = ribosome_positions_history[i];
+        auto& ribosomes_positions = ribosome_positions_history[i];
         current_zero_occupied = std::find(ribosomes_positions.begin(), ribosomes_positions.end(), 0) !=ribosomes_positions.end();
         current_last_occupied = std::find(ribosomes_positions.begin(), ribosomes_positions.end(), last_codon_position) !=ribosomes_positions.end();
         if (!previous_zero_occupied && current_zero_occupied){
@@ -324,7 +324,7 @@ void Simulations::Translation::calculateAverageTimes()
     std::vector<int> last_index_occupied(number_codons);
     std::fill(last_index_occupied.begin(), last_index_occupied.end(), -1);
     int iteration_number = 0;
-    for (std::vector<int> ribosome_vector:ribosome_positions_history) {
+    for (auto ribosome_vector:ribosome_positions_history) {
         for (int position:ribosome_vector) {
             total_time[position] += dt_history[iteration_number];
             if (last_index_occupied[position] == -1 || last_index_occupied[position] != iteration_number - 1){

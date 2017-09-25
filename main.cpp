@@ -90,7 +90,7 @@
      //run enlogation simulator.
      t.run();
      int i = 0;
-     for (std::vector<int> rib_pos_vec:t.ribosome_positions_history) {
+     for (auto rib_pos_vec:t.ribosome_positions_history) {
          std::cout<<"iteration = "<< i <<"positions = ";
          for (int pos:rib_pos_vec) std::cout<<" "<<pos;
          std::cout<<"\n";
