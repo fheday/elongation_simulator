@@ -161,15 +161,14 @@ void Simulations::Translation::getAlphas()
         if ((i==0 && codons_vector[0]->isAvailable == true) || codons_vector[i]->isOccupied) {
             codons_vector[i]->getAlphas(as, reactions_indexes);
             //check: in case of translocation, the next ribosome must be AVAILABLE.
-            int ribosome_state = codons_vector[i]->getState();
             for (std::size_t j = 0; j < as.size(); j++) {
-                if (ribosome_state <=22) {
+                if (reactions_indexes[j] <=22) {
                     //still decoding. add.
                     alphas.push_back(as[j]);
                     codon_index.push_back(i);
                     reaction_index.push_back(reactions_indexes[j]);
                 } else {
-                    if (ribosome_state == 24 && i <= codons_vector.size() - 1 && !codons_vector[i + 1]->isAvailable) {
+                    if (reactions_indexes[j] == 24 && i <= codons_vector.size() - 1 && !codons_vector[i + 1]->isAvailable) {
                         continue;
                     } 
                     if (i == codons_vector.size() - 1 || codons_vector[i + 1]->isAvailable){
