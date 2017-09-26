@@ -21,7 +21,6 @@ namespace Simulations {
         void loadConcentrations(std::string);
         void setCodonForSimulation(const std::string&);
         void run_and_get_times(double&, double&);
-        void getDecodingAndTranslocationTimes(double&, double&);
         csv_utils::ConcentrationsReader concentrations_reader;
         std::mt19937 gen;
         std::uniform_real_distribution<> dis;

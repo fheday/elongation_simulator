@@ -142,21 +142,6 @@ void RibosomeSimulator::run_and_get_times(double& decoding_time, double& translo
     
 }
 
-void RibosomeSimulator::getDecodingAndTranslocationTimes(double& decoding_time, double& translocation_time)
-{
-    int translocation_index = 0, i = 0;
-    decoding_time = 0; // avoid propagating errors.
-    translocation_time = 0; // avoid propagating errors.
-    for (Eigen::MatrixXi population:population_history) {
-        if (population(24,0) == 1) translocation_index = i;
-        i++;
-    }
-    for (int ii = 0; ii < translocation_index; ii++) {
-        decoding_time += dt_history[ii];
-    }
-    for (unsigned int ii = translocation_index; ii < dt_history.size(); ii++) translocation_time += dt_history[ii];
-}
-
 
 std::vector<std::vector<std::tuple<double, int>>> RibosomeSimulator::createReactionsGraph(const csv_utils::concentration_entry& codon)
 {
