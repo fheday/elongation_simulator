@@ -15,7 +15,6 @@ namespace Simulations {
     {
     public:
         RibosomeSimulator();
-        float runOnce();
         int getState();
         void setState(int);
         void getAlphas(std::vector<double>&, std::vector<int>&);
