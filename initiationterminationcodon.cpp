@@ -10,14 +10,14 @@ void Simulations::InitiationTerminationCodon::getAlphas(std::vector<double>& as,
 {
     if ((is_initiation && state == 0 && isAvailable)  || (!is_initiation && state == 0 && isOccupied)) {
         as = std::vector<double>(1);
-        as.push_back(propensity);
+        as[0] = propensity;
         reactions_index = std::vector<int>(1);
-        reactions_index.push_back(0);
+        reactions_index[0] = 0;
     } else if (state==23) {
         as = std::vector<double>(1);
-        as.push_back(1000); // verify
+        as[0] =1000; // verify
         reactions_index = std::vector<int>(1);
-        reactions_index.push_back(0);
+        reactions_index[0] = 0;
     } else {
         as = std::vector<double>(0);
         reactions_index = std::vector<int>(0);
