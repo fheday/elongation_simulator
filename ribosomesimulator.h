@@ -19,7 +19,6 @@ namespace Simulations {
         void setState(int);
         void getAlphas(std::vector<double>&, std::vector<int>&);
         void loadConcentrations(std::string);
-        void setNumberOfRibosomes(int);
         void setCodonForSimulation(const std::string&);
         void run_and_get_times(double&, double&);
         void getDecodingAndTranslocationTimes(double&, double&);

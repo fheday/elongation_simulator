@@ -48,6 +48,11 @@ RibosomeSimulator::RibosomeSimulator()
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     gen = std::mt19937(rd()); //Standard mersenne_twister_engine seeded with rd()
     dis = std::uniform_real_distribution<>(0, 1);
+    //create initial population.
+    Eigen::MatrixXi population(32, 1);
+    population.fill(0);
+    population(0,0) = 1;
+    current_population = population;
 
 }
 
@@ -69,16 +74,6 @@ void Simulations::RibosomeSimulator::loadConcentrations(std::string file_name)
             reactions_map[entry.codon] = createReactionsGraph(entry);
         }
     }
-}
-
-
-void RibosomeSimulator::setNumberOfRibosomes(int nrib)
-{
-    Eigen::MatrixXi population(32, 1);
-    population.fill(0);
-    population(0,0) = nrib; 
-    Gillespie::setInitialPopulation(population);
-    current_population = population;
 }
 
 void RibosomeSimulator::setCodonForSimulation(const std::string& codon)
@@ -545,4 +540,3 @@ void Simulations::RibosomeSimulator::getAlphas(std::vector<double>& as, std::vec
         reactions_index.push_back(index);
     }
 }
-

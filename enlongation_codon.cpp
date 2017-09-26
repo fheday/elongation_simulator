@@ -19,8 +19,6 @@ void EnlongationCodon::loadConcentrations(std::string file_name)
         // when setting the concentrations file name, we can also
         // initialize the RibosomeSimulator object.
         ribosome.loadConcentrations(file_name);
-        ribosome.setIterationLimit(2000);
-        ribosome.setNumberOfRibosomes(1);
     }
 }
 
