@@ -19,6 +19,8 @@ namespace py = pybind11;
 #include <eigen3/Eigen/Dense>
 #include "concentrationsreader.h"
 #include <numeric>
+#include <float.h>
+#include <float.h>
 
 using namespace Simulations;
 
@@ -64,8 +66,7 @@ void Simulations::RibosomeSimulator::loadConcentrations(std::string file_name)
         auto result = std::find(stop_codons.begin(), stop_codons.end(), entry.codon);
         if (result == end(stop_codons)) {
             //Not a stop codon. Proceed.
-            ReactionsSet rs = createReactionSet(entry);
-            reactions_map[entry.codon] = rs;
+            reactions_map[entry.codon] = createReactionsGraph(entry);
         }
     }
 }
@@ -82,13 +83,68 @@ void RibosomeSimulator::setNumberOfRibosomes(int nrib)
 
 void RibosomeSimulator::setCodonForSimulation(const std::string& codon)
 {
-    setReactionsSet(reactions_map.at(codon));
+    reactions_graph = reactions_map.at(codon);
 }
 
 void RibosomeSimulator::run_and_get_times(double& decoding_time, double& translocation_time)
 {
-    Gillespie::run();
-    getDecodingAndTranslocationTimes(decoding_time, translocation_time);
+    std::vector<double> dt_history;
+    dt_history.clear();
+    std::vector<int> ribosome_state_history;
+    ribosome_state_history.clear();
+
+    // initialize the random generator
+    std::random_device rd;  //Will be used to obtain a seed for the random number engine
+    std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+    std::uniform_real_distribution<> dis(0, 1);
+
+    double r1 = 0, r2 = 0;
+    double tau = 0, clock = 0.0;
+    std::vector<double> alphas;
+    std::vector<int> next_state;
+    while (true)
+    {
+        // update history
+        dt_history.push_back(tau);
+        ribosome_state_history.push_back(getState());
+        // randomly generate parameter for calculating dt
+        r1 = dis(gen) + DBL_MIN; // adding minumum double value in order to avoid division by zero and infinities.
+        // randomly generate parameter for selecting reaction
+        r2 = dis(gen)+ DBL_MIN; // adding minumum double value in order to avoid division by zero and infinities.
+        // calculate an
+        getAlphas(alphas, next_state);
+        if (alphas.empty())
+        {
+            translocation_time = 0;
+            decoding_time = 0;
+            // no available reactions, get times and quit.
+            bool is_translocating = true;
+            for (int i = ribosome_state_history.size() -1; i >=0; i--){
+                if (is_translocating) {
+                    translocation_time+= dt_history[i];
+                    if (ribosome_state_history[i]<23) is_translocating = false;
+                } else {
+                    decoding_time += dt_history[i];
+                }
+            }
+            return;
+        }
+        double a0 = std::accumulate(alphas.begin(), alphas.end(), 0.0);
+        // select next reaction to execute
+        double cumsum = 0;
+        int selected_alpha_vector_index = -1;
+        // TODO: vectorization of this loop would increase performance
+        do {
+            selected_alpha_vector_index++;
+            cumsum += alphas[selected_alpha_vector_index]; 
+        } while (cumsum < a0 * r2);
+        //Apply reaction
+        setState(next_state[selected_alpha_vector_index]);
+        //Update time
+        tau = (1.0/a0) * log(1.0/r1);
+        clock += tau;
+    }
+    
 }
 
 void RibosomeSimulator::getDecodingAndTranslocationTimes(double& decoding_time, double& translocation_time)
@@ -107,7 +163,7 @@ void RibosomeSimulator::getDecodingAndTranslocationTimes(double& decoding_time, 
 }
 
 
-ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration_entry& codon)
+std::vector<std::vector<std::tuple<double, int>>> RibosomeSimulator::createReactionsGraph(const csv_utils::concentration_entry& codon)
 {
     double totalconc = 1.9e-4;
     double nonconc = totalconc - codon.wc_cognate_conc - codon.wobblecognate_conc - codon.nearcognate_conc;
@@ -439,28 +495,27 @@ ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration
     reactionMatrix[43](30,0) = -1;
     reactionMatrix[43](31,0) = 1;
 
-    ReactionsSet rs;
     int ii = 0;
-    reaction_index.resize(32);
-    std::fill(reaction_index.begin(), reaction_index.end(), std::vector<std::tuple<double, int>>());
-    // the vector reaction_index (I know, not a good name. needs to be changed at some point.), have the following format:
-    // reaction_index[current ribisome state] = [vector of tuples(reaction propensity, ribosome state)]
-    // this way, if the ribosome state is, say, 0, we check the possible reactions at reaction_index[0].
+    std::vector<std::vector<std::tuple<double, int>>> r_g;
+    r_g.resize(32);
+    std::fill(r_g.begin(), r_g.end(), std::vector<std::tuple<double, int>>());
+    // the vector reactions_graph (I know, not a good name. needs to be changed at some point.), have the following format:
+    // reactions_graph[current ribisome state] = [vector of tuples(reaction propensity, ribosome state)]
+    // this way, if the ribosome state is, say, 0, we check the possible reactions at reactions_graph[0].
     // if, say we select the reaction with the tuple (0.3, 16), it means that the reaction propensity is 0.3 and
     // it will make the ribosome state go to 16. This is purely for the sake of optimization.
-    // the loop below populates reaction_index automatically. It assumes that each reaction is first-degree.
+    // the loop below populates reactions_graph automatically. It assumes that each reaction is first-degree.
     for (Eigen::MatrixXi m:reactionMatrix) {
         if (ks.at(ii) > 0){ 
-            rs.addReaction(m, ks.at(ii), reactions_identifiers.at(ii));
             //populate the local index.
             Eigen::Index maxRow, maxCol, minRow, minCol;
             m.maxCoeff(&maxRow, &maxCol); // 1
             m.minCoeff(&minRow, &minCol); // -1
-            reaction_index.at(minRow).push_back({ks.at(ii), maxRow});
+            r_g.at(minRow).push_back({ks.at(ii), maxRow});
         }
         ii++;
     }
-    return rs;
+    return r_g;
 }
 
 int Simulations::RibosomeSimulator::getState()
@@ -481,7 +536,7 @@ void Simulations::RibosomeSimulator::getAlphas(std::vector<double>& as, std::vec
     reactions_index.clear();
     Eigen::Index state;
     current_population.col(0).maxCoeff(&state); // get the current ribosome state
-    auto alphas_and_indexes = reaction_index[state]; //go the possible reactions of that state.
+    auto alphas_and_indexes = reactions_graph[state]; //go the possible reactions of that state.
     double k;
     int index;
     for (auto element:alphas_and_indexes){
