@@ -34,7 +34,6 @@ PYBIND11_MODULE(ribosomesimulator, mod){
 
     py::class_<RibosomeSimulator, Gillespie> (mod, "ribosomesimulator")
     .def(py::init<>()) //constructor
-    .def("setNumberOfRibosomes", &RibosomeSimulator::setNumberOfRibosomes)
     .def("setCodonForSimulation", &RibosomeSimulator::setCodonForSimulation)
     .def("run_and_get_times", [](RibosomeSimulator &rs) {double d=0.0; double t=0.0; rs.run_and_get_times(d, t); return std::make_tuple(d, t); });
     
