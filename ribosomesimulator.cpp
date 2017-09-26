@@ -443,6 +443,12 @@ ReactionsSet RibosomeSimulator::createReactionSet(const csv_utils::concentration
     int ii = 0;
     reaction_index.resize(32);
     std::fill(reaction_index.begin(), reaction_index.end(), std::vector<std::tuple<double, int>>());
+    // the vector reaction_index (I know, not a good name. needs to be changed at some point.), have the following format:
+    // reaction_index[current ribisome state] = [vector of tuples(reaction propensity, ribosome state)]
+    // this way, if the ribosome state is, say, 0, we check the possible reactions at reaction_index[0].
+    // if, say we select the reaction with the tuple (0.3, 16), it means that the reaction propensity is 0.3 and
+    // it will make the ribosome state go to 16. This is purely for the sake of optimization.
+    // the loop below populates reaction_index automatically. It assumes that each reaction is first-degree.
     for (Eigen::MatrixXi m:reactionMatrix) {
         if (ks.at(ii) > 0){ 
             rs.addReaction(m, ks.at(ii), reactions_identifiers.at(ii));
@@ -471,12 +477,11 @@ void Simulations::RibosomeSimulator::setState(int s)
 
 void Simulations::RibosomeSimulator::getAlphas(std::vector<double>& as, std::vector<int>& reactions_index)
 {
-    //reactions.getAlphas(current_population, as, reactions_index);
     as.clear();
     reactions_index.clear();
     Eigen::Index state;
-    current_population.col(0).maxCoeff(&state);
-    auto alphas_and_indexes = reaction_index[state];
+    current_population.col(0).maxCoeff(&state); // get the current ribosome state
+    auto alphas_and_indexes = reaction_index[state]; //go the possible reactions of that state.
     double k;
     int index;
     for (auto element:alphas_and_indexes){
