@@ -25,17 +25,22 @@ void EnlongationCodon::loadConcentrations(std::string file_name)
 void EnlongationCodon::setCodon(std::string cdn)
 {
     ribosome.setCodonForSimulation(cdn);
+    //update reactions.
+    ribosome.getAlphas(alphas, reactions_index);
 }
 
-void EnlongationCodon::getAlphas(std::vector<double>& as, std::vector<int>& reactions_index)
+void EnlongationCodon::getAlphas(std::vector<double>& as, std::vector<int>& r_i)
 {
-    ribosome.getAlphas(as, reactions_index);
+    as = alphas;
+    r_i = reactions_index;
 }
 
 void EnlongationCodon::executeReaction(int r)
 {
     //execute reaction.
     ribosome.setState(r);
+    //update reactions.
+    ribosome.getAlphas(alphas, reactions_index);
 }
 
 int Simulations::EnlongationCodon::getState()
@@ -46,6 +51,8 @@ int Simulations::EnlongationCodon::getState()
 void Simulations::EnlongationCodon::setState(int s)
 {
     ribosome.setState(s);
+    //update reactions.
+    ribosome.getAlphas(alphas, reactions_index);
 }
 
 Simulations::EnlongationCodon::~EnlongationCodon()

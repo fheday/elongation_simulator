@@ -34,7 +34,7 @@ void execute_translation(std::string concentrations_file, std::string mrna_file,
     ts.setTimeLimit(time_limit);
     ts.run();
     ts.calculateAverageTimes();
-//     std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> enlongation_duration;
+
     std::vector<double> enlongation_duration;
     std::vector<int> iteration_initiation, iteration_termination;
     

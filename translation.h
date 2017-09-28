@@ -19,6 +19,8 @@ namespace Simulations{
         void setIterationLimit(int);
         void setTimeLimit(double);
 
+//         enum event {ribosome_reaction, ribosome_finished_translocating, ribosome_terminated};
+        
         void getAlphas();
         void run();
         
@@ -50,6 +52,7 @@ namespace Simulations{
         std::vector<double> codons_average_occupation_time;
     private:
         void initializeMRNAReader();
+        
     };
 }
 #endif // TRANSLATION_H

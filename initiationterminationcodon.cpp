@@ -4,24 +4,16 @@ Simulations::InitiationTerminationCodon::InitiationTerminationCodon(float prop, 
 {
     propensity = prop;
     is_initiation = init; // boolean to mark if the codon  is initiation or termination.
+    alphas = std::vector<double>(1);
+    alphas[0] = propensity;
+    reactions_index = std::vector<int>(1);
+    reactions_index[0] = 0;
 }
 
-void Simulations::InitiationTerminationCodon::getAlphas(std::vector<double>& as, std::vector<int>& reactions_index)
+void Simulations::InitiationTerminationCodon::getAlphas(std::vector<double>& as, std::vector<int>& r_i)
 {
-    if ((is_initiation && state == 0 && isAvailable)  || (!is_initiation && state == 0 && isOccupied)) {
-        as = std::vector<double>(1);
-        as[0] = propensity;
-        reactions_index = std::vector<int>(1);
-        reactions_index[0] = 0;
-    } else if (state==23) {
-        as = std::vector<double>(1);
-        as[0] =1000; // verify
-        reactions_index = std::vector<int>(1);
-        reactions_index[0] = 0;
-    } else {
-        as = std::vector<double>(0);
-        reactions_index = std::vector<int>(0);
-    }
+    as = alphas;
+    r_i = reactions_index;
 }
 
 int Simulations::InitiationTerminationCodon::getState()
@@ -32,16 +24,30 @@ int Simulations::InitiationTerminationCodon::getState()
 void Simulations::InitiationTerminationCodon::setState(int s)
 {
     state = s;
+    if (state == 0) {
+        alphas = std::vector<double>(1);
+        alphas[0] = propensity;
+        reactions_index = std::vector<int>(1);
+        reactions_index[0] = 0;
+    } else if (state==23) {
+        alphas = std::vector<double>(1);
+        alphas[0] =1000; // verify
+        reactions_index = std::vector<int>(1);
+        reactions_index[0] = 0;
+    } else {
+        alphas = std::vector<double>(0);
+        reactions_index = std::vector<int>(0);
+    }
 }
 
 
 void Simulations::InitiationTerminationCodon::executeReaction(int r)
 {
     if (state == 0) {
-        state = 23;
+        setState(23);
         isOccupied = true;
         isAvailable = false;
     } else if (state == 23) {
-        state = 31;
+        setState(31);
     }
 }

@@ -18,6 +18,8 @@ namespace Simulations{
         virtual void executeReaction(int) {};
         virtual int getState() {return -1;};
         virtual void setState(int) {};
+        std::vector<double> alphas;
+        std::vector<int> reactions_index;
     };
 }
 

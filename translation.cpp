@@ -20,7 +20,6 @@ setup_pybind11(cfg)
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 namespace py = pybind11;
-
 #endif
 
 
@@ -152,35 +151,52 @@ void Simulations::Translation::getAlphas()
     alphas.clear();
     codon_index.clear();
     reaction_index.clear();
-    
-    std::vector<double> as;
-    std::vector<int> reactions_indexes;
-    
+//     std::vector<double> as;
+//     std::vector<int> r_i;
+
     //populate the vectors.
-    for (unsigned int i = 0; i < codons_vector.size(); i++){
-        if ((i==0 && codons_vector[0]->isAvailable == true) || codons_vector[i]->isOccupied) {
-            codons_vector[i]->getAlphas(as, reactions_indexes);
+    std::vector<int> ribosome_positions = ribosome_positions_history.back();
+    int ribosome_index;
+    //add initiation if needed.
+    if (ribosome_positions.empty() || (ribosome_positions[0]!=0 && codons_vector[0]->isAvailable)) {
+        //need to add initalization.
+//         codons_vector[0]->getAlphas(as, r_i);
+        for (std::size_t j = 0; j <codons_vector[0]->alphas.size(); j++) {
+            alphas.push_back(codons_vector[0]->alphas[j]);
+            codon_index.push_back(0);
+            reaction_index.push_back(codons_vector[0]->reactions_index[j]);
+        }
+    }
+    //check for the existing ribosomes.
+    for (unsigned i = 0; i < ribosome_positions.size(); i++){
+        ribosome_index = ribosome_positions[i];
+        if (codons_vector[ribosome_index]->isOccupied) {
+//             codons_vector[ribosome_index]->getAlphas(as, r_i);
             //check: in case of translocation, the next ribosome must be AVAILABLE.
-            for (std::size_t j = 0; j < as.size(); j++) {
-                if (reactions_indexes[j] <=22) {
+            for (std::size_t j = 0; j < codons_vector[ribosome_index]->alphas.size(); j++) {
+                if (codons_vector[ribosome_index]->reactions_index[j] <=23) {
                     //still decoding. add.
-                    alphas.push_back(as[j]);
-                    codon_index.push_back(i);
-                    reaction_index.push_back(reactions_indexes[j]);
+                    alphas.push_back(codons_vector[ribosome_index]->alphas[j]);
+                    codon_index.push_back(ribosome_index);
+                    reaction_index.push_back(codons_vector[ribosome_index]->reactions_index[j]);
                 } else {
-                    if (reactions_indexes[j] == 24 && i <= codons_vector.size() - 1 && !codons_vector[i + 1]->isAvailable) {
+                    if (i == codons_vector.size() - 1 && codons_vector[ribosome_index]->reactions_index[j] == 24 && !codons_vector[i + 1]->isAvailable) {
                         continue;
                     } 
-                    if (i == codons_vector.size() - 1 || codons_vector[i + 1]->isAvailable){
+                    if (ribosome_index == codons_vector.size() - 1 || codons_vector[ribosome_index + 1]->isAvailable){
                         //translocating. only add if next codon is available Or if termination codon.
-                        alphas.push_back(as[j]);
-                        codon_index.push_back(i);
-                        reaction_index.push_back(reactions_indexes[j]);
+                        alphas.push_back(codons_vector[ribosome_index]->alphas[j]);
+                        codon_index.push_back(ribosome_index);
+                        reaction_index.push_back(codons_vector[ribosome_index]->reactions_index[j]);
                     }
                 }
             }
         }
     }
+//             std::cout<<"modified codon: "<<modified_ribosome_index<<"updated codon indexes = ";
+//             for (int index:codon_index) std::cout<<index<<", ";
+//             std::cout<<"\n";
+    
 }
 
 
@@ -191,8 +207,6 @@ void Simulations::Translation::run()
     
     ribosome_positions_history = std::vector<std::vector<int>>(iteration_limit > 0 ? iteration_limit: 100000);
     ribosome_positions_history.clear();
-    
-    //Eigen::MatrixXi updated_populations;
     
     // initialize the random generator
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
