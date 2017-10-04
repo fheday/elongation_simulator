@@ -32,6 +32,7 @@ void execute_translation(std::string concentrations_file, std::string mrna_file,
     ts.setInitiationRate(initiation_rate);
     ts.setTerminationRate(termination_rate);
     ts.setTimeLimit(time_limit);
+    ts.setPrepopulate(true); // simulations pre-populate the mRNA by default. This can be changed in the future.
     ts.run();
     ts.calculateAverageTimes();
 

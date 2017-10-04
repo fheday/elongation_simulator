@@ -124,6 +124,12 @@ void Simulations::Translation::setTerminationRate(double tr)
     initializeMRNAReader();
 }
 
+void Simulations::Translation::setPrepopulate(bool prep)
+{
+    pre_populate = prep;
+}
+
+
 /**
  * @brief Set a iteration limit for the Gillespie simulation.
  * 
@@ -217,6 +223,31 @@ void Simulations::Translation::run()
     double tau = 0, clock = 0.0;
     int i = 0;
     std::vector<int> rib_positions(codons_vector.size());
+    //pre-fill codons based on the rates.
+    if (pre_populate){
+        double initiation_time = 1/codons_vector[0]->alphas[0]; //propensity
+        int last_index = codons_vector.size() - 1;
+        double time_sum = 0;
+        codons_vector[last_index]->isOccupied = true;
+        codons_vector[last_index]->isAvailable = false;
+        codons_vector[last_index]->setState(0);
+        for (int i = codons_vector.size() - 2; i >= 0; i--) {
+            if (last_index - i <= 9){
+                codons_vector[i]->isAvailable = false;
+            } else {
+                time_sum += 1/codons_vector[i]->alphas[0];
+            }
+            if (time_sum >= initiation_time) {
+                //put a ribosome here.
+                codons_vector[i]->isOccupied = true;
+                codons_vector[i]->isAvailable = false;
+                codons_vector[i]->setState(0);
+                time_sum = 0; //reset timer.
+                last_index = i; //mark this as last inserted ribosome.
+            }
+            
+        }
+    }
     while ((iteration_limit > 0  && i < iteration_limit) || (time_limit > 0 && clock < time_limit))
     {
         //get the vector with the positions of all ribosomes
@@ -224,7 +255,8 @@ void Simulations::Translation::run()
         for (unsigned int i = 0; i < codons_vector.size(); i++){
             if (codons_vector[i]->isOccupied) rib_positions.push_back(i);
         }
-        if (rib_positions.size() > 0 && rib_positions.size() == ribosome_positions_history.back().size() && std::equal(rib_positions.begin(), rib_positions.end(), ribosome_positions_history.back().begin()) ){
+        //TODO: there are better ways of detecting ribosome movement: e.g.: checking just this iteration's reaction.
+        if (!ribosome_positions_history.empty() && rib_positions.size() > 0 && rib_positions.size() == ribosome_positions_history.back().size() && std::equal(rib_positions.begin(), rib_positions.end(), ribosome_positions_history.back().begin()) ){
             //no ribosome movement. just update dt_history.
             dt_history.back() +=tau;
         } else {
@@ -302,6 +334,7 @@ std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> Simulations:
     bool previous_zero_occupied = false, previous_last_occupied = false;
     bool current_zero_occupied = false, current_last_occupied = false;
     int last_codon_position = codons_vector.size() - 1;
+    int ribosomes_to_ignore = ribosome_positions_history[0].size();
     for (unsigned int i = 1; i < ribosome_positions_history.size(); i++)
     {
         auto& ribosomes_positions = ribosome_positions_history[i];
@@ -312,10 +345,15 @@ std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> Simulations:
             rib_initiation_iteration.push_back(i);
         } else if (previous_last_occupied && !current_last_occupied){
             //ribosome left.
-            result.push_back(clock[i - 1] - clock[rib_initiation_iteration.front()]);
-            initiation_iteration.push_back(rib_initiation_iteration.front());
-            termination_iteration.push_back(i - 1);
-            rib_initiation_iteration.pop_front();
+            if (ribosomes_to_ignore > 0 ){
+                //ignore ribosome. It was artificially inserted in the mRNA in order to quickly reach the steady state.
+                ribosomes_to_ignore--;
+            } else {
+                result.push_back(clock[i - 1] - clock[rib_initiation_iteration.front()]);
+                initiation_iteration.push_back(rib_initiation_iteration.front());
+                termination_iteration.push_back(i - 1);
+                rib_initiation_iteration.pop_front();
+            }
         }
         //update variables for next iteration.
         previous_last_occupied = current_last_occupied;
