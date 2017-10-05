@@ -26,6 +26,17 @@ void handler(int sig) {
 }
 
 void execute_translation(std::string concentrations_file, std::string mrna_file, float initiation_rate, float termination_rate, int time_limit, std::string output_file_name ) {
+    //separate the path from the file name.
+    std::size_t found = output_file_name.find_last_of("/\\");
+    std::string path = "./"; // current path.
+    std::string file_name = output_file_name;
+    if (found != std::string::npos) {
+        //there is a path.
+        path = output_file_name.substr(0,found + 1);
+        file_name = output_file_name.substr(found + 1);
+    }
+
+    //prepare and run the simulation.
     Simulations::Translation ts;
     ts.loadConcentrations(concentrations_file);
     ts.loadMRNA(mrna_file);
@@ -57,9 +68,9 @@ void execute_translation(std::string concentrations_file, std::string mrna_file,
     //data
     for (int i = 0; i <clock_at_initiation.size(); i++) clock_and_enlongation_csv_file<<std::fixed<<std::setprecision(10)<<clock_at_initiation[i]<<", "<<enlongation_duration[i]<<"\n";
     clock_and_enlongation_csv_file.close();
-    //TODO: save codon average time into csv file.
+
     std::ofstream codon_average_time_file;
-    codon_average_time_file.open("codon_average_time_"+output_file_name);
+    codon_average_time_file.open(path + "codon_average_time_" + file_name);
     //header
     codon_average_time_file<<"codon average time\n";
     //data
