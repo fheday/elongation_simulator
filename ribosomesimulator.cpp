@@ -8,7 +8,7 @@ setup_pybind11(cfg)
 %>
 */
 
-#ifndef CMAKE_BUILD
+#ifdef COMIPLE_PYTHON_MODULE
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 namespace py = pybind11;
@@ -24,7 +24,7 @@ namespace py = pybind11;
 
 using namespace Simulations;
 
-#ifndef CMAKE_BUILD
+#ifdef COMIPLE_PYTHON_MODULE
 PYBIND11_MODULE(ribosomesimulator, mod){
 
     py::class_<Gillespie> (mod, "gillespie")
