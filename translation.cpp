@@ -276,10 +276,15 @@ void Simulations::Translation::run()
             break;
         }
         double a0 = std::accumulate(alphas.begin(), alphas.end(), 0.0);
+        int selected_alpha_vector_index = -1;
+        // The commented code below is the vectorized version of the reaction selection.
+        // Here is the catch: the vectorized version always calculates all reactions, and from them, select one.
+        // the non-vectorized one (do... while loop) calculates only the ones up to the selected one.
+//         std::vector<double> cumsum(alphas.size());
+//         std::partial_sum(alphas.begin(), alphas.end(), cumsum.begin());
+//         selected_alpha_vector_index = std::distance(cumsum.begin(), std::upper_bound(cumsum.begin(), cumsum.end(), a0 * r2));
         // select next reaction to execute
         double cumsum = 0;
-        int selected_alpha_vector_index = -1;
-        // TODO: vectorization of this loop would increase performance
         do {
             selected_alpha_vector_index++;
             cumsum += alphas[selected_alpha_vector_index]; 
