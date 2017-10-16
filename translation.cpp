@@ -152,6 +152,18 @@ void Simulations::Translation::setTimeLimit(double t)
 }
 
 
+/**
+* @brief Set a limit of the number of ribosomes that sucessfully initiate and terminates the mRNA.
+* 
+* @param n_ribosomes p_n_ribosomes:The simulation will end after this number of ribosomes terminates the mRNA.
+*/
+void Simulations::Translation::setFinishedRibosomes(int n_ribosomes)
+{
+    if (n_ribosomes > 0) finished_ribosomes_limit = n_ribosomes;
+}
+
+
+
 void Simulations::Translation::getAlphas()
 {
     alphas.clear();
@@ -222,6 +234,8 @@ void Simulations::Translation::run()
     double r1 = 0, r2 = 0;
     double tau = 0, clock = 0.0;
     int i = 0;
+    
+    int finished_ribosomes = 0, pre_filled_ribosomes = 0;
     std::vector<int> rib_positions(codons_vector.size());
     //pre-fill codons based on the rates.
     if (pre_populate){
@@ -231,6 +245,7 @@ void Simulations::Translation::run()
         codons_vector[last_index]->isOccupied = true;
         codons_vector[last_index]->isAvailable = false;
         codons_vector[last_index]->setState(0);
+        pre_filled_ribosomes++;
         for (int i = codons_vector.size() - 2; i >= 0; i--) {
             if (last_index - i <= 9){
                 codons_vector[i]->isAvailable = false;
@@ -244,11 +259,13 @@ void Simulations::Translation::run()
                 codons_vector[i]->setState(0);
                 time_sum = 0; //reset timer.
                 last_index = i; //mark this as last inserted ribosome.
+                pre_filled_ribosomes++;
             }
             
         }
     }
-    while ((iteration_limit > 0  && i < iteration_limit) || (time_limit > 0 && clock < time_limit))
+    finished_ribosomes -= pre_filled_ribosomes + 1; // we should ignore these ribosomes.
+    while ((iteration_limit > 0  && i < iteration_limit) || (time_limit > 0 && clock < time_limit) || (finished_ribosomes_limit > 0 && finished_ribosomes_limit >= finished_ribosomes))
     {
         //get the vector with the positions of all ribosomes
         rib_positions.clear();
@@ -306,6 +323,10 @@ void Simulations::Translation::run()
             } else if ((unsigned) codon_index[selected_alpha_vector_index] == codons_vector.size() - 1) {
                 //ribosome terminated. free codons positions occupied by it.
                 for (unsigned int i = codons_vector.size() - 10; i < codons_vector.size(); i++) codons_vector[i]->isAvailable = true;
+                //if the simulation has a terminated ribosome limit, update the variable.
+                if (finished_ribosomes_limit > 0){
+                    finished_ribosomes++;
+                }
             }
         }
         //Update time

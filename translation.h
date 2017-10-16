@@ -18,6 +18,7 @@ namespace Simulations{
 
         void setIterationLimit(int);
         void setTimeLimit(double);
+        void setFinishedRibosomes(int);
         
         void setPrepopulate(bool);
 
@@ -34,6 +35,7 @@ namespace Simulations{
         double initiation_rate = -1;
         int iteration_limit = -1;
         double time_limit = -1;
+        int finished_ribosomes_limit = -1;
         
 
         std::vector<double>  alphas; // reactions alphas - all available ones.

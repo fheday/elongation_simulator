@@ -6,6 +6,7 @@
 #include <execinfo.h>
 #include <unistd.h>
 #include <signal.h>
+#include <getopt.h>
 #include "translation.h"
 #include "concentrationsreader.h"
 
@@ -25,7 +26,7 @@ void handler(int sig) {
     exit(1);
 }
 
-void execute_translation(std::string concentrations_file, std::string mrna_file, float initiation_rate, float termination_rate, int time_limit, std::string output_file_name ) {
+void execute_translation(std::string concentrations_file, std::string mrna_file, float initiation_rate, float termination_rate, int time_limit, int number_iterations, int number_ribosomes,  std::string output_file_name ) {
     //separate the path from the file name.
     std::size_t found = output_file_name.find_last_of("/\\");
     std::string path = "./"; // current path.
@@ -42,7 +43,14 @@ void execute_translation(std::string concentrations_file, std::string mrna_file,
     ts.loadMRNA(mrna_file);
     ts.setInitiationRate(initiation_rate);
     ts.setTerminationRate(termination_rate);
-    ts.setTimeLimit(time_limit);
+    if (time_limit > 0){
+        ts.setTimeLimit(time_limit);
+    } else if (number_iterations > 0) {
+        ts.setIterationLimit(number_iterations);
+    } else if (number_ribosomes > 0) {
+        ts.setFinishedRibosomes(number_ribosomes);
+    }
+    
     ts.setPrepopulate(true); // simulations pre-populate the mRNA by default. This can be changed in the future.
     ts.run();
     ts.calculateAverageTimes();
@@ -78,21 +86,135 @@ void execute_translation(std::string concentrations_file, std::string mrna_file,
     codon_average_time_file.close();
 }
 
+void printHelp() {
+    std::cout<<"Wrong number of parameters informed.\n";
+    std::cout<<"run_translation concentrations mRNA Initiation Termination Time output\n";
+    std::cout<<"Concentrations = path to the file containing the concentrations to be used in the simulation.\n";
+    std::cout<<"mRNA = path to the file with the mRNA to be used.\n";
+    std::cout<<"Initiation = value to be used as the initiation factor.\n";
+    std::cout<<"Termination = value to be used as the termination factor.\n";
+    std::cout<<"Time limit = time limit for when the simulation should stop. This is in yeast time, not in real life time\n";
+    std::cout<<"output = file to be created with the simulation results.\n";
+}
+
 int main(int argc, char **argv) {
     signal(SIGSEGV, handler);   // install our handler
-    if (argc != 7){
-        std::cout<<"Wrong number of parameters informed.\n";
-        std::cout<<"run_translation concentrations mRNA Initiation Termination Time output\n";
-        std::cout<<"Concentrations = path to the file containing the concentrations to be used in the simulation.\n";
-        std::cout<<"mRNA = path to the file with the mRNA to be used.\n";
-        std::cout<<"Initiation = value to be used as the initiation factor.\n";
-        std::cout<<"Termination = value to be used as the termination factor.\n";
-        std::cout<<"Time limit = time limit for when the simulation should stop. This is in simulation time, not in real life time\n";
-        std::cout<<"output = file to be created with the simulation results.\n";
-        return 0;
+    const char* const short_opts = "c:m:i:t:y:r:l:o:h";
+    const option long_opts[] = {
+        {"concentration", 1, nullptr, 'w'},
+        {"mrna", 1, nullptr, 'w'},
+        {"initiation", 1, nullptr, 's'},
+        {"termination", 1, nullptr, 's'},
+        {"yeasttime", 1, nullptr, 's'},
+        {"ribosomes", 1, nullptr, 's'},
+        {"iterations", 1, nullptr, 's'},
+        {"output", 1, nullptr, 'w'},
+        {"help", 0, nullptr, 'h'},
+        {nullptr, 0, nullptr, 0}
+    };
+    
+    std::string concentration_file, mrna_file, output_file;
+    double initiation, termination, yeast_time, ribosomes, iterations;
+    bool stop_condition_passed = false;
+    yeast_time = ribosomes = iterations = -1;
+    
+    std::string halting_condition_error = "only one of the following halting options can be used: yeast time, terminating ribosomes, or iteration limit\n";
+    while (optind < argc) {
+        const auto opt = getopt_long(argc, argv, short_opts, long_opts, nullptr);
+        if (opt != -1) {
+            // Option argument
+            switch (opt) {
+                case 'c': {
+                    concentration_file = std::string(optarg);
+                    break;
+                }
+                case 'm': {
+                    mrna_file = std::string(optarg);
+                    break;
+                }
+                case 'i':
+                    initiation = std::stof(optarg);
+                    break;
+                case 't':
+                    termination = std::stof(optarg);
+                    break;
+                case 'y':
+                    if (!stop_condition_passed){
+                        yeast_time = std::stoi(optarg);
+                        stop_condition_passed = true;
+                    } else {
+                        std::cout<<halting_condition_error;
+                        return -1;
+                    }
+                    
+                    break;
+                case 'r':
+                    if (!stop_condition_passed){
+                        ribosomes = std::stoi(optarg);
+                        stop_condition_passed = true;
+                    } else {
+                        std::cout<<halting_condition_error;
+                        return -1;
+                    }
+                    break;
+                case 'l':
+                    if (!stop_condition_passed) {
+                        iterations = std::stoi(optarg);
+                        stop_condition_passed = true;
+                    } else {
+                        std::cout<<halting_condition_error;
+                        return -1;
+                    }
+                    break;
+                case 'o':
+                    output_file = std::string(optarg);
+                    break;
+                case 'h': // -h or --help
+                case '?': // Unrecognized option
+                default:
+                    printHelp();
+                    break;
+            }
+        } else {
+            break;
+        }
+        
     }
     
-    execute_translation(argv[1], argv[2], std::stof(argv[3]), std::stof(argv[4]), std::stoi(argv[5]), argv[6]);
+    if (optind == 1) {
+        // Regular argument
+        int index = optind;
+        while (index < argc){
+            switch(index){
+                case 1:
+                    concentration_file = argv[index];
+                    break;
+                case 2:
+                    mrna_file = argv[index];
+                    break;
+                case 3:
+                    initiation = std::stof(argv[index]);
+                    break;
+                case 4:
+                    termination = std::stof(argv[index]);
+                    break;
+                case 5:
+                    yeast_time = std::stoi(argv[index]);
+                    break;
+                case 6:
+                    output_file = argv[index];
+                    break;
+                    
+            }
+//             std::cout<<": "<<argv[index]<<"\n";
+            index++;  // Skip to the next argument
+        }
+    }
+    
+    
+    
+    //     
+        execute_translation(concentration_file, mrna_file, initiation, termination, yeast_time, iterations, ribosomes, output_file);
     
     return 0;
 }
