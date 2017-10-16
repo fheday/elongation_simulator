@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 project(gillespie)
 
 
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -flto -march=native -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -flto -march=native -ftree-vectorize -fopt-info-vec-missed  -DNDEBUG")
 
 set(common_sources concentrationsreader.cpp concentrationsreader.h enlogationsimulator.cpp enlogationsimulator.h gillespie.cpp gillespie.h mrna_reader.cpp mrna_reader.h ratecalculator.cpp ratecalculator.h reactionsset.cpp reactionsset.h ribosomesimulator.cpp ribosomesimulator.h ribosomesimulator.cpp enlongation_codon.h enlongation_codon.cpp initiationterminationcodon.h  initiationterminationcodon.cpp mrnaelement.h  
 translation.h translation.cpp)
