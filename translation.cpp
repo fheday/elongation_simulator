@@ -34,6 +34,8 @@ PYBIND11_MODULE(translation, mod){
     .def("setTerminationRate", &Simulations::Translation::setTerminationRate)
     .def("setIterationLimit", &Simulations::Translation::setIterationLimit)
     .def("setTimeLimit", &Simulations::Translation::setTimeLimit)
+    .def("setIterationLimit", &Simulations::Translation::setIterationLimit)
+    .def("setFinishedRibosomes", &Simulations::Translation::setFinishedRibosomes)
     .def("run", &Simulations::Translation::run)
     .def("setInitiationRate", &Simulations::Translation::setInitiationRate)
     .def("setInitiationRate", &Simulations::Translation::setInitiationRate)
@@ -45,6 +47,8 @@ PYBIND11_MODULE(translation, mod){
     .def_readonly("concentrations_file_name", &Simulations::Translation::concentrations_file_name)
     .def_readonly("dt_history", &Simulations::Translation::dt_history)
     .def_readonly("ribosome_positions_history", &Simulations::Translation::ribosome_positions_history)
+    .def_readonly("initiationRate", &Simulations::Translation::initiation_rate)
+    .def_readonly("terminationRate", &Simulations::Translation::termination_rate)
     
     .def_readonly("total_time", &Simulations::Translation::total_time)
     .def_readonly("n_times_occupied", &Simulations::Translation::n_times_occupied)

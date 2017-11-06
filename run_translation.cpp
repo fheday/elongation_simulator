@@ -146,7 +146,6 @@ int main(int argc, char **argv) {
                         std::cout<<halting_condition_error;
                         return -1;
                     }
-                    
                     break;
                 case 'r':
                     if (!stop_condition_passed){
