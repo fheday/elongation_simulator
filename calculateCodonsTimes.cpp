@@ -47,7 +47,7 @@
      //calculate times and generate the vectors.
      std::vector<double> vector (2 * iterations, 0);
      int codon_total_translocating = 0;
-     double codon_time = 0;
+     //double codon_time = 0;
      for (std::string codon:codons){
          total_decoding=0;
          codon_total_translocating = 0;
@@ -57,7 +57,7 @@
          for (int i = 0 ; i < iterations; i++){
              enlongating_ribosome.ribosome.setState(0);
              enlongating_ribosome.ribosome.run_and_get_times(decoding, translocating);
-             if (decoding == 0 | translocating == 0) throw std::runtime_error("decoding nor translocation cannot be zero.");
+             if (decoding == 0 || translocating == 0) throw std::runtime_error("decoding nor translocation cannot be zero.");
              total_decoding += decoding;
              total_translocating += translocating;
              codon_total_translocating += translocating;
@@ -67,7 +67,7 @@
              vector[iterations + i] = translocating;
          }
          //write times and vector to files.
-         codon_time = (translocating_times) ? (total_decoding)/iterations : (total_decoding + codon_total_translocating)/iterations;
+         //codon_time = (translocating_times) ? (total_decoding)/iterations : (total_decoding + codon_total_translocating)/iterations;
          averageTimesFile<<", "<<(total_decoding)/iterations<<"\n";
          for (int j=0; j < (2 * iterations) - 1; j++) timesVectorFile<<vector[j]<<",";
          timesVectorFile<<vector[(2 * iterations) - 1]<<vector[(2 * iterations) - 1]<<"\n";

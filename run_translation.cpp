@@ -72,7 +72,7 @@ void execute_translation(std::string concentrations_file, std::string mrna_file,
     //header
     clock_and_enlongation_csv_file<<"Clock at initiation, Ribosome enlongation duration\n";
     //data
-    for (int i = 0; i <clock_at_initiation.size(); i++) clock_and_enlongation_csv_file<<std::fixed<<std::setprecision(10)<<clock_at_initiation[i]<<", "<<enlongation_duration[i]<<"\n";
+    for (std::size_t i = 0; i < clock_at_initiation.size(); i++) clock_and_enlongation_csv_file<<std::fixed<<std::setprecision(10)<<clock_at_initiation[i]<<", "<<enlongation_duration[i]<<"\n";
     clock_and_enlongation_csv_file.close();
 
     std::ofstream codon_average_time_file;
