@@ -36,7 +36,7 @@ PYBIND11_MODULE(translation, mod){
     .def("setTimeLimit", &Simulations::Translation::setTimeLimit)
     .def("setIterationLimit", &Simulations::Translation::setIterationLimit)
     .def("setFinishedRibosomes", &Simulations::Translation::setFinishedRibosomes)
-    .def("run", &Simulations::Translation::run)
+    .def("run", &Simulations::Translation::run, py::call_guard<py::gil_scoped_release>())
     .def("setInitiationRate", &Simulations::Translation::setInitiationRate)
     .def("setInitiationRate", &Simulations::Translation::setInitiationRate)
     .def("getEnlogationDuration", &Simulations::Translation::getEnlogationDuration)
