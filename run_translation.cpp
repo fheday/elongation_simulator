@@ -16,10 +16,10 @@
 void handler(int sig) {
     void *array[10];
     size_t size;
-    
+
     // get void*'s for all entries on the stack
     size = backtrace(array, 10);
-    
+
     // print out all the frames to stderr
     fprintf(stderr, "Error: signal %d:\n", sig);
     backtrace_symbols_fd(array, size, STDERR_FILENO);
@@ -50,14 +50,12 @@ void execute_translation(std::string concentrations_file, std::string mrna_file,
     } else if (number_ribosomes > 0) {
         ts.setFinishedRibosomes(number_ribosomes);
     }
-    
     ts.setPrepopulate(true); // simulations pre-populate the mRNA by default. This can be changed in the future.
     ts.run();
     ts.calculateAverageTimes();
 
     std::vector<double> enlongation_duration;
     std::vector<int> iteration_initiation, iteration_termination;
-    
     std::tie(enlongation_duration, iteration_initiation, iteration_termination) = ts.getEnlogationDuration();
     //save enlongation data into csv file.
     std::vector<double> clock, clock_at_initiation;
@@ -112,12 +110,12 @@ int main(int argc, char **argv) {
         {"help", 0, nullptr, 'h'},
         {nullptr, 0, nullptr, 0}
     };
-    
+
     std::string concentration_file, mrna_file, output_file;
     double initiation, termination, yeast_time, ribosomes, iterations;
     bool stop_condition_passed = false;
     yeast_time = ribosomes = iterations = -1;
-    
+
     std::string halting_condition_error = "only one of the following halting options can be used: yeast time, terminating ribosomes, or iteration limit\n";
     while (optind < argc) {
         const auto opt = getopt_long(argc, argv, short_opts, long_opts, nullptr);
@@ -177,9 +175,7 @@ int main(int argc, char **argv) {
         } else {
             break;
         }
-        
     }
-    
     if (optind == 1) {
         // Regular argument
         int index = optind;
@@ -203,17 +199,10 @@ int main(int argc, char **argv) {
                 case 6:
                     output_file = argv[index];
                     break;
-                    
             }
-//             std::cout<<": "<<argv[index]<<"\n";
             index++;  // Skip to the next argument
         }
     }
-    
-    
-    
-    //     
         execute_translation(concentration_file, mrna_file, initiation, termination, yeast_time, iterations, ribosomes, output_file);
-    
     return 0;
 }
