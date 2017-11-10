@@ -9,7 +9,7 @@ setup_pybind11(cfg)
 %>
 */
 
-#ifndef CMAKE_BUILD
+#ifdef COMIPLE_PYTHON_MODULE
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 namespace py = pybind11;
@@ -27,7 +27,7 @@ namespace py = pybind11;
 
 using namespace Simulations;
 
-#ifndef CMAKE_BUILD
+#ifdef COMIPLE_PYTHON_MODULE
 PYBIND11_PLUGIN(enlogationsimulator){
     pybind11::module mod("enlogationsimulator", "auto-compiled c++ extension");
 
@@ -137,8 +137,6 @@ void EnlogationSimulator::setConcentrationsFileName(std::string file_name)
         // when setting the concentrations file name, we can also
         // initialize the RibosomeSimulator object.
         ribosome_simulator.loadConcentrations(file_name);
-        ribosome_simulator.setIterationLimit(2000);
-        ribosome_simulator.setNumberOfRibosomes(1);
     }
 }
 

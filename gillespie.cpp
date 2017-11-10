@@ -18,13 +18,13 @@ Gillespie::Gillespie(int itera, const Eigen::MatrixXi& popul, const ReactionsSet
     iteration_limit = itera;
     dt_history.clear();
     population_history.clear();
-    initial_populations = popul;
+    initial_population = popul;
     reactions = reac;
 }
 
 void Gillespie::setInitialPopulation(const Eigen::MatrixXi& popul)
 {
-    initial_populations = popul;
+    initial_population = popul;
 }
 
 
@@ -64,10 +64,10 @@ void Gillespie::run()
     dt_history.clear();
     population_history = std::vector<Eigen::MatrixXi>(iteration_limit);
     population_history.clear();
-    Eigen::MatrixXi populations = initial_populations;
+    Eigen::MatrixXi populations = initial_population;
     Eigen::MatrixXi updated_populations;
-    Eigen::VectorXd as;
-    Eigen::VectorXi reactions_index;
+    std::vector<double> as;
+    std::vector<int> reactions_index;
     // initialize the random generator
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
@@ -92,7 +92,7 @@ void Gillespie::run()
             // no available reactions, quit loop prematurely.
             break;
         }
-        double a0 = as.sum();
+        double a0 = std::accumulate(as.begin(), as.end(), 0.0);
         // select next reaction to execute
         double cumsum = 0;
         int selected_index = -1;
@@ -101,19 +101,6 @@ void Gillespie::run()
             selected_index++;
             cumsum += as[selected_index]; 
         } while (cumsum < a0 * r2);
-//         //calculate the cumulative sum of all an's.
-//         std::vector<double> cs;
-//         for (int i = 0; i < as.size(); i++){
-//             cumsum += as[i];
-//             cs.push_back(cumsum);
-//         }
-//         //now we select the reaction
-//         for (unsigned int i = 0; i < cs.size(); ++i){
-//             if ((i == 0 || cs[i - 1] < (a0 * r2)) && (a0 * r2) <= cs[i]){
-//                 selected_index = i;
-//                 break;
-//             }
-//         }
         
         selected_index = reactions_index[selected_index]; //index of selected reaction.
         // put the new population on a temporary variable: this is to help

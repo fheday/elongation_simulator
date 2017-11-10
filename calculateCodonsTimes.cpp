@@ -4,7 +4,7 @@
 #include "gillespie.h"
 #include "reactionsset.h"
 #include "concentrationsreader.h"
-#include "ribosomesimulator.h"
+#include "enlongation_codon.h"
 
 
 /**
@@ -21,14 +21,10 @@
   */
  std::map<std::string, double> calculate_codons_times(std::string concentrations_file_name, int iterations, std::string average_times_file_name, std::string times_vector_file_name, bool translocating_times)
  {
+     Simulations::EnlongationCodon enlongating_ribosome;
+     enlongating_ribosome.loadConcentrations(concentrations_file_name);
      csv_utils::ConcentrationsReader cr;
      cr.loadConcentrations(concentrations_file_name);
-     Simulations::RibosomeSimulator rs;
-     rs.loadConcentrations(concentrations_file_name);
-     rs.setIterationLimit(30000);
-     // create a matrix with the initial species population.
-     rs.setNumberOfRibosomes(1);
-     
      double decoding, translocating;
      std::vector<std::string> codons;
      std::map<std::string, double> codons_times;
@@ -51,16 +47,17 @@
      //calculate times and generate the vectors.
      std::vector<double> vector (2 * iterations, 0);
      int codon_total_translocating = 0;
-     double codon_time = 0;
+     //double codon_time = 0;
      for (std::string codon:codons){
          total_decoding=0;
          codon_total_translocating = 0;
-         rs.setCodonForSimulation(codon);
+         enlongating_ribosome.setCodon(codon);
          averageTimesFile<<"\"" <<codon<<"\"";
          std::cout<< "Starting codon: "<< codon;
          for (int i = 0 ; i < iterations; i++){
-             rs.run_and_get_times(decoding, translocating);
-             if (decoding == 0 | translocating == 0) throw std::runtime_error("decoding nor translocation can be zero.");
+             enlongating_ribosome.ribosome.setState(0);
+             enlongating_ribosome.ribosome.run_and_get_times(decoding, translocating);
+             if (decoding == 0 || translocating == 0) throw std::runtime_error("decoding nor translocation cannot be zero.");
              total_decoding += decoding;
              total_translocating += translocating;
              codon_total_translocating += translocating;
@@ -70,7 +67,7 @@
              vector[iterations + i] = translocating;
          }
          //write times and vector to files.
-         codon_time = (translocating_times) ? (total_decoding)/iterations : (total_decoding + codon_total_translocating)/iterations;
+         //codon_time = (translocating_times) ? (total_decoding)/iterations : (total_decoding + codon_total_translocating)/iterations;
          averageTimesFile<<", "<<(total_decoding)/iterations<<"\n";
          for (int j=0; j < (2 * iterations) - 1; j++) timesVectorFile<<vector[j]<<",";
          timesVectorFile<<vector[(2 * iterations) - 1]<<vector[(2 * iterations) - 1]<<"\n";

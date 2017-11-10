@@ -1,16 +1,29 @@
 cmake_minimum_required(VERSION 2.6)
 project(gillespie)
 
-set(common_sources concentrationsreader.cpp concentrationsreader.h enlogationsimulator.cpp enlogationsimulator.h gillespie.cpp gillespie.h mrna_reader.cpp mrna_reader.h ratecalculator.cpp ratecalculator.h reactionsset.cpp reactionsset.h ribosomesimulator.cpp ribosomesimulator.h)
+#-fopt-info-vec-missed
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -flto -march=native -ftree-vectorize -Wall  -DNDEBUG")
 
-add_definitions(-DCMAKE_BUILD)
+set(common_sources concentrationsreader.cpp concentrationsreader.h enlogationsimulator.cpp enlogationsimulator.h gillespie.cpp gillespie.h mrna_reader.cpp mrna_reader.h ratecalculator.cpp ratecalculator.h reactionsset.cpp reactionsset.h ribosomesimulator.cpp ribosomesimulator.h ribosomesimulator.cpp enlongation_codon.h enlongation_codon.cpp initiationterminationcodon.h  initiationterminationcodon.cpp mrnaelement.h  
+translation.h translation.cpp)
 
 add_executable(gillespie main.cpp ${common_sources})
 add_executable(calculateCodonsTimes calculateCodonsTimes.cpp ${common_sources})
+add_executable(run_translation run_translation.cpp ${common_sources})
 install(TARGETS gillespie RUNTIME DESTINATION bin)
 
 
-# cmake_minimum_required(VERSION 2.8.12)
-# project(example)
-# add_subdirectory(pybind11)
-# pybind11_add_module(ribosomesimulator ribosomesimulator.cpp)
+##python interface
+find_package(PythonLibs REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIRS})
+
+find_package(pybind11 REQUIRED)
+add_library(translation MODULE translation.cpp mrna_reader.cpp initiationterminationcodon.cpp
+concentrationsreader.cpp ribosomesimulator.cpp mrnaelement.cpp gillespie.cpp
+enlongation_codon.cpp reactionsset.cpp ratecalculator.cpp)
+target_compile_definitions(translation PRIVATE -DCOMIPLE_PYTHON_MODULE)
+
+target_link_libraries(translation PRIVATE pybind11::module ${PYTHON_LIBRARIES})
+#target_link_libraries(translation PRIVATE ${PYTHON_LIBRARIES})
+set_target_properties(translation PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
+                                         SUFFIX "${PYTHON_MODULE_EXTENSION}")

@@ -1,4 +1,4 @@
-#ifndef CMAKE_BUILD
+#ifdef COMIPLE_PYTHON_MODULE
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 namespace py = pybind11;
