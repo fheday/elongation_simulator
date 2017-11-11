@@ -7,7 +7,7 @@ PROS (hopefully):
 + Speed 
 + Memory footprint 
 + Organization 
++ Can be exposed to Python, R, etc. (currently only exported to Python 3.x)
 
 CONS: 
-- Less flexible 
-- Harder maintenence
+- C++ demands more in-depth knowledge and some level of memory management.
