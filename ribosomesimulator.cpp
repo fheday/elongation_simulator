@@ -46,10 +46,7 @@ RibosomeSimulator::RibosomeSimulator()
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     gen = std::mt19937(rd()); //Standard mersenne_twister_engine seeded with rd()
     dis = std::uniform_real_distribution<>(0, 1);
-    //create initial population.
-//     Eigen::MatrixXi population(32, 1);
-//     population.fill(0);
-//     population(0,0) = 1;
+    //set initial state to 0
     current_state = 0;
 
 }
@@ -498,8 +495,6 @@ std::vector<std::vector<std::tuple<double, int>>> RibosomeSimulator::createReact
 
 int Simulations::RibosomeSimulator::getState()
 {
-//     Eigen::MatrixXi::Index state;
-//     current_population.col(0).maxCoeff(&state);
     return current_state;
 }
 void Simulations::RibosomeSimulator::setState(int s)

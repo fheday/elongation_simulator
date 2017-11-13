@@ -11,7 +11,7 @@
 
 namespace Simulations {
     
-    class RibosomeSimulator //: public Gillespie
+    class RibosomeSimulator
     {
     public:
         RibosomeSimulator();
