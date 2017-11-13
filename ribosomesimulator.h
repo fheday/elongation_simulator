@@ -11,7 +11,7 @@
 
 namespace Simulations {
     
-    class RibosomeSimulator : public Gillespie
+    class RibosomeSimulator //: public Gillespie
     {
     public:
         RibosomeSimulator();
@@ -28,6 +28,7 @@ namespace Simulations {
         std::vector<std::vector<std::tuple<double, int>>> createReactionsGraph(const csv_utils::concentration_entry&);
         std::map<std::string, std::vector<std::vector<std::tuple<double, int>>>> reactions_map;
         std::vector<std::vector<std::tuple<double, int>>> reactions_graph; //vector where the index is the ribosome's current state and the content is a vector of tuples containing the propensity and next state of each possible reaction.
+        int current_state = 0;
     };
 }
 

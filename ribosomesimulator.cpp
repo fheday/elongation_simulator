@@ -31,7 +31,7 @@ PYBIND11_MODULE(ribosomesimulator, mod){
     .def("setIterationLimit", &Gillespie::setIterationLimit)
     .def("run", &Gillespie::run);
 
-    py::class_<RibosomeSimulator, Gillespie> (mod, "ribosomesimulator")
+    py::class_<RibosomeSimulator> (mod, "ribosomesimulator")
     .def(py::init<>()) //constructor
     .def("setCodonForSimulation", &RibosomeSimulator::setCodonForSimulation)
     .def("run_and_get_times", [](RibosomeSimulator &rs) {double d=0.0; double t=0.0; rs.run_and_get_times(d, t); return std::make_tuple(d, t); });
@@ -47,10 +47,10 @@ RibosomeSimulator::RibosomeSimulator()
     gen = std::mt19937(rd()); //Standard mersenne_twister_engine seeded with rd()
     dis = std::uniform_real_distribution<>(0, 1);
     //create initial population.
-    Eigen::MatrixXi population(32, 1);
-    population.fill(0);
-    population(0,0) = 1;
-    current_population = population;
+//     Eigen::MatrixXi population(32, 1);
+//     population.fill(0);
+//     population(0,0) = 1;
+    current_state = 0;
 
 }
 
@@ -498,23 +498,20 @@ std::vector<std::vector<std::tuple<double, int>>> RibosomeSimulator::createReact
 
 int Simulations::RibosomeSimulator::getState()
 {
-    Eigen::MatrixXi::Index state;
-    current_population.col(0).maxCoeff(&state);
-    return state;
+//     Eigen::MatrixXi::Index state;
+//     current_population.col(0).maxCoeff(&state);
+    return current_state;
 }
 void Simulations::RibosomeSimulator::setState(int s)
 {
-    current_population.fill(0);
-    current_population(s,0) = 1;
+    current_state = s;
 }
 
 void Simulations::RibosomeSimulator::getAlphas(std::vector<double>& as, std::vector<int>& reactions_index)
 {
     as.clear();
     reactions_index.clear();
-    Eigen::Index state;
-    current_population.col(0).maxCoeff(&state); // get the current ribosome state
-    auto alphas_and_indexes = reactions_graph[state]; //go the possible reactions of that state.
+    auto alphas_and_indexes = reactions_graph[current_state]; //go the possible reactions of that state.
     double k;
     int index;
     for (auto element:alphas_and_indexes){
