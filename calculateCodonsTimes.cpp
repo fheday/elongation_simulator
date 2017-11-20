@@ -93,6 +93,7 @@
          std::cout<<"concentrations_file_name  - The path to the csv file containing the concentrations in the cell.\n";
          std::cout<<"iterations - Number of iterations to run per codon base.\n";
          std::cout<<"average_times_file_name - The path to write the average times calculated by the algorithm.\n";
+         std::cout<<"times_vector_file_name - The path to write the vector with the calculated times by the algorithm.\n";
          std::cout<<"translocating_times - if true or 1, all codons have only decoding times and the translocating time is represented by the codon 'tra'. Otherwise, all the codons times are decoding + translocating.\n";
          return 0;
      }
