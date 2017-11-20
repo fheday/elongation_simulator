@@ -173,8 +173,6 @@ void Simulations::Translation::getAlphas()
     alphas.clear();
     codon_index.clear();
     reaction_index.clear();
-//     std::vector<double> as;
-//     std::vector<int> r_i;
 
     //populate the vectors.
     std::vector<int> ribosome_positions = ribosome_positions_history.back();
@@ -182,7 +180,6 @@ void Simulations::Translation::getAlphas()
     //add initiation if needed.
     if (ribosome_positions.empty() || (ribosome_positions[0]!=0 && codons_vector[0]->isAvailable)) {
         //need to add initalization.
-//         codons_vector[0]->getAlphas(as, r_i);
         for (std::size_t j = 0; j <codons_vector[0]->alphas.size(); j++) {
             alphas.push_back(codons_vector[0]->alphas[j]);
             codon_index.push_back(0);
@@ -193,7 +190,6 @@ void Simulations::Translation::getAlphas()
     for (unsigned i = 0; i < ribosome_positions.size(); i++){
         ribosome_index = ribosome_positions[i];
         if (codons_vector[ribosome_index]->isOccupied) {
-//             codons_vector[ribosome_index]->getAlphas(as, r_i);
             //check: in case of translocation, the next ribosome must be AVAILABLE.
             for (std::size_t j = 0; j < codons_vector[ribosome_index]->alphas.size(); j++) {
                 if (codons_vector[ribosome_index]->reactions_index[j] <=23) {
@@ -218,7 +214,6 @@ void Simulations::Translation::getAlphas()
 //             std::cout<<"modified codon: "<<modified_ribosome_index<<"updated codon indexes = ";
 //             for (int index:codon_index) std::cout<<index<<", ";
 //             std::cout<<"\n";
-    
 }
 
 
@@ -265,7 +260,7 @@ void Simulations::Translation::run()
                 last_index = i; //mark this as last inserted ribosome.
                 pre_filled_ribosomes++;
             }
-            
+
         }
     }
     finished_ribosomes -= pre_filled_ribosomes + 1; // we should ignore these ribosomes.

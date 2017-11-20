@@ -1,7 +1,6 @@
 #ifndef TRANSLATION_H
 #define TRANSLATION_H
 
-#include <eigen3/Eigen/Dense>
 #include <vector>
 #include "enlongation_codon.h"
 
@@ -21,15 +20,12 @@ namespace Simulations{
         void setFinishedRibosomes(int);
         
         void setPrepopulate(bool);
-
-//         enum event {ribosome_reaction, ribosome_finished_translocating, ribosome_terminated};
         
         void getAlphas();
         void run();
         
         void calculateAverageTimes();
         std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> getEnlogationDuration();
-        
         
         double termination_rate = -1;
         double initiation_rate = -1;
