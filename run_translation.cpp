@@ -26,7 +26,7 @@ void handler(int sig) {
     exit(1);
 }
 
-void execute_translation(std::string concentrations_file, std::string mrna_file, float initiation_rate, float termination_rate, int time_limit, int number_iterations, int number_ribosomes,  std::string output_file_name ) {
+void execute_translation(std::string concentrations_file, std::string mrna_file, float initiation_rate, float termination_rate, int time_limit, int number_iterations, int number_ribosomes, bool pre_fill_mRNA, std::string output_file_name ) {
     //separate the path from the file name.
     std::size_t found = output_file_name.find_last_of("/\\");
     std::string path = "./"; // current path.
@@ -50,7 +50,7 @@ void execute_translation(std::string concentrations_file, std::string mrna_file,
     } else if (number_ribosomes > 0) {
         ts.setFinishedRibosomes(number_ribosomes);
     }
-    ts.setPrepopulate(true); // simulations pre-populate the mRNA by default. This can be changed in the future.
+    ts.setPrepopulate(pre_fill_mRNA); // simulations pre-populate the mRNA by default. This can be changed in the future.
     ts.run();
     ts.calculateAverageTimes();
 
@@ -97,7 +97,7 @@ void printHelp() {
 
 int main(int argc, char **argv) {
     signal(SIGSEGV, handler);   // install our handler
-    const char* const short_opts = "c:m:i:t:y:r:l:o:h";
+    const char* const short_opts = "c:m:i:t:y:r:l:eo:h";
     const option long_opts[] = {
         {"concentration", 1, nullptr, 'w'},
         {"mrna", 1, nullptr, 'w'},
@@ -106,6 +106,7 @@ int main(int argc, char **argv) {
         {"yeasttime", 1, nullptr, 's'},
         {"ribosomes", 1, nullptr, 's'},
         {"iterations", 1, nullptr, 's'},
+        {"init_empty", 1, nullptr, 'b'},
         {"output", 1, nullptr, 'w'},
         {"help", 0, nullptr, 'h'},
         {nullptr, 0, nullptr, 0}
@@ -113,7 +114,7 @@ int main(int argc, char **argv) {
 
     std::string concentration_file, mrna_file, output_file;
     double initiation, termination, yeast_time, ribosomes, iterations;
-    bool stop_condition_passed = false;
+    bool stop_condition_passed = false, pre_fill_mRNA = true;
     yeast_time = ribosomes = iterations = -1;
 
     std::string halting_condition_error = "only one of the following halting options can be used: yeast time, terminating ribosomes, or iteration limit\n";
@@ -163,6 +164,9 @@ int main(int argc, char **argv) {
                         return -1;
                     }
                     break;
+                case 'e':
+                    pre_fill_mRNA = false;
+                    break;
                 case 'o':
                     output_file = std::string(optarg);
                     break;
@@ -203,6 +207,6 @@ int main(int argc, char **argv) {
             index++;  // Skip to the next argument
         }
     }
-        execute_translation(concentration_file, mrna_file, initiation, termination, yeast_time, iterations, ribosomes, output_file);
+    execute_translation(concentration_file, mrna_file, initiation, termination, yeast_time, iterations, ribosomes, pre_fill_mRNA, output_file);
     return 0;
 }
