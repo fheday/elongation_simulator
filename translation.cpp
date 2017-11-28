@@ -256,7 +256,11 @@ void Simulations::Translation::run()
                 //put a ribosome here.
                 codons_vector[i]->isOccupied = true;
                 codons_vector[i]->isAvailable = false;
-                codons_vector[i]->setState(0);
+                if (i == 0){
+                    codons_vector[i]->setState(23); // already initialized. ready to translocate.
+                }else {
+                    codons_vector[i]->setState(0);
+                }
                 time_sum = 0; //reset timer.
                 last_index = i; //mark this as last inserted ribosome.
                 pre_filled_ribosomes++;
@@ -282,9 +286,9 @@ void Simulations::Translation::run()
             ribosome_positions_history.push_back(rib_positions);
         }
         // randomly generate parameter for calculating dt
-        r1 = dis(gen) + DBL_MIN; // adding minumum double value in order to avoid division by zero and infinities.
+        r1 = dis(gen);
         // randomly generate parameter for selecting reaction
-        r2 = dis(gen)+ DBL_MIN; // adding minumum double value in order to avoid division by zero and infinities.
+        r2 = dis(gen);
         // calculate an
         getAlphas();
         if (alphas.empty())
@@ -347,26 +351,21 @@ std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> Simulations:
     std::list<int> rib_initiation_iteration;
     std::vector<double> result;
     std::vector<int> initiation_iteration, termination_iteration;
-    std::vector<double> clock;
-    clock.clear();
+    std::vector<double> clock(dt_history.size());
     result.clear();
     termination_iteration.clear();
     initiation_iteration.clear();
-    double cumsum = 0;
-    for (unsigned int i = 0; i < dt_history.size(); i++) {
-        cumsum += dt_history[i];
-        clock.push_back(cumsum);
-    }
     bool previous_zero_occupied = false, previous_last_occupied = false;
-    bool current_zero_occupied = false, current_last_occupied = false;
-    int last_codon_position = codons_vector.size() - 1;
+    bool current_one_occupied = false, current_last_occupied = false;
+    int last_codon_position = codons_vector.size() - 2;
     int ribosomes_to_ignore = ribosome_positions_history[0].size();
+    std::partial_sum(dt_history.begin(), dt_history.end(), clock.begin()); // clock times
     for (unsigned int i = 1; i < ribosome_positions_history.size(); i++)
     {
         auto& ribosomes_positions = ribosome_positions_history[i];
-        current_zero_occupied = std::find(ribosomes_positions.begin(), ribosomes_positions.end(), 0) !=ribosomes_positions.end();
+        current_one_occupied = std::find(ribosomes_positions.begin(), ribosomes_positions.end(), 1) !=ribosomes_positions.end();
         current_last_occupied = std::find(ribosomes_positions.begin(), ribosomes_positions.end(), last_codon_position) !=ribosomes_positions.end();
-        if (!previous_zero_occupied && current_zero_occupied){
+        if (!previous_zero_occupied && current_one_occupied){
             //new ribosome.
             rib_initiation_iteration.push_back(i);
         } else if (previous_last_occupied && !current_last_occupied){
@@ -374,8 +373,9 @@ std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> Simulations:
             if (ribosomes_to_ignore > 0 ){
                 //ignore ribosome. It was artificially inserted in the mRNA in order to quickly reach the steady state.
                 ribosomes_to_ignore--;
+                rib_initiation_iteration.pop_front();
             } else {
-                result.push_back(clock[i - 1] - clock[rib_initiation_iteration.front()]);
+                result.push_back(clock[i - 2] - clock[rib_initiation_iteration.front()]);
                 initiation_iteration.push_back(rib_initiation_iteration.front());
                 termination_iteration.push_back(i - 1);
                 rib_initiation_iteration.pop_front();
@@ -383,7 +383,7 @@ std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> Simulations:
         }
         //update variables for next iteration.
         previous_last_occupied = current_last_occupied;
-        previous_zero_occupied = current_zero_occupied;
+        previous_zero_occupied = current_one_occupied;
     }
     return std::make_tuple(result, initiation_iteration, termination_iteration);
 }
