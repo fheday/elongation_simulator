@@ -41,6 +41,7 @@ PYBIND11_MODULE(translation, mod){
     .def("setInitiationRate", &Simulations::Translation::setInitiationRate)
     .def("getEnlogationDuration", &Simulations::Translation::getEnlogationDuration)
     .def("calculateAverageTimes", &Simulations::Translation::calculateAverageTimes)
+    .def("setPrepopulate",&Simulations::Translation::setPrepopulate)
 
 
     .def_readonly("mrna_file_name", &Simulations::Translation::mrna_file_name)
