@@ -229,14 +229,14 @@ void Simulations::Translation::run()
     // initialize the random generator
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_real_distribution<> dis(0, 1);
+    std::uniform_real_distribution<> dis(DBL_MIN, 1);
 
     double r1 = 0, r2 = 0;
     double tau = 0, clock = 0.0;
     int i = 0;
     
     int finished_ribosomes = 0, pre_filled_ribosomes = 0;
-    std::vector<int> rib_positions(codons_vector.size());
+    std::vector<int> rib_positions((codons_vector.size()/10) + 1);
     //pre-fill codons based on the rates.
     if (pre_populate){
         double initiation_time = 1/codons_vector[0]->alphas[0]; //propensity
