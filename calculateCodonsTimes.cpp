@@ -30,7 +30,7 @@
      std::map<std::string, double> codons_times;
      cr.getCodonsVector(codons);
      
-     double total_translocating = 0, total_decoding=0, n = 0;
+     double total_translocating = 0, codon_total_decoding=0, n = 0;
      std::ofstream averageTimesFile;
      std::ofstream timesVectorFile;
      //set numbers precision in the files.
@@ -46,10 +46,10 @@
      timesVectorFile<<"\n";
      //calculate times and generate the vectors.
      std::vector<double> vector (2 * iterations, 0);
-     int codon_total_translocating = 0;
+     double codon_total_translocating = 0;
      //double codon_time = 0;
      for (std::string codon:codons){
-         total_decoding=0;
+         codon_total_decoding=0;
          codon_total_translocating = 0;
          enlongating_ribosome.setCodon(codon);
          averageTimesFile<<"\"" <<codon<<"\"";
@@ -58,21 +58,32 @@
              enlongating_ribosome.ribosome.setState(0);
              enlongating_ribosome.ribosome.run_and_get_times(decoding, translocating);
              if (decoding == 0 || translocating == 0) throw std::runtime_error("decoding nor translocation cannot be zero.");
-             total_decoding += decoding;
-             total_translocating += translocating;
+             codon_total_decoding += decoding;
              codon_total_translocating += translocating;
              n++;
              //save vector.
              vector[i] = decoding;
              vector[iterations + i] = translocating;
          }
+         total_translocating += codon_total_translocating;
          //write times and vector to files.
-         //codon_time = (translocating_times) ? (total_decoding)/iterations : (total_decoding + codon_total_translocating)/iterations;
-         averageTimesFile<<", "<<(total_decoding)/iterations<<"\n";
+         averageTimesFile<<", ";
+         if (translocating_times) {
+             averageTimesFile<<(codon_total_decoding)/iterations;
+         } else {
+            averageTimesFile<<(codon_total_decoding + codon_total_translocating)/iterations;
+        }
+         averageTimesFile<<"\n";
          for (int j=0; j < (2 * iterations) - 1; j++) timesVectorFile<<vector[j]<<",";
          timesVectorFile<<vector[(2 * iterations) - 1]<<vector[(2 * iterations) - 1]<<"\n";
          codons_times[codon] = decoding;
-         std::cout<<". Finished. Average time: "<< ((total_decoding + codon_total_translocating)/iterations) <<"\n";
+         std::cout<<". Finished. Average time: ";
+         if (translocating_times){
+             std::cout<<(codon_total_decoding/iterations);
+         }else {
+             std::cout<<((codon_total_decoding + codon_total_translocating)/iterations) ;
+         }
+         std::cout<<"\n";
      }
      //save translocation times.
      if (translocating_times){
