@@ -514,3 +514,19 @@ void Simulations::RibosomeSimulator::getAlphas(std::vector<double>& as, std::vec
         reactions_index.push_back(index);
     }
 }
+
+void Simulations::RibosomeSimulator::getDecodingAlphas(std::vector<double>& as, std::vector<int>& reactions_index)
+{
+    as.clear();
+    reactions_index.clear();
+    auto alphas_and_indexes = reactions_graph[current_state]; //go the possible reactions of that state.
+    double k;
+    int index;
+    for (auto element:alphas_and_indexes){
+        std::tie(k, index) = element;
+        if (index < 23){
+            as.push_back(k);
+            reactions_index.push_back(index);
+        }
+    }
+}

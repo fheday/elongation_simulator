@@ -19,6 +19,7 @@ namespace Simulations {
         void executeReaction(int) override;
         int getState() override;
         void setState(int) override;
+        void updateAlphas(bool = true) override;
     };
 }
 
