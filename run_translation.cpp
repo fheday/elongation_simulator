@@ -55,8 +55,9 @@ void execute_translation(std::string concentrations_file, std::string mrna_file,
     ts.calculateAverageTimes();
 
     std::vector<double> enlongation_duration;
-    std::vector<int> iteration_initiation, iteration_termination;
-    std::tie(enlongation_duration, iteration_initiation, iteration_termination) = ts.getEnlogationDuration();
+    std::vector<int> iteration_initiation;
+    std::tie(enlongation_duration, iteration_initiation) = ts.getEnlogationDuration();
+    ts.getInitiationEnlongationTermination();
     //save enlongation data into csv file.
     std::vector<double> clock, clock_at_initiation;
     double c = 0;
