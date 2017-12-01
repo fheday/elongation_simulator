@@ -41,10 +41,6 @@ PYBIND11_MODULE(ribosomesimulator, mod){
 
 RibosomeSimulator::RibosomeSimulator()
 {
-    // initialize the random generator
-    std::random_device rd;  //Will be used to obtain a seed for the random number engine
-    gen = std::mt19937(rd()); //Standard mersenne_twister_engine seeded with rd()
-    dis = std::uniform_real_distribution<>(0, 1);
     //set initial state to 0
     current_state = 0;
 

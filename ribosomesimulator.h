@@ -23,8 +23,6 @@ namespace Simulations {
         void setCodonForSimulation(const std::string&);
         void run_and_get_times(double&, double&);
         csv_utils::ConcentrationsReader concentrations_reader;
-        std::mt19937 gen;
-        std::uniform_real_distribution<> dis;
     private:
         std::vector<std::vector<std::tuple<double, int>>> createReactionsGraph(const csv_utils::concentration_entry&);
         std::map<std::string, std::vector<std::vector<std::tuple<double, int>>>> reactions_map;
