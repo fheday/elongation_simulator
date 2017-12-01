@@ -6,6 +6,8 @@
 #include <fstream>
 #include <random>
 #include <float.h>
+#include <algorithm>
+#include <deque>
 /*
 <%
 
@@ -42,6 +44,7 @@ PYBIND11_MODULE(translation, mod){
     .def("getEnlogationDuration", &Simulations::Translation::getEnlogationDuration)
     .def("calculateAverageTimes", &Simulations::Translation::calculateAverageTimes)
     .def("setPrepopulate",&Simulations::Translation::setPrepopulate)
+    .def("getInitiationEnlongationTermination", &Simulations::Translation::getInitiationEnlongationTermination)
 
 
     .def_readonly("mrna_file_name", &Simulations::Translation::mrna_file_name)
@@ -50,6 +53,10 @@ PYBIND11_MODULE(translation, mod){
     .def_readonly("ribosome_positions_history", &Simulations::Translation::ribosome_positions_history)
     .def_readonly("initiationRate", &Simulations::Translation::initiation_rate)
     .def_readonly("terminationRate", &Simulations::Translation::termination_rate)
+    
+    .def_readonly("initiations_durations", &Simulations::Translation::initiations_durations)
+    .def_readonly("enlongations_durations", &Simulations::Translation::enlongations_durations)
+    .def_readonly("terminations_durations", &Simulations::Translation::terminations_durations)
     
     .def_readonly("total_time", &Simulations::Translation::total_time)
     .def_readonly("n_times_occupied", &Simulations::Translation::n_times_occupied)
@@ -175,6 +182,8 @@ void Simulations::Translation::getAlphas()
     alphas.clear();
     codon_index.clear();
     reaction_index.clear();
+    std::vector<double> a;
+    std::vector<int>r_i;
 
     //populate the vectors.
     std::vector<int> ribosome_positions = ribosome_positions_history.back();
@@ -182,16 +191,18 @@ void Simulations::Translation::getAlphas()
     //add initiation if needed.
     if (ribosome_positions.empty() || (ribosome_positions[0] > 9 && codons_vector[0]->isAvailable)) {
         //need to add initalization.
-        alphas.insert(alphas.end(),codons_vector[0]->alphas.begin(), codons_vector[0]->alphas.end());
-        std::fill_n(std::back_inserter(codon_index), codons_vector[0]->alphas.size(), 0);
-        reaction_index.insert(reaction_index.end(), codons_vector[0]->reactions_index.begin(), codons_vector[0]->reactions_index.end());
+        codons_vector[0]->getAlphas(a, r_i);
+        alphas.insert(alphas.end(), a.begin(), a.end());
+        std::fill_n(std::back_inserter(codon_index), a.size(), 0);
+        reaction_index.insert(reaction_index.end(), r_i.begin(), r_i.end());
     }
 
     for (unsigned i = 0; i < ribosome_positions.size(); i++){
         ribosome_index = ribosome_positions[i];
-        alphas.insert(alphas.end(),codons_vector[ribosome_index]->alphas.begin(), codons_vector[ribosome_index ]->alphas.end());
-        std::fill_n(std::back_inserter(codon_index), codons_vector[ribosome_index]->alphas.size(), ribosome_index);
-        reaction_index.insert(reaction_index.end(), codons_vector[ribosome_index]->reactions_index.begin(), codons_vector[ribosome_index]->reactions_index.end());
+        codons_vector[ribosome_index]->getAlphas(a, r_i);
+        alphas.insert(alphas.end(), a.begin(), a.end());
+        std::fill_n(std::back_inserter(codon_index), a.size(), ribosome_index);
+        reaction_index.insert(reaction_index.end(), r_i.begin(), r_i.end());
     }
 }
 
@@ -218,7 +229,10 @@ void Simulations::Translation::run()
     rib_positions.clear();
     //pre-fill codons based on the rates.
     if (pre_populate){
-        double initiation_time = 1/codons_vector[0]->alphas[0]; //propensity
+        std::vector<double> a;
+        std::vector<int>r_i;
+        codons_vector[0]->getAlphas(a, r_i);
+        double initiation_time = 1/a[0]; //propensity
         int last_index = codons_vector.size() - 1;
         double time_sum = 0;
         codons_vector[last_index]->isOccupied = true;
@@ -230,7 +244,8 @@ void Simulations::Translation::run()
                 codons_vector[i]->isAvailable = false;
             } else {
                 //update ribosome.
-                time_sum += 1/codons_vector[i]->alphas[0];
+                codons_vector[i]->getAlphas(a, r_i);
+                time_sum += 1/a[0];
             }
             if (time_sum >= initiation_time) {
                 //put a ribosome here.
@@ -378,46 +393,64 @@ void Simulations::Translation::run()
  * 
  */
 
-std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> Simulations::Translation::getEnlogationDuration()
+std::tuple<std::vector<double>, std::vector<int>> Simulations::Translation::getEnlogationDuration()
 {
-    std::list<int> rib_initiation_iteration;
-    std::vector<double> result;
-    std::vector<int> initiation_iteration, termination_iteration;
-    std::vector<double> clock(dt_history.size());
-    result.clear();
-    termination_iteration.clear();
+    if (enlongations_durations.empty()) getInitiationEnlongationTermination();
+    return std::make_tuple(enlongations_durations, initiation_iteration);
+}
+
+void Simulations::Translation::getInitiationEnlongationTermination()
+{
+    initiations_durations.clear();
+    enlongations_durations.clear();
+    terminations_durations.clear();
     initiation_iteration.clear();
-    bool previous_zero_occupied = false, previous_last_occupied = false;
-    bool current_one_occupied = false, current_last_occupied = false;
-    int last_codon_position = codons_vector.size() - 2;
+
+    std::deque<int> indexes;
+    indexes.clear();
+    std::list<int> initiations, enlongations, terminations;
     int ribosomes_to_ignore = ribosome_positions_history[0].size();
-    std::partial_sum(dt_history.begin(), dt_history.end(), clock.begin()); // clock times
-    for (unsigned int i = 1; i < ribosome_positions_history.size(); i++)
-    {
-        auto& ribosomes_positions = ribosome_positions_history[i];
-        current_one_occupied = std::find(ribosomes_positions.begin(), ribosomes_positions.end(), 1) !=ribosomes_positions.end();
-        current_last_occupied = std::find(ribosomes_positions.begin(), ribosomes_positions.end(), last_codon_position) !=ribosomes_positions.end();
-        if (!previous_zero_occupied && current_one_occupied){
-            //new ribosome.
-            rib_initiation_iteration.push_back(i);
-        } else if (previous_last_occupied && !current_last_occupied){
-            //ribosome left.
-            if (ribosomes_to_ignore > 0 ){
-                //ignore ribosome. It was artificially inserted in the mRNA in order to quickly reach the steady state.
-                ribosomes_to_ignore--;
-                rib_initiation_iteration.pop_front();
+    unsigned int last_position = codons_vector.size() - 1, previous_size = ribosomes_to_ignore;
+    for (int i = 0; i < ribosomes_to_ignore; i++) {
+        indexes.push_back(indexes.size());
+        initiations_durations.push_back(0);
+        enlongations_durations.push_back(0);
+        terminations_durations.push_back(0);
+        initiation_iteration.push_back(0);
+    }
+    for (unsigned int i = 1; i < ribosome_positions_history.size(); i++) {
+        std::vector<int> &rib_positions = ribosome_positions_history[i];
+        for (unsigned int j = 0; j <rib_positions.size(); j++){
+            unsigned int pos = rib_positions[j];
+            if (pos == 0){
+                //initiating.
+                if (rib_positions.size() > previous_size){
+                    //adjust offset for the iteration;
+                    indexes.push_front(indexes.size());
+                    //new ribosome initiating.
+                    initiations_durations.push_back(0);
+                    enlongations_durations.push_back(0);
+                    terminations_durations.push_back(0);
+                    initiation_iteration.push_back(i);
+                }
+                initiations_durations[indexes[j]] += dt_history[i];
+            } else if (pos == last_position){
+                //started terminating
+                terminations_durations[indexes[j]] += dt_history[i];
             } else {
-                result.push_back(clock[i - 2] - clock[rib_initiation_iteration.front()]);
-                initiation_iteration.push_back(rib_initiation_iteration.front());
-                termination_iteration.push_back(i - 1);
-                rib_initiation_iteration.pop_front();
+                //enlongating codon.
+                enlongations_durations[indexes[j]] += dt_history[i];
             }
         }
-        //update variables for next iteration.
-        previous_last_occupied = current_last_occupied;
-        previous_zero_occupied = current_one_occupied;
+        previous_size = rib_positions.size();
     }
-    return std::make_tuple(result, initiation_iteration, termination_iteration);
+    if (ribosomes_to_ignore > 0){
+        //remove pre-filled ribosomes.
+        initiations_durations.erase(initiations_durations.begin(), initiations_durations.begin() + ribosomes_to_ignore);
+        enlongations_durations.erase(enlongations_durations.begin(), enlongations_durations.begin() + ribosomes_to_ignore);
+        terminations_durations.erase(terminations_durations.begin(), terminations_durations.begin() + ribosomes_to_ignore);
+        initiation_iteration.erase(initiation_iteration.begin(), initiation_iteration.begin() + ribosomes_to_ignore);
+    }
 }
 
 

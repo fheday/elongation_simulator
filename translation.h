@@ -25,7 +25,11 @@ namespace Simulations{
         void run();
         
         void calculateAverageTimes();
-        std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> getEnlogationDuration();
+        std::tuple<std::vector<double>, std::vector<int>> getEnlogationDuration();
+        void getInitiationEnlongationTermination();
+        
+        std::vector<double> initiations_durations, enlongations_durations, terminations_durations;
+        std::vector<int> initiation_iteration, termination_iteration;
         
         double termination_rate = -1;
         double initiation_rate = -1;
