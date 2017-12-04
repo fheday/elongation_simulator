@@ -39,6 +39,7 @@ void EnlongationCodon::executeReaction(int r)
 {
     //execute reaction.
     ribosome.setState(r);
+    updateAlphas();
 }
 
 int Simulations::EnlongationCodon::getState()
@@ -49,19 +50,18 @@ int Simulations::EnlongationCodon::getState()
 void Simulations::EnlongationCodon::setState(int s)
 {
     ribosome.setState(s);
+    updateAlphas();
 }
 
 
-void Simulations::EnlongationCodon::updateAlphas(bool is_next_codon_available)
+void Simulations::EnlongationCodon::updateAlphas()
 {
-    if (is_next_codon_available){
+    if (nextMRNAElement->isAvailable()){
         ribosome.getAlphas(alphas, reactions_index);
     } else {
         ribosome.getDecodingAlphas(alphas, reactions_index);
     }
 }
-
-
 
 Simulations::EnlongationCodon::~EnlongationCodon()
 {

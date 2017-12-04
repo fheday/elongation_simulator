@@ -10,6 +10,11 @@ Simulations::InitiationTerminationCodon::InitiationTerminationCodon(float prop, 
     reactions_index[0] = 0;
 }
 
+Simulations::InitiationTerminationCodon::~InitiationTerminationCodon()
+{
+}
+
+
 void Simulations::InitiationTerminationCodon::getAlphas(std::vector<double>& as, std::vector<int>& r_i)
 {
     as = alphas;
@@ -29,7 +34,7 @@ void Simulations::InitiationTerminationCodon::setState(int s)
         alphas[0] = propensity;
         reactions_index = std::vector<int>(1);
         reactions_index[0] = 23;
-    } else if (state==23) {
+    } else if (state==23 && (!is_initiation || (is_initiation && nextMRNAElement->isAvailable()))) {
         alphas = std::vector<double>(1);
         alphas[0] =10000; // verify
         reactions_index = std::vector<int>(1);
@@ -40,24 +45,17 @@ void Simulations::InitiationTerminationCodon::setState(int s)
     }
 }
 
+void Simulations::InitiationTerminationCodon::updateAlphas()
+{
+    setState(state);
+}
+
 
 void Simulations::InitiationTerminationCodon::executeReaction(int r)
 {
     if (state == 0) {
         setState(23);
-        isOccupied = true;
-        isAvailable = false;
     } else if (state == 23) {
         setState(31);
-    }
-}
-
-void Simulations::InitiationTerminationCodon::updateAlphas(bool b)
-{
-    if (!b && state==23){
-        alphas = std::vector<double>(0);
-        reactions_index = std::vector<int>(0);
-    } else {
-        setState(state);
     }
 }

@@ -4,8 +4,7 @@ project(gillespie)
 #-fopt-info-vec-missed -g -fno-inline
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -flto -march=native -ftree-vectorize -Wall -DNDEBUG")
 
-set(common_sources concentrationsreader.cpp concentrationsreader.h enlogationsimulator.cpp enlogationsimulator.h gillespie.cpp gillespie.h mrna_reader.cpp mrna_reader.h ratecalculator.cpp ratecalculator.h reactionsset.cpp reactionsset.h ribosomesimulator.cpp ribosomesimulator.h ribosomesimulator.cpp enlongation_codon.h enlongation_codon.cpp initiationterminationcodon.h  initiationterminationcodon.cpp mrnaelement.h  
-translation.h translation.cpp)
+set(common_sources concentrationsreader.cpp concentrationsreader.h enlogationsimulator.cpp enlogationsimulator.h gillespie.cpp gillespie.h mrna_reader.cpp mrna_reader.h ratecalculator.cpp ratecalculator.h reactionsset.cpp reactionsset.h ribosomesimulator.cpp ribosomesimulator.h ribosomesimulator.cpp enlongation_codon.h enlongation_codon.cpp initiationterminationcodon.h  initiationterminationcodon.cpp mrnaelement.h  mrnaelement.cpp translation.h translation.cpp)
 
 add_executable(gillespie main.cpp ${common_sources})
 add_executable(calculateCodonsTimes calculateCodonsTimes.cpp ${common_sources})

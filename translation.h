@@ -41,7 +41,7 @@ namespace Simulations{
         std::vector<double> alphas = std::vector<double>(10); // reactions alphas - all available ones.
         std::vector<int>  codon_index = std::vector<int>(10); // indexes of the codon where the alpha belongs to.
         std::vector<int> reaction_index = std::vector<int>(10); // in the codon, the index of the reaction.
-        std::vector<std::unique_ptr<Simulations::mRNAElement>> codons_vector;
+        std::vector<std::shared_ptr<Simulations::mRNAElement>> codons_vector;
         std::string mrna_file_name;
         std::string concentrations_file_name;
         

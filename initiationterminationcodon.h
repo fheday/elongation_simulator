@@ -11,11 +11,12 @@ namespace Simulations {
     {
     public:
         InitiationTerminationCodon(float, bool);
+        ~InitiationTerminationCodon();
         void getAlphas(std::vector<double>& as, std::vector<int>& reactions_index) override;
         void executeReaction(int) override;
         int getState() override;
         void setState(int ) override;
-        void updateAlphas(bool b) override;
+        void updateAlphas() override;
         float propensity;
         float a0;
     private:

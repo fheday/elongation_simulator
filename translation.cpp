@@ -97,26 +97,34 @@ void Simulations::Translation::initializeMRNAReader()
         mrr.loadmRNAFile(mrna_file_name);
         //fill codon vector.
         int n_codons = mrr.mRNA_sequence.size()/3;
-        std::unique_ptr<Simulations::InitiationTerminationCodon> initiation_codon(new Simulations::InitiationTerminationCodon(initiation_rate, true));
+        std::shared_ptr<Simulations::InitiationTerminationCodon> initiation_codon(new Simulations::InitiationTerminationCodon(initiation_rate, true));
         initiation_codon->codon = mrr.getCodon(0);
         initiation_codon->index = 0;
         initiation_codon->setState(0);
         codons_vector.push_back(std::move(initiation_codon));
         for (int i = 1; i < n_codons - 1; i++) {
-            std::unique_ptr<Simulations::EnlongationCodon> c(new Simulations::EnlongationCodon());
+            std::shared_ptr<Simulations::EnlongationCodon> c(new Simulations::EnlongationCodon());
             c->loadConcentrations(concentrations_file_name);
             c->codon = mrr.getCodon(i);
             c->setCodon(c->codon);
             c->index = i;
             codons_vector.push_back(std::move(c));
         }
-        
+
         //termination codon
         std::unique_ptr<Simulations::InitiationTerminationCodon> termination_codon(new Simulations::InitiationTerminationCodon(termination_rate, false));
         termination_codon->codon = mrr.getCodon(n_codons - 1);
-        
+
         termination_codon->index = n_codons - 1;
         codons_vector.push_back(std::move(termination_codon));
+
+        //link codons.
+        for (unsigned int i = 1; i < codons_vector.size() - 1; i ++) {
+            codons_vector[i]->setNextCodon(codons_vector[i + 1]);
+            codons_vector[i]->setPreviousCodon(codons_vector[i - 1]);
+        }
+        codons_vector[codons_vector.size() - 1]->setPreviousCodon(codons_vector[codons_vector.size() - 2]);
+        codons_vector[0]->setNextCodon(codons_vector[1]);
     }
 }
 
@@ -189,7 +197,7 @@ void Simulations::Translation::getAlphas()
     std::vector<int> ribosome_positions = ribosome_positions_history.back();
     std::size_t ribosome_index;
     //add initiation if needed.
-    if (ribosome_positions.empty() || (ribosome_positions[0] > 9 && codons_vector[0]->isAvailable)) {
+    if (ribosome_positions.empty() || (ribosome_positions[0] > 9 && codons_vector[0]->isAvailable())) {
         //need to add initalization.
         codons_vector[0]->getAlphas(a, r_i);
         alphas.insert(alphas.end(), a.begin(), a.end());
@@ -235,13 +243,13 @@ void Simulations::Translation::run()
         double initiation_time = 1/a[0]; //propensity
         int last_index = codons_vector.size() - 1;
         double time_sum = 0;
-        codons_vector[last_index]->isOccupied = true;
-        codons_vector[last_index]->isAvailable = false;
+        codons_vector[last_index]->setOccupied(true);
+        codons_vector[last_index]->setAvailable(false);
         codons_vector[last_index]->setState(0);
         pre_filled_ribosomes++;
         for (int i = codons_vector.size() - 2; i >= 0; i--) {
             if (last_index - i <= 9){
-                codons_vector[i]->isAvailable = false;
+                codons_vector[i]->setAvailable(false);
             } else {
                 //update ribosome.
                 codons_vector[i]->getAlphas(a, r_i);
@@ -249,8 +257,8 @@ void Simulations::Translation::run()
             }
             if (time_sum >= initiation_time) {
                 //put a ribosome here.
-                codons_vector[i]->isOccupied = true;
-                codons_vector[i]->isAvailable = false;
+                codons_vector[i]->setOccupied(true);
+                codons_vector[i]->setAvailable(false);
                 codons_vector[i]->setState(0);
                 if (i == 0) codons_vector[i]->setState(23);
                 time_sum = 0; //reset timer.
@@ -260,22 +268,13 @@ void Simulations::Translation::run()
         }
     }
     for (unsigned int i = 0; i < codons_vector.size(); i++) {
-        if (codons_vector[i]->isOccupied)  rib_positions.push_back(i);
+        if (codons_vector[i]->isOccupied())  rib_positions.push_back(i);
     }
-    
-    for (unsigned int i = 0; i < rib_positions.size(); i++) {
-        if ((unsigned) rib_positions[i] < codons_vector.size() - 1) {
-            codons_vector[rib_positions[i]]->updateAlphas(codons_vector[rib_positions[i] + 1]->isAvailable); //update reactions.
-        }
-        //also need to update reactions of each previous codon! Otherwise, a ribosome will NOT collide.
-        if (rib_positions[i]  > 8) codons_vector[rib_positions[i] - 9]->updateAlphas(false); //update reactions.
-    }
-    
     finished_ribosomes -= pre_filled_ribosomes; // we should ignore these ribosomes.
     int moved_codon = -1, current_codon=-1;
     bool initiation = false, termination = false, moved = true;
-    
-    while ((iteration_limit > 0  && i < iteration_limit) || (time_limit > 0 && clock < time_limit) || (finished_ribosomes_limit > 0 && finished_ribosomes_limit >= finished_ribosomes))
+
+    while ((iteration_limit > 0  && i < iteration_limit) || (time_limit > 0 && clock < time_limit) || (finished_ribosomes_limit > 0 && finished_ribosomes_limit > finished_ribosomes))
     {
         //get the vector with the positions of all ribosomes
         if (i > 0 && moved) {
@@ -319,27 +318,28 @@ void Simulations::Translation::run()
         double a0 = std::accumulate(alphas.begin(), alphas.end(), 0.0);
         int selected_alpha_vector_index = -1;
         // The commented code below is the vectorized version of the reaction selection.
-        // Here is the catch: the vectorized version always calculates all reactions, and from them, select one.
-        // the non-vectorized one (do... while loop) calculates only the ones up to the selected one.
-//         std::vector<double> cumsum(alphas.size());
-//         std::partial_sum(alphas.begin(), alphas.end(), cumsum.begin());
-//         selected_alpha_vector_index = std::distance(cumsum.begin(), std::upper_bound(cumsum.begin(), cumsum.end(), a0 * r2));
+        // upper_bound stops when it finds the first position that is greater than the last parameter.
+        // we do an additional operation to find the index of that position.
+        // as it seems so far, this is almost equivalent in speed to the non-vectorized version.
+
+        std::vector<double> cumsum(alphas.size());
+        std::partial_sum(alphas.begin(), alphas.end(), cumsum.begin());
+        selected_alpha_vector_index = std::distance(cumsum.begin(), std::upper_bound(cumsum.begin(), cumsum.end(), a0 * r2));
         
         // select next reaction to execute
-        double cumsum = 0;
-        do {
-            selected_alpha_vector_index++;
-            cumsum += alphas[selected_alpha_vector_index]; 
-        } while (cumsum < a0 * r2);
+//         double cumsum = 0;
+//         do {
+//             selected_alpha_vector_index++;
+//             cumsum += alphas[selected_alpha_vector_index]; 
+//         } while (cumsum < a0 * r2);
         current_codon = codon_index[selected_alpha_vector_index];
         //Apply reaction
         codons_vector[current_codon]->executeReaction(reaction_index[selected_alpha_vector_index]);
-        if ((unsigned) (current_codon + 1) <  codons_vector.size()) codons_vector[current_codon]->updateAlphas(codons_vector[current_codon + 1]->isAvailable); // update current codon.
 
         if (codon_index[selected_alpha_vector_index] == 0 && codons_vector[0]->getState() == 23){
             //initiated.
-            codons_vector[0]->isAvailable=false;
-            codons_vector[0]->isOccupied=true;
+            codons_vector[0]->setAvailable(false);
+            codons_vector[0]->setOccupied(true);
             initiation = true;
             moved = true;
         }
@@ -347,36 +347,25 @@ void Simulations::Translation::run()
         // 2- Any codon with state == 31 means the ribosome already moved to the next codon (or left the mRNA). update states.
         if (codons_vector[current_codon]->getState() == 31) {
             codons_vector[current_codon]->setState(0);
-            codons_vector[current_codon]->isAvailable = false;
-            codons_vector[current_codon]->isOccupied = false;
-            codons_vector[current_codon]->updateAlphas(false); //cannot translocate.
+            codons_vector[current_codon]->setAvailable(false);
+            codons_vector[current_codon]->setOccupied(false);
             moved = true;
             moved_codon = current_codon + 1;
             if ((unsigned) (moved_codon + 1) <  codons_vector.size()) {
-                codons_vector[moved_codon]->isOccupied = true;
-                codons_vector[moved_codon]->isAvailable = false;
-                codons_vector[moved_codon]->updateAlphas(codons_vector[moved_codon + 1]->isAvailable); // update current codon.
+                codons_vector[moved_codon]->setOccupied(true);
+                codons_vector[moved_codon]->setAvailable(false);
             }
             //update free codons due to the size of the ribosome.
             if ((unsigned) moved_codon > 9){
                 //we need to do some tidying up after the ribosome.
                 if ((unsigned) moved_codon < codons_vector.size()){
                     //update freed space left by the ribosome's movement.
-                    codons_vector[moved_codon - 10]->isAvailable = true;
-                    codons_vector[moved_codon - 10]->updateAlphas(codons_vector[moved_codon - 9]->isAvailable);
-                    if ((unsigned) moved_codon > 10) {
-                        codons_vector[moved_codon - 11]->updateAlphas(true); // necessarily available.
-                    }
+                    codons_vector[moved_codon - 10]->setAvailable(true);
                 } else if ((unsigned) moved_codon == codons_vector.size()) {
                     //ribosome terminated. free codons positions occupied by it.
                     termination = true;
-                    codons_vector[current_codon]->updateAlphas(true); // update codon: it can always translocate.
-                    for (unsigned int i = codons_vector.size() - 10; i < codons_vector.size(); i++) codons_vector[i]->isAvailable = true;
-                    if (codons_vector.size() > 10) codons_vector[codons_vector.size() - 11]->updateAlphas(codons_vector[codons_vector.size() - 10]->isAvailable);
-                    //if the simulation has a terminated ribosome limit, update the variable.
-                    if (finished_ribosomes_limit > 0){
-                        finished_ribosomes++;
-                    }
+                    for (unsigned int i = codons_vector.size() - 10; i < codons_vector.size(); i++) codons_vector[i]->setAvailable(true);
+                    finished_ribosomes++;
                 }
             }
         }
@@ -388,11 +377,11 @@ void Simulations::Translation::run()
 
 }
 
+
 /**
  * @brief Returns a tuple where the first element is a vector with the enlogation duration of the ribosomes that terminated in the simulation, and the second element is a vector with the iteration where such ribosomes started enlogating. This method should be called after updateRibosomeHistory, since it uses the positions_vector to do its job.
  * 
  */
-
 std::tuple<std::vector<double>, std::vector<int>> Simulations::Translation::getEnlogationDuration()
 {
     if (enlongations_durations.empty()) getInitiationEnlongationTermination();
@@ -450,6 +439,21 @@ void Simulations::Translation::getInitiationEnlongationTermination()
         enlongations_durations.erase(enlongations_durations.begin(), enlongations_durations.begin() + ribosomes_to_ignore);
         terminations_durations.erase(terminations_durations.begin(), terminations_durations.begin() + ribosomes_to_ignore);
         initiation_iteration.erase(initiation_iteration.begin(), initiation_iteration.begin() + ribosomes_to_ignore);
+    }
+    //maybe some of these ribosomes did not terminated. remove them from the list.
+    unsigned int ribosomes_to_remove = 0;
+    for (unsigned int i = terminations_durations.size() - 1; i > 0; i--) 
+        if (terminations_durations[i] == 0) {
+            ribosomes_to_remove++;
+        } else {
+            break;
+        }
+
+    for (unsigned int i = 0; i < ribosomes_to_remove; i++){
+        initiations_durations.pop_back();
+        enlongations_durations.pop_back();
+        terminations_durations.pop_back();
+        initiation_iteration.pop_back();
     }
 }
 

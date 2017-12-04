@@ -43,7 +43,6 @@ RibosomeSimulator::RibosomeSimulator()
 {
     //set initial state to 0
     current_state = 0;
-
 }
 
 void Simulations::RibosomeSimulator::loadConcentrations(std::string file_name)
