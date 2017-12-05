@@ -1,13 +1,3 @@
-/*
-<%
-cfg['dependencies'] = ['reactionsset.h', 'gillespie.h']
-cfg['compiler_args'] = ['-O3']
-cfg['sources'] = ['reactionsset.cpp', 'gillespie.cpp', 'concentrationsreader.cpp']
-
-setup_pybind11(cfg)
-%>
-*/
-
 #ifdef COMIPLE_PYTHON_MODULE
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
