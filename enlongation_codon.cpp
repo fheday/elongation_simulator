@@ -56,7 +56,7 @@ void Simulations::EnlongationCodon::setState(int s)
 
 void Simulations::EnlongationCodon::updateAlphas()
 {
-    if (nextMRNAElement->isAvailable()){
+    if (nextMRNAElement.lock()->isAvailable()){
         ribosome.getAlphas(alphas, reactions_index);
     } else {
         ribosome.getDecodingAlphas(alphas, reactions_index);

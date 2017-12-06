@@ -30,7 +30,7 @@ namespace Simulations{
         std::vector<int> reactions_index;
         bool is_available = true; // true if the position can be used.
         bool is_occupied = false; // true if there is  ribosome in the position. As the ribosome moves, it sets the next 'isAvailable' to false, and the 10th previous 'isAvailable' to true. When terminates, sets last 10 'isAvailable' to true.
-        std::shared_ptr<mRNAElement> nextMRNAElement, previousMRNAElement;
+        std::weak_ptr<mRNAElement> nextMRNAElement, previousMRNAElement;
     };
 }
 

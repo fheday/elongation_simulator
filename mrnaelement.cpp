@@ -5,8 +5,8 @@ void Simulations::mRNAElement::setAvailable(bool avail)
     is_available = avail;
     if (avail) {
         //update the next codon.
-        if (previousMRNAElement.get() != nullptr){
-            previousMRNAElement->updateAlphas();
+        if (auto tmp = previousMRNAElement.lock()){
+            tmp->updateAlphas();
         }
     }
 }
