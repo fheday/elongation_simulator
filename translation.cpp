@@ -322,16 +322,16 @@ void Simulations::Translation::run()
         // we do an additional operation to find the index of that position.
         // as it seems so far, this is almost equivalent in speed to the non-vectorized version.
 
-        std::vector<double> cumsum(alphas.size());
-        std::partial_sum(alphas.begin(), alphas.end(), cumsum.begin());
-        selected_alpha_vector_index = std::distance(cumsum.begin(), std::upper_bound(cumsum.begin(), cumsum.end(), a0 * r2));
+//         std::vector<double> cumsum(alphas.size());
+//         std::partial_sum(alphas.begin(), alphas.end(), cumsum.begin());
+//         selected_alpha_vector_index = std::distance(cumsum.begin(), std::upper_bound(cumsum.begin(), cumsum.end(), a0 * r2));
         
         // select next reaction to execute
-//         double cumsum = 0;
-//         do {
-//             selected_alpha_vector_index++;
-//             cumsum += alphas[selected_alpha_vector_index]; 
-//         } while (cumsum < a0 * r2);
+        double cumsum = 0;
+        do {
+            selected_alpha_vector_index++;
+            cumsum += alphas[selected_alpha_vector_index]; 
+        } while (cumsum < a0 * r2);
         current_codon = codon_index[selected_alpha_vector_index];
         //Apply reaction
         codons_vector[current_codon]->executeReaction(reaction_index[selected_alpha_vector_index]);
