@@ -175,37 +175,10 @@ int main(int argc, char **argv) {
                 case '?': // Unrecognized option
                 default:
                     printHelp();
-                    break;
+                    return 0;
             }
         } else {
             break;
-        }
-    }
-    if (optind == 1) {
-        // Regular argument
-        int index = optind;
-        while (index < argc){
-            switch(index){
-                case 1:
-                    concentration_file = argv[index];
-                    break;
-                case 2:
-                    mrna_file = argv[index];
-                    break;
-                case 3:
-                    initiation = std::stof(argv[index]);
-                    break;
-                case 4:
-                    termination = std::stof(argv[index]);
-                    break;
-                case 5:
-                    yeast_time = std::stoi(argv[index]);
-                    break;
-                case 6:
-                    output_file = argv[index];
-                    break;
-            }
-            index++;  // Skip to the next argument
         }
     }
     execute_translation(concentration_file, mrna_file, initiation, termination, yeast_time, iterations, ribosomes, pre_fill_mRNA, output_file);
