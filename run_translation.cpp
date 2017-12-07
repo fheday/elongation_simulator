@@ -119,6 +119,11 @@ int main(int argc, char **argv) {
     yeast_time = ribosomes = iterations = -1;
 
     std::string halting_condition_error = "only one of the following halting options can be used: yeast time, terminating ribosomes, or iteration limit\n";
+    if (argc == 1) {
+        //no options given. Print help and exit program.
+        printHelp();
+        return 0;
+    }
     while (optind < argc) {
         const auto opt = getopt_long(argc, argv, short_opts, long_opts, nullptr);
         if (opt != -1) {
@@ -180,6 +185,11 @@ int main(int argc, char **argv) {
         } else {
             break;
         }
+    }
+    // check if we have all we need:
+    if (concentration_file.empty() || mrna_file.empty() || initiation == 0 || termination == 0 || yeast_time == 0 || ribosomes == 0 || iterations == 0) {
+        printHelp();
+        return 0;
     }
     execute_translation(concentration_file, mrna_file, initiation, termination, yeast_time, iterations, ribosomes, pre_fill_mRNA, output_file);
     return 0;
