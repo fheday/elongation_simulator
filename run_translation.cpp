@@ -100,15 +100,15 @@ int main(int argc, char **argv) {
     signal(SIGSEGV, handler);   // install our handler
     const char* const short_opts = "c:m:i:t:y:r:l:eo:h";
     const option long_opts[] = {
-        {"concentration", 1, nullptr, 'w'},
-        {"mrna", 1, nullptr, 'w'},
-        {"initiation", 1, nullptr, 's'},
-        {"termination", 1, nullptr, 's'},
-        {"yeasttime", 1, nullptr, 's'},
-        {"ribosomes", 1, nullptr, 's'},
-        {"iterations", 1, nullptr, 's'},
-        {"init_empty", 1, nullptr, 'b'},
-        {"output", 1, nullptr, 'w'},
+        {"concentration", 1, nullptr, 'c'},
+        {"mrna", 1, nullptr, 'm'},
+        {"initiation", 1, nullptr, 'i'},
+        {"termination", 1, nullptr, 't'},
+        {"yeasttime", 1, nullptr, 'y'},
+        {"ribosomes", 1, nullptr, 'r'},
+        {"iterations", 1, nullptr, 'l'},
+        {"init_empty", 0, nullptr, 'e'},
+        {"output", 1, nullptr, 'o'},
         {"help", 0, nullptr, 'h'},
         {nullptr, 0, nullptr, 0}
     };
