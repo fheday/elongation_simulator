@@ -8,16 +8,7 @@
 #include <float.h>
 #include <algorithm>
 #include <deque>
-/*
-<%
 
-cfg['compiler_args'] = ['-Ofast', '-ffast-math', '-flto', '-march=native']
-cfg['sources'] = ['mrna_reader.cpp', 'initiationterminationcodon.cpp', 'concentrationsreader.cpp', 'ribosomesimulator.cpp', 'mrnaelement.cpp', 'gillespie.cpp', 'enlongation_codon.cpp', 'reactionsset.cpp', 'ratecalculator.cpp']
-cfg['parallel'] = True
-
-setup_pybind11(cfg)
-%>
-*/
 #ifdef COMIPLE_PYTHON_MODULE
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
