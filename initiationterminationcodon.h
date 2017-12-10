@@ -20,8 +20,6 @@ namespace Simulations {
         float propensity;
         float a0;
     private:
-        std::mt19937 gen;
-        std::uniform_real_distribution<> dis;
         int state = 0;
         bool is_initiation;
     };
