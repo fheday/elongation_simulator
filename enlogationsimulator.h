@@ -23,8 +23,8 @@ namespace Simulations {
         void calculateAverageTimes();
         double termination_rate = -1;
         double initiation_rate = -1;
-        std::string mRNAFileName;
-        std::string concentrationsFileName;
+        std::string mRNA_file_name;
+        std::string concentrations_file_name;
         std::string average_times_file_name;
         mRNA_utils::mRNAReader mrna_reader;
         RibosomeSimulator ribosome_simulator;

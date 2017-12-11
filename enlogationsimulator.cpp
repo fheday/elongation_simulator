@@ -81,17 +81,17 @@ void EnlogationSimulator::setMRnaFileName(std::string file_name)
     if (!ist) {
         throw std::runtime_error("can't open input file: "+ file_name);
     } else {
-        mRNAFileName = file_name;
+        mRNA_file_name = file_name;
     }
     intializeMRNAReader();
 }
 
 void EnlogationSimulator::intializeMRNAReader()
 {
-    if (!mRNAFileName.empty() and !average_times_file_name.empty() && initiation_rate > 0 && termination_rate > 0) {
+    if (!mRNA_file_name.empty() and !average_times_file_name.empty() && initiation_rate > 0 && termination_rate > 0) {
         // we can proceed with the mRNAReader object.
         mrna_reader.loadRateCalculatorFile(average_times_file_name);
-        mrna_reader.loadmRNAFile(mRNAFileName);
+        mrna_reader.loadmRNAFile(mRNA_file_name);
         mrna_reader.setInitiationRate(initiation_rate);
         mrna_reader.setTerminationRate(termination_rate);
         mrna_reader.generateInitialPopulation();
@@ -122,7 +122,7 @@ void EnlogationSimulator::setConcentrationsFileName(std::string file_name)
     if (!ist) {
         throw std::runtime_error("can't open input file: "+ file_name);
     } else {
-        concentrationsFileName = file_name;
+        concentrations_file_name = file_name;
         // when setting the concentrations file name, we can also
         // initialize the RibosomeSimulator object.
         ribosome_simulator.loadConcentrations(file_name);
@@ -261,4 +261,3 @@ void EnlogationSimulator::calculateAverageTimes()
         codons_average_occupation_time[codon_position] = n_times_occupied[codon_position] > 0 ? total_time[codon_position] / n_times_occupied[codon_position]: 0;
     }
 }
-
