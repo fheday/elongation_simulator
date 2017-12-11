@@ -34,7 +34,7 @@ void Simulations::InitiationTerminationCodon::setState(int s)
         alphas[0] = propensity;
         reactions_index = std::vector<int>(1);
         reactions_index[0] = 23;
-    } else if (state==23 && (!is_initiation || (is_initiation && nextMRNAElement.lock()->isAvailable()))) {
+    } else if (state==23 && (!is_initiation || (is_initiation && next_mRNA_element.lock()->isAvailable()))) {
         alphas = std::vector<double>(1);
         alphas[0] =10000; // verify
         reactions_index = std::vector<int>(1);
