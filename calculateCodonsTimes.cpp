@@ -56,7 +56,7 @@
          for (unsigned int i = 0 ; i < iterations; i++){
              enlongating_ribosome.ribosome.setState(0);
              enlongating_ribosome.ribosome.run_and_get_times(decoding, translocating);
-             if (decoding == 0 || translocating == 0) throw std::runtime_error("decoding nor translocation cannot be zero.");
+             if (decoding * translocating <= std::numeric_limits<double>::epsilon()) throw std::runtime_error("decoding nor translocation cannot be zero.");
              codon_total_decoding += decoding;
              codon_total_translocating += translocating;
              n++;
@@ -73,7 +73,7 @@
             average_times_file<<(codon_total_decoding + codon_total_translocating)/iterations;
         }
          average_times_file<<"\n";
-         for (int j=0; j < (2 * iterations) - 1; j++) times_vector_file<<vector[j]<<",";
+         for (std::size_t j=0; j < (2 * iterations) - 1; j++) times_vector_file<<vector[j]<<",";
          times_vector_file<<vector[(2 * iterations) - 1]<<vector[(2 * iterations) - 1]<<"\n";
          codons_times[codon] = decoding;
          std::cout<<". Finished. Average time: ";
