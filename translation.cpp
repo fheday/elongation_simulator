@@ -10,13 +10,11 @@
 #include <deque>
 
 #ifdef COMIPLE_PYTHON_MODULE
+
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 namespace py = pybind11;
-#endif
 
-
-#ifdef COMIPLE_PYTHON_MODULE
 PYBIND11_MODULE(translation, mod){
 
     py::class_<Simulations::Translation> (mod, "translation")
@@ -54,6 +52,7 @@ PYBIND11_MODULE(translation, mod){
     .def_readonly("average_times", &Simulations::Translation::codons_average_occupation_time);
 
 }
+
 #endif
 
 void Simulations::Translation::loadConcentrations(std::string file_name)
@@ -232,7 +231,7 @@ void Simulations::Translation::run()
         std::vector<int>r_i;
         codons_vector[0]->getAlphas(a, r_i);
         double initiation_time = 1/a[0]; //propensity
-        int last_index = codons_vector.size() - 1;
+        std::size_t last_index = codons_vector.size() - 1;
         double time_sum = 0;
         codons_vector[last_index]->setOccupied(true);
         codons_vector[last_index]->setAvailable(false);
@@ -293,7 +292,6 @@ void Simulations::Translation::run()
         moved = false;
         initiation = false;
         termination = false;
-        moved_codon = -1;
         // randomly generate parameter for calculating dt
         r1 = dis(gen);
         // randomly generate parameter for selecting reaction
