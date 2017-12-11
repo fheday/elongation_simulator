@@ -10,8 +10,7 @@ namespace Simulations {
     {
     public:
         EnlongationCodon();
-        ~EnlongationCodon();
-        std::string concentrationsFileName;
+        std::string concentrations_file_name;
         RibosomeSimulator ribosome;
         void setCodon(std::string);
         void loadConcentrations(std::string);

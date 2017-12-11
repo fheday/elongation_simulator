@@ -15,7 +15,7 @@ void EnlongationCodon::loadConcentrations(std::string file_name)
     if (!ist) {
         throw std::runtime_error("can't open input file: "+ file_name);
     } else {
-        concentrationsFileName = file_name;
+        concentrations_file_name = file_name;
         // when setting the concentrations file name, we can also
         // initialize the RibosomeSimulator object.
         ribosome.loadConcentrations(file_name);
@@ -56,16 +56,9 @@ void Simulations::EnlongationCodon::setState(int s)
 
 void Simulations::EnlongationCodon::updateAlphas()
 {
-    if (nextMRNAElement.lock()->isAvailable()){
+    if (next_mRNA_element.lock()->isAvailable()){
         ribosome.getAlphas(alphas, reactions_index);
     } else {
         ribosome.getDecodingAlphas(alphas, reactions_index);
     }
 }
-
-Simulations::EnlongationCodon::~EnlongationCodon()
-{
-    //we are not creating any naked pointers, therefore it is fine to have an empty destructor.
-}
-
-
