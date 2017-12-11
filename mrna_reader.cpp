@@ -9,7 +9,7 @@ mRNAReader::mRNAReader()
 }
 void mRNAReader::loadRateCalculatorFile(std::string file_name)
 {
-    rate_calculator.loadRates(file_name);
+//     rate_calculator.loadRates(file_name);
 }
 
 
@@ -90,7 +90,7 @@ void mRNAReader::generateReactions()
             reactions_set.addReaction(matrix, initiation_rate, "ini");
         } else {
             matrix.col(i) << -1, 0, -1, +1;
-            reactions_set.addReaction(matrix, rate_calculator.codon_rates[codon], codon);
+//             reactions_set.addReaction(matrix, rate_calculator.codon_rates[codon], codon);
         }
         if (i < n_codons - 1){
             // Translocating reactions  - to be optimised
@@ -103,7 +103,7 @@ void mRNAReader::generateReactions()
                 matrix(0, i - 9) = 1;
                 matrix(1, i - 9) = 1;
             }
-            reactions_set.addReaction(matrix, rate_calculator.codon_rates["tra"], "tra");
+//             reactions_set.addReaction(matrix, rate_calculator.codon_rates["tra"], "tra");
         }
     }
     // termination

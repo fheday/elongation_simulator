@@ -23,7 +23,7 @@ namespace mRNA_utils {
         double termination_rate;
         double initiation_rate;
         std::string mRNA_file_name;
-        csv_utils::RateCalculator rate_calculator;
+//         csv_utils::RateCalculator rate_calculator;
         Eigen::MatrixXi initial_population;
         Simulations::ReactionsSet reactions_set;
     };
