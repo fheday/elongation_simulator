@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
     };
 
     std::string concentration_file, mrna_file, output_file;
-    double initiation, termination, yeast_time, ribosomes, iterations;
+    double initiation = 0.0, termination = 0.0, yeast_time, ribosomes, iterations;
     bool stop_condition_passed = false, pre_fill_mRNA = true;
     yeast_time = ribosomes = iterations = -1;
 
@@ -138,10 +138,10 @@ int main(int argc, char **argv) {
                     break;
                 }
                 case 'i':
-                    initiation = std::stof(optarg);
+                    initiation = std::stod(optarg);
                     break;
                 case 't':
-                    termination = std::stof(optarg);
+                    termination = std::stod(optarg);
                     break;
                 case 'y':
                     if (!stop_condition_passed){
