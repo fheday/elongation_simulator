@@ -203,7 +203,7 @@ void Simulations::Translation::getAlphas() {
   }
 
   for (unsigned i = 0; i < ribosome_positions.size(); i++) {
-    ribosome_index = ribosome_positions[i];
+    ribosome_index = static_cast<std::size_t>(ribosome_positions[i]);
     codons_vector[ribosome_index]->getAlphas(a, r_i);
     alphas.insert(alphas.end(), a.begin(), a.end());
     std::fill_n(std::back_inserter(codon_index), a.size(), ribosome_index);
