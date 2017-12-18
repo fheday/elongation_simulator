@@ -66,7 +66,8 @@ PYBIND11_MODULE(translation, mod) {
 
 #endif
 
-void Simulations::Translation::loadConcentrations(std::string file_name) {
+void Simulations::Translation::loadConcentrations(
+    const std::string& file_name) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -77,7 +78,7 @@ void Simulations::Translation::loadConcentrations(std::string file_name) {
   }
 }
 
-void Simulations::Translation::loadMRNA(std::string file_name) {
+void Simulations::Translation::loadMRNA(const std::string& file_name) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -157,7 +158,9 @@ void Simulations::Translation::setPrepopulate(bool prep) {
  * performed.
  */
 void Simulations::Translation::setIterationLimit(int i) {
-  if (i > 0) iteration_limit = i;
+  if (i > 0) {
+    iteration_limit = i;
+  }
 }
 
 /**
@@ -168,7 +171,9 @@ void Simulations::Translation::setIterationLimit(int i) {
  */
 
 void Simulations::Translation::setTimeLimit(double t) {
-  if (t > 0) time_limit = t;
+  if (t > 0) {
+    time_limit = t;
+  }
 }
 
 /**
@@ -179,7 +184,9 @@ void Simulations::Translation::setTimeLimit(double t) {
  * ribosomes terminates the mRNA.
  */
 void Simulations::Translation::setFinishedRibosomes(int n_ribosomes) {
-  if (n_ribosomes > 0) finished_ribosomes_limit = n_ribosomes;
+  if (n_ribosomes > 0) {
+    finished_ribosomes_limit = n_ribosomes;
+  }
 }
 
 void Simulations::Translation::getAlphas() {
@@ -258,7 +265,9 @@ void Simulations::Translation::run() {
         codons_vector[static_cast<std::size_t>(i)]->setOccupied(true);
         codons_vector[static_cast<std::size_t>(i)]->setAvailable(false);
         codons_vector[static_cast<std::size_t>(i)]->setState(0);
-        if (i == 0) codons_vector[static_cast<std::size_t>(i)]->setState(23);
+        if (i == 0) {
+          codons_vector[static_cast<std::size_t>(i)]->setState(23);
+        }
         time_sum = 0;  // reset timer.
         last_index = static_cast<std::size_t>(
             i);  // mark this as last inserted ribosome.
@@ -267,8 +276,9 @@ void Simulations::Translation::run() {
     }
   }
   for (unsigned int i = 0; i < codons_vector.size(); i++) {
-    if (codons_vector[i]->isOccupied())
+    if (codons_vector[i]->isOccupied()) {
       rib_positions.push_back(static_cast<int>(i));
+    }
   }
   finished_ribosomes -=
       pre_filled_ribosomes;  // we should ignore these ribosomes.
@@ -379,10 +389,12 @@ void Simulations::Translation::run() {
                    codons_vector.size()) {
           // ribosome terminated. free codons positions occupied by it.
           termination = true;
-          for (std::size_t i =
-                   static_cast<std::size_t>(codons_vector.size() - 10);
-               i < codons_vector.size(); i++)
+          for (std::size_t
+                   i = static_cast<std::size_t>(codons_vector.size() - 10),
+                   total = codons_vector.size();
+               i < total; ++i) {
             codons_vector[i]->setAvailable(true);
+          }
           finished_ribosomes++;
         }
       }
@@ -404,7 +416,9 @@ void Simulations::Translation::run() {
  */
 std::tuple<std::vector<double>, std::vector<int>>
 Simulations::Translation::getEnlogationDuration() {
-  if (enlongations_durations.empty()) getInitiationEnlongationTermination();
+  if (enlongations_durations.empty()) {
+    getInitiationEnlongationTermination();
+  }
   return std::make_tuple(enlongations_durations, initiation_iteration);
 }
 
@@ -428,7 +442,7 @@ void Simulations::Translation::getInitiationEnlongationTermination() {
     initiation_iteration.push_back(0);
   }
   for (std::size_t i = 1; i < ribosome_positions_history.size(); i++) {
-    std::vector<int> &rib_positions = ribosome_positions_history[i];
+    std::vector<int>& rib_positions = ribosome_positions_history[i];
     for (std::size_t j = 0; j < rib_positions.size(); j++) {
       std::size_t pos = static_cast<std::size_t>(rib_positions[j]);
       if (pos == 0) {
@@ -474,12 +488,13 @@ void Simulations::Translation::getInitiationEnlongationTermination() {
   // maybe some of these ribosomes did not terminated. remove them from the
   // list.
   unsigned int ribosomes_to_remove = 0;
-  for (std::size_t i = terminations_durations.size() - 1; i > 0; i--)
+  for (std::size_t i = terminations_durations.size() - 1; i > 0; i--) {
     if (terminations_durations[i] == 0.0) {
       ribosomes_to_remove++;
     } else {
       break;
     }
+  }
 
   for (unsigned int i = 0; i < ribosomes_to_remove; i++) {
     initiations_durations.pop_back();
