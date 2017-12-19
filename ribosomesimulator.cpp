@@ -15,8 +15,11 @@ namespace py = pybind11;
 PYBIND11_MODULE(ribosomesimulator, mod) {
   py::class_<Simulations::RibosomeSimulator>(mod, "ribosomesimulator")
       .def(py::init<>())  // constructor
+      .def("loadConcentrations",
+           &Simulations::RibosomeSimulator::loadConcentrations)
       .def("setCodonForSimulation",
            &Simulations::RibosomeSimulator::setCodonForSimulation)
+      .def("setState", &Simulations::RibosomeSimulator::setState)
       .def("run_and_get_times", [](Simulations::RibosomeSimulator& rs) {
         double d = 0.0;
         double t = 0.0;

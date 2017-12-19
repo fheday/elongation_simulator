@@ -24,3 +24,10 @@ target_compile_definitions(translation PRIVATE -DCOMIPLE_PYTHON_MODULE)
 target_link_libraries(translation PRIVATE pybind11::module ${PYTHON_LIBRARIES})
 set_target_properties(translation PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                          SUFFIX "${PYTHON_MODULE_EXTENSION}")
+
+
+ add_library(ribosomesimulator MODULE concentrationsreader.cpp ribosomesimulator.cpp)
+ target_compile_definitions(ribosomesimulator PRIVATE -DCOMIPLE_PYTHON_MODULE)
+ target_link_libraries(ribosomesimulator PRIVATE pybind11::module ${PYTHON_LIBRARIES})
+ set_target_properties(ribosomesimulator PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
+                                          SUFFIX "${PYTHON_MODULE_EXTENSION}")
