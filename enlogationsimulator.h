@@ -13,7 +13,7 @@ class EnlogationSimulator {
   void setTerminationRate(double);
   void setInitiationRate(double);
   void setMRnaFileName(const std::string&);
-  void setConcentrationsFileName(std::string);
+  void setConcentrationsFileName(const std::string&);
   void setAverageTimesFileName(const std::string&);
   double getReactionTime(double&, double&, std::string&);
   std::tuple<std::vector<double>, std::vector<int>, std::vector<int>>

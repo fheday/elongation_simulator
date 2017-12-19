@@ -1,18 +1,10 @@
-#ifdef COMIPLE_PYTHON_MODULE
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-namespace py = pybind11;
-#endif
-
+#include "ratecalculator.h"
 #include <error.h>
 #include <algorithm>
 #include <fstream>
 #include <vector>
-#include "ratecalculator.h"
 
-using namespace csv_utils;
-
-RateCalculator::RateCalculator() {}
+csv_utils::RateCalculator::RateCalculator() {}
 
 /**
  * @brief Load a file with the average times and calculates the rates of the
@@ -20,7 +12,7 @@ RateCalculator::RateCalculator() {}
  *
  * @param file_name string with the location of the file to be open.
  */
-void RateCalculator::loadRates(std::string file_name) {
+void csv_utils::RateCalculator::loadRates(const std::string& file_name) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -57,7 +49,7 @@ void RateCalculator::loadRates(std::string file_name) {
   }
   // check if stop codons where added or not: This will depend if the file has
   // them or not: if it does, they where added in the previous loop.
-  for (std::string codon : stop_codons) {
+  for (const std::string& codon : stop_codons) {
     auto result = std::find(stop_codons.begin(), stop_codons.end(), codon);
     if (result != end(stop_codons)) {
       // This stop codon was not previously added. Add now. It has a fixed

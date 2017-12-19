@@ -1,10 +1,4 @@
-#ifdef COMIPLE_PYTHON_MODULE
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-namespace py = pybind11;
-
-#endif
-
+#include "enlogationsimulator.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -12,18 +6,14 @@ namespace py = pybind11;
 #include <numeric>
 #include <set>
 #include <tuple>
-#include "enlogationsimulator.h"
-
-using namespace Simulations;
 
 #ifdef COMIPLE_PYTHON_MODULE
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+namespace py = pybind11;
+
 PYBIND11_PLUGIN(enlogationsimulator) {
   pybind11::module mod("enlogationsimulator", "auto-compiled c++ extension");
-
-  py::class_<Gillespie>(mod, "gillespie")
-      .def(py::init<>())  // constructor
-      .def("setIterationLimit", &Gillespie::setIterationLimit)
-      .def("run", &Gillespie::run);
 
   py::class_<EnlogationSimulator, Gillespie>(mod, "enlogationsimulator")
       .def(py::init<>())  // constructor
@@ -49,12 +39,12 @@ PYBIND11_PLUGIN(enlogationsimulator) {
                     &EnlogationSimulator::codons_average_occupation_time);
 
   return mod.ptr();
-}
+};
 #endif
 
-EnlogationSimulator::EnlogationSimulator() {}
+Simulations::EnlogationSimulator::EnlogationSimulator() {}
 
-void EnlogationSimulator::setInitiationRate(double ir) {
+void Simulations::EnlogationSimulator::setInitiationRate(double ir) {
   if (ir > 0) {
     initiation_rate = ir;
   } else {
@@ -63,7 +53,7 @@ void EnlogationSimulator::setInitiationRate(double ir) {
   intializeMRNAReader();
 }
 
-void EnlogationSimulator::setTerminationRate(double tr) {
+void Simulations::EnlogationSimulator::setTerminationRate(double tr) {
   if (tr > 0) {
     termination_rate = tr;
   } else {
@@ -72,7 +62,8 @@ void EnlogationSimulator::setTerminationRate(double tr) {
   intializeMRNAReader();
 }
 
-void EnlogationSimulator::setMRnaFileName(const std::string& file_name) {
+void Simulations::EnlogationSimulator::setMRnaFileName(
+    const std::string& file_name) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -83,7 +74,7 @@ void EnlogationSimulator::setMRnaFileName(const std::string& file_name) {
   intializeMRNAReader();
 }
 
-void EnlogationSimulator::intializeMRNAReader() {
+void Simulations::EnlogationSimulator::intializeMRNAReader() {
   if (!mRNA_file_name.empty() and !average_times_file_name.empty() &&
       initiation_rate > 0 && termination_rate > 0) {
     // we can proceed with the mRNAReader object.
@@ -94,7 +85,7 @@ void EnlogationSimulator::intializeMRNAReader() {
   }
 }
 
-void EnlogationSimulator::setAverageTimesFileName(
+void Simulations::EnlogationSimulator::setAverageTimesFileName(
     const std::string& file_name) {
   std::ifstream ist{file_name};
 
@@ -106,7 +97,8 @@ void EnlogationSimulator::setAverageTimesFileName(
   intializeMRNAReader();
 }
 
-void EnlogationSimulator::setConcentrationsFileName(std::string file_name) {
+void Simulations::EnlogationSimulator::setConcentrationsFileName(
+    const std::string& file_name) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -119,8 +111,8 @@ void EnlogationSimulator::setConcentrationsFileName(std::string file_name) {
   }
 }
 
-double EnlogationSimulator::getReactionTime(double& a0, double& r1,
-                                            std::string& codon) {
+double Simulations::EnlogationSimulator::getReactionTime(double& a0, double& r1,
+                                                         std::string& codon) {
   double result = 0;
   if (codon == "tra") {
     if (translocation_times.empty()) {
@@ -158,7 +150,7 @@ double EnlogationSimulator::getReactionTime(double& a0, double& r1,
  */
 
 std::tuple<std::vector<double>, std::vector<int>, std::vector<int>>
-EnlogationSimulator::getEnlogationDuration() {
+Simulations::EnlogationSimulator::getEnlogationDuration() {
   std::list<int> rib_initiation_iteration;
   std::vector<double> result;
   std::vector<int> initiation_iteration, termination_iteration;
@@ -205,7 +197,7 @@ EnlogationSimulator::getEnlogationDuration() {
   return std::make_tuple(result, initiation_iteration, termination_iteration);
 }
 
-void EnlogationSimulator::calculateAverageTimes() {
+void Simulations::EnlogationSimulator::calculateAverageTimes() {
   std::size_t number_codons = mrna_reader.mRNA_sequence.size() / 3;
   // initialize the total_time vector.
   total_time = std::vector<double>(number_codons);

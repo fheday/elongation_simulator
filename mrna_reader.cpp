@@ -1,11 +1,12 @@
 #include "mrna_reader.h"
 #include <fstream>
 
-using namespace mRNA_utils;
+mRNA_utils::mRNAReader::mRNAReader() {
+  termination_rate = 0;
+  initiation_rate = 0;
+}
 
-mRNAReader::mRNAReader() {}
-
-void mRNAReader::loadmRNAFile(std::string mRNA_file_name) {
+void mRNA_utils::mRNAReader::loadmRNAFile(const std::string& mRNA_file_name) {
   std::ifstream ist{mRNA_file_name};
 
   if (!ist) {
@@ -17,7 +18,9 @@ void mRNAReader::loadmRNAFile(std::string mRNA_file_name) {
     std::getline(ist, line);
     // some file formats start with a '>' symbol on the first line.
     // we need to skip that line.
-    if (line[0] == '>') continue;
+    if (line[0] == '>') {
+      continue;
+    }
     mRNA_sequence.append(line);
   }
   // replace all T's for U's.
@@ -28,7 +31,7 @@ void mRNAReader::loadmRNAFile(std::string mRNA_file_name) {
   }
 }
 
-void mRNAReader::setInitiationRate(double val) {
+void mRNA_utils::mRNAReader::setInitiationRate(double val) {
   if (val > 0) {
     initiation_rate = val;
   } else {
@@ -36,7 +39,7 @@ void mRNAReader::setInitiationRate(double val) {
   }
 }
 
-void mRNAReader::setTerminationRate(double val) {
+void mRNA_utils::mRNAReader::setTerminationRate(double val) {
   if (val > 0) {
     termination_rate = val;
   } else {

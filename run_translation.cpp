@@ -13,7 +13,7 @@
 #define EIGEN_NO_DEBUG  // disables Eigen's assertions.
 
 [[noreturn]] void handler(int sig) {
-  void *array[10];
+  void* array[10];
   int size;
 
   // get void*'s for all entries on the stack
@@ -25,11 +25,12 @@
   exit(1);
 }
 
-void execute_translation(std::string concentrations_file, std::string mrna_file,
-                         double initiation_rate, double termination_rate,
-                         int time_limit, int number_iterations,
-                         int number_ribosomes, bool pre_fill_mRNA,
-                         std::string output_file_name) {
+void execute_translation(const std::string& concentrations_file,
+                         const std::string& mrna_file, double initiation_rate,
+                         double termination_rate, int time_limit,
+                         int number_iterations, int number_ribosomes,
+                         bool pre_fill_mRNA,
+                         const std::string& output_file_name) {
   // separate the path from the file name.
   std::size_t found = output_file_name.find_last_of("/\\");
   std::string path = "./";  // current path.
@@ -72,8 +73,9 @@ void execute_translation(std::string concentrations_file, std::string mrna_file,
     clock.push_back(c);
   }
   // get the clock at the initiation of each terminating ribosome.
-  for (int iteration : iteration_initiation)
+  for (int iteration : iteration_initiation) {
     clock_at_initiation.push_back(clock[static_cast<std::size_t>(iteration)]);
+  }
   // now we save the clock_at_initiation and enlongation_duration.
   std::ofstream clock_and_enlongation_csv_file;
   clock_and_enlongation_csv_file.open(output_file_name);
@@ -81,10 +83,11 @@ void execute_translation(std::string concentrations_file, std::string mrna_file,
   clock_and_enlongation_csv_file
       << "Clock at initiation, Ribosome enlongation duration\n";
   // data
-  for (std::size_t i = 0; i < clock_at_initiation.size(); i++)
+  for (std::size_t i = 0, total = clock_at_initiation.size(); i < total; ++i) {
     clock_and_enlongation_csv_file << std::fixed << std::setprecision(10)
                                    << clock_at_initiation[i] << ", "
                                    << enlongation_duration[i] << "\n";
+  }
   clock_and_enlongation_csv_file.close();
 
   std::ofstream codon_average_time_file;
@@ -92,9 +95,10 @@ void execute_translation(std::string concentrations_file, std::string mrna_file,
   // header
   codon_average_time_file << "codon average time\n";
   // data
-  for (auto average_occupation_time : ts.codons_average_occupation_time)
+  for (auto average_occupation_time : ts.codons_average_occupation_time) {
     codon_average_time_file << std::fixed << std::setprecision(10)
                             << average_occupation_time << "\n";
+  }
   codon_average_time_file.close();
 }
 
@@ -112,9 +116,9 @@ void printHelp() {
   std::cout << "output = file to be created with the simulation results.\n";
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   signal(SIGSEGV, handler);  // install our handler
-  const char *const short_opts = "c:m:i:t:y:r:l:eo:h";
+  const char* const short_opts = "c:m:i:t:y:r:l:eo:h";
   const option long_opts[] = {{"concentration", 1, nullptr, 'c'},
                               {"mrna", 1, nullptr, 'm'},
                               {"initiation", 1, nullptr, 'i'},

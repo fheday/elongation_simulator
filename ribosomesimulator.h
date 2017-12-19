@@ -16,7 +16,7 @@ class RibosomeSimulator {
   void setState(int);
   void getAlphas(std::vector<double>&, std::vector<int>&);
   void getDecodingAlphas(std::vector<double>&, std::vector<int>&);
-  void loadConcentrations(std::string);
+  void loadConcentrations(const std::string&);
   void setCodonForSimulation(const std::string&);
   void run_and_get_times(double&, double&);
   csv_utils::ConcentrationsReader concentrations_reader;

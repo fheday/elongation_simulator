@@ -11,15 +11,18 @@ void Simulations::mRNAElement::setAvailable(bool avail) {
 }
 void Simulations::mRNAElement::setOccupied(bool occup) {
   is_occupied = occup;
-  if (occup) updateAlphas();
+  if (occup) {
+    updateAlphas();
+  }
 }
 
-void Simulations::mRNAElement::setNextCodon(std::shared_ptr<mRNAElement> n_c) {
+void Simulations::mRNAElement::setNextCodon(
+    const std::shared_ptr<mRNAElement>& n_c) {
   next_mRNA_element = n_c;
 }
 
 void Simulations::mRNAElement::setPreviousCodon(
-    std::shared_ptr<mRNAElement> p_c) {
+    const std::shared_ptr<mRNAElement>& p_c) {
   previous_mRNA_element = p_c;
 }
 

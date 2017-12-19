@@ -8,7 +8,7 @@ namespace csv_utils {
 class RateCalculator {
  public:
   RateCalculator();
-  void loadRates(std::string);
+  void loadRates(const std::string&);
   std::string rates_file_name;
   std::map<std::string, double> codon_rates;
 };

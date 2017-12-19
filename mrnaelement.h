@@ -20,8 +20,8 @@ class mRNAElement {
   virtual void executeReaction(int) {}
   virtual int getState() { return -1; }
   virtual void setState(int) {}
-  void setNextCodon(std::shared_ptr<mRNAElement>);
-  void setPreviousCodon(std::shared_ptr<mRNAElement>);
+  void setNextCodon(const std::shared_ptr<mRNAElement>&);
+  void setPreviousCodon(const std::shared_ptr<mRNAElement>&);
   virtual void updateAlphas() {}
 
  protected:

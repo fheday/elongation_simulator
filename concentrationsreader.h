@@ -16,7 +16,7 @@ struct concentration_entry {
 class ConcentrationsReader {
  public:
   ConcentrationsReader();
-  void loadConcentrations(std::string);
+  void loadConcentrations(const std::string&);
   void getContents(std::vector<concentration_entry>&);
   void getCodonsVector(std::vector<std::string>&);
   std::vector<concentration_entry> contents;

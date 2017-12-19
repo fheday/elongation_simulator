@@ -1,19 +1,13 @@
-#ifdef COMIPLE_PYTHON_MODULE
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-namespace py = pybind11;
-#endif
-
+#include "concentrationsreader.h"
 #include <error.h>
 #include <algorithm>
 #include <fstream>
 #include <string>
-#include "concentrationsreader.h"
-using namespace csv_utils;
 
-ConcentrationsReader::ConcentrationsReader() { contents.clear(); }
+csv_utils::ConcentrationsReader::ConcentrationsReader() { contents.clear(); }
 
-void ConcentrationsReader::loadConcentrations(std::string file_name) {
+void csv_utils::ConcentrationsReader::loadConcentrations(
+    const std::string& file_name) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -48,22 +42,23 @@ void ConcentrationsReader::loadConcentrations(std::string file_name) {
     if (!header) {
       auto result = std::find(stop_codons.begin(), stop_codons.end(), codon);
       // only add if not a stop codon.
-      if (result == end(stop_codons))
+      if (result == end(stop_codons)) {
         contents.push_back(
             concentration_entry{codon, three_letter, wc_cognate_conc,
                                 wobblecognate_conc, nearcognate_conc});
+      }
     } else {
       header = false;
     }
   }
 }
 
-void ConcentrationsReader::getContents(
+void csv_utils::ConcentrationsReader::getContents(
     std::vector<concentration_entry>& result) {
   result = contents;
 }
 
-void ConcentrationsReader::getCodonsVector(
+void csv_utils::ConcentrationsReader::getCodonsVector(
     std::vector<std::string>& codons_vector) {
   codons_vector.clear();
   for (concentration_entry entry : contents) {

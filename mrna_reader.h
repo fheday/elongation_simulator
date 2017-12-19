@@ -9,7 +9,7 @@ namespace mRNA_utils {
 class mRNAReader {
  public:
   mRNAReader();
-  void loadmRNAFile(std::string);
+  void loadmRNAFile(const std::string&);
   void setInitiationRate(double);
   void setTerminationRate(double);
   std::string getCodon(int);

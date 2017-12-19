@@ -9,6 +9,7 @@ Simulations::InitiationTerminationCodon::InitiationTerminationCodon(double prop,
   alphas[0] = propensity;
   reactions_index = std::vector<int>(1);
   reactions_index[0] = 0;
+  a0 = 0;
 }
 
 void Simulations::InitiationTerminationCodon::getAlphas(std::vector<double>& as,

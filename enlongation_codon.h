@@ -11,8 +11,8 @@ class EnlongationCodon : public mRNAElement {
   EnlongationCodon();
   std::string concentrations_file_name;
   RibosomeSimulator ribosome;
-  void setCodon(std::string);
-  void loadConcentrations(std::string);
+  void setCodon(const std::string&);
+  void loadConcentrations(const std::string&);
   void getAlphas(std::vector<double>&, std::vector<int>&) override;
   void executeReaction(int) override;
   int getState() override;

@@ -1,24 +1,23 @@
-#ifdef COMIPLE_PYTHON_MODULE
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-namespace py = pybind11;
-#endif
 
+#include "ribosomesimulator.h"
 #include <float.h>
 #include <algorithm>
 #include <eigen3/Eigen/Dense>
 #include <numeric>
 #include "concentrationsreader.h"
-#include "ribosomesimulator.h"
-
-using namespace Simulations;
 
 #ifdef COMIPLE_PYTHON_MODULE
+
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+namespace py = pybind11;
+
 PYBIND11_MODULE(ribosomesimulator, mod) {
-  py::class_<RibosomeSimulator>(mod, "ribosomesimulator")
+  py::class_<Simulations::RibosomeSimulator>(mod, "ribosomesimulator")
       .def(py::init<>())  // constructor
-      .def("setCodonForSimulation", &RibosomeSimulator::setCodonForSimulation)
-      .def("run_and_get_times", [](RibosomeSimulator& rs) {
+      .def("setCodonForSimulation",
+           &Simulations::RibosomeSimulator::setCodonForSimulation)
+      .def("run_and_get_times", [](Simulations::RibosomeSimulator& rs) {
         double d = 0.0;
         double t = 0.0;
         rs.run_and_get_times(d, t);
@@ -27,18 +26,19 @@ PYBIND11_MODULE(ribosomesimulator, mod) {
 }
 #endif
 
-RibosomeSimulator::RibosomeSimulator() {
+Simulations::RibosomeSimulator::RibosomeSimulator() {
   // set initial state to 0
   current_state = 0;
 }
 
-void Simulations::RibosomeSimulator::loadConcentrations(std::string file_name) {
+void Simulations::RibosomeSimulator::loadConcentrations(
+    const std::string& file_name) {
   csv_utils::ConcentrationsReader cr;
   cr.loadConcentrations(file_name);
   std::vector<csv_utils::concentration_entry> concentrations_vector;
   concentrations_reader = cr;
   // copied code from RibosomeSimulator(csv_utils::concentrations_reader& cr)
-  // TODO: NEEDS TO IMPROVE software engineering here.
+  // TODO(Heday): NEEDS TO IMPROVE software engineering here.
   std::vector<std::string> stop_codons = {"UAG", "UAA", "UGA"};
   std::vector<csv_utils::concentration_entry> codons_concentrations;
   cr.getContents(codons_concentrations);
@@ -52,12 +52,13 @@ void Simulations::RibosomeSimulator::loadConcentrations(std::string file_name) {
   }
 }
 
-void RibosomeSimulator::setCodonForSimulation(const std::string& codon) {
+void Simulations::RibosomeSimulator::setCodonForSimulation(
+    const std::string& codon) {
   reactions_graph = reactions_map.at(codon);
 }
 
-void RibosomeSimulator::run_and_get_times(double& decoding_time,
-                                          double& translocation_time) {
+void Simulations::RibosomeSimulator::run_and_get_times(
+    double& decoding_time, double& translocation_time) {
   std::vector<double> dt_history;
   dt_history.clear();
   std::vector<int> ribosome_state_history;
@@ -94,8 +95,9 @@ void RibosomeSimulator::run_and_get_times(double& decoding_time,
            i--) {
         if (is_translocating) {
           translocation_time += dt_history[static_cast<std::size_t>(i)];
-          if (ribosome_state_history[static_cast<std::size_t>(i)] < 23)
+          if (ribosome_state_history[static_cast<std::size_t>(i)] < 23) {
             is_translocating = false;
+          }
         } else {
           decoding_time += dt_history[static_cast<std::size_t>(i)];
         }
@@ -106,7 +108,7 @@ void RibosomeSimulator::run_and_get_times(double& decoding_time,
     // select next reaction to execute
     double cumsum = 0;
     int selected_alpha_vector_index = -1;
-    // TODO: vectorization of this loop would increase performance
+    // TODO(Heday): vectorization of this loop would increase performance
     do {
       selected_alpha_vector_index++;
       cumsum += alphas[static_cast<std::size_t>(selected_alpha_vector_index)];
@@ -120,7 +122,7 @@ void RibosomeSimulator::run_and_get_times(double& decoding_time,
 }
 
 std::vector<std::vector<std::tuple<double, int>>>
-RibosomeSimulator::createReactionsGraph(
+Simulations::RibosomeSimulator::createReactionsGraph(
     const csv_utils::concentration_entry& codon) {
   double totalconc = 1.9e-4;
   double nonconc = totalconc - codon.wc_cognate_conc -
@@ -481,7 +483,7 @@ RibosomeSimulator::createReactionsGraph(
   // ribosome state go to 16. This is purely for the sake of optimization. the
   // loop below populates reactions_graph automatically. It assumes that each
   // reaction is first-degree.
-  for (Eigen::MatrixXi m : reactionMatrix) {
+  for (const Eigen::MatrixXi& m : reactionMatrix) {
     if (ks.at(static_cast<std::size_t>(ii)) > 0) {
       // populate the local index.
       Eigen::Index maxRow, maxCol, minRow, minCol;

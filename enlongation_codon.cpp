@@ -1,11 +1,10 @@
 #include "enlongation_codon.h"
 #include <fstream>
 
-using namespace Simulations;
+Simulations::EnlongationCodon::EnlongationCodon() {}
 
-EnlongationCodon::EnlongationCodon() {}
-
-void EnlongationCodon::loadConcentrations(std::string file_name) {
+void Simulations::EnlongationCodon::loadConcentrations(
+    const std::string& file_name) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -18,19 +17,19 @@ void EnlongationCodon::loadConcentrations(std::string file_name) {
   }
 }
 
-void EnlongationCodon::setCodon(std::string cdn) {
+void Simulations::EnlongationCodon::setCodon(const std::string& cdn) {
   ribosome.setCodonForSimulation(cdn);
   // update reactions.
   ribosome.getAlphas(alphas, reactions_index);
 }
 
-void EnlongationCodon::getAlphas(std::vector<double>& as,
-                                 std::vector<int>& r_i) {
+void Simulations::EnlongationCodon::getAlphas(std::vector<double>& as,
+                                              std::vector<int>& r_i) {
   as = alphas;
   r_i = reactions_index;
 }
 
-void EnlongationCodon::executeReaction(int r) {
+void Simulations::EnlongationCodon::executeReaction(int r) {
   // execute reaction.
   ribosome.setState(r);
   updateAlphas();
