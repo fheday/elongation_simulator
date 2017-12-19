@@ -2,22 +2,20 @@
 #define SIMULATIONS_ENLOGATIONSIMULATOR_H
 
 #include "enlogationsimulator.h"
-#include "gillespie.h"
 #include "mrna_reader.h"
 #include "ribosomesimulator.h"
 
 namespace Simulations {
 
-class EnlogationSimulator : public Simulations::Gillespie {
+class EnlogationSimulator {
  public:
   EnlogationSimulator();
   void setTerminationRate(double);
   void setInitiationRate(double);
-  void setMRnaFileName(std::string);
+  void setMRnaFileName(const std::string&);
   void setConcentrationsFileName(std::string);
-  void setAverageTimesFileName(std::string);
-  double getReactionTime(double&, double&, std::string&) override;
-  void updateRibosomeHistory(bool = false);
+  void setAverageTimesFileName(const std::string&);
+  double getReactionTime(double&, double&, std::string&);
   std::tuple<std::vector<double>, std::vector<int>, std::vector<int>>
   getEnlogationDuration();
   void calculateAverageTimes();
@@ -29,6 +27,7 @@ class EnlogationSimulator : public Simulations::Gillespie {
   mRNA_utils::mRNAReader mrna_reader;
   RibosomeSimulator ribosome_simulator;
   std::vector<std::vector<int>> ribosome_positions_history;
+  std::vector<double> dt_history;
   // array with the total times the ribosomes spent in the codons
   std::vector<double> total_time;
   // number of times a codon was occupied

@@ -72,7 +72,7 @@ void EnlogationSimulator::setTerminationRate(double tr) {
   intializeMRNAReader();
 }
 
-void EnlogationSimulator::setMRnaFileName(std::string file_name) {
+void EnlogationSimulator::setMRnaFileName(const std::string& file_name) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -93,12 +93,13 @@ void EnlogationSimulator::intializeMRNAReader() {
     mrna_reader.setTerminationRate(termination_rate);
     mrna_reader.generateInitialPopulation();
     mrna_reader.generateReactions();
-    Gillespie::setInitialPopulation(mrna_reader.initial_population);
-    Gillespie::setReactionsSet(mrna_reader.reactions_set);
+    //    setInitialPopulation(mrna_reader.initial_population);
+    //    setReactionsSet(mrna_reader.reactions_set);
   }
 }
 
-void EnlogationSimulator::setAverageTimesFileName(std::string file_name) {
+void EnlogationSimulator::setAverageTimesFileName(
+    const std::string& file_name) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -139,7 +140,7 @@ double EnlogationSimulator::getReactionTime(double& a0, double& r1,
   } else if (codon == "ter" || codon == "ini" ||
              std::find(stop_codons.begin(), stop_codons.end(), codon) !=
                  end(stop_codons)) {
-    result = Gillespie::getReactionTime(a0, r1, codon);
+    result = getReactionTime(a0, r1, codon);
   } else {
     // calculate the time.
     double translocating;
@@ -149,35 +150,6 @@ double EnlogationSimulator::getReactionTime(double& a0, double& r1,
     translocation_times.push_back(translocating);
   }
   return result;
-}
-
-/**
- * @brief reads the population_history to calculate the ribosome positions, then
- * populate the positions_set vector with the ribosome positions (in codon
- * number, starting from 0) in each iteration.
- *
- * @param clear_population_history p_clear_population_history:...if true, erase
- * the population_history vector. This might be useful in simulations with large
- * number of iterations and/or large mRNA sequences, since these factors will
- * considerably increase the memory usage of this object. This options is for
- * memory optimization only.
- */
-void EnlogationSimulator::updateRibosomeHistory(bool clear_population_history) {
-  ribosome_positions_history.clear();
-  for (Eigen::MatrixXi population : population_history) {
-    std::set<int> positions_set;
-    std::vector<int> positions_vector;
-    for (int i = 0; i < population.cols(); i++) {
-      if (population(2, i) > 0 || population(3, i) > 0) {
-        positions_set.insert(i);
-      }
-    }
-    positions_vector.clear();
-    positions_vector.insert(positions_vector.end(), positions_set.begin(),
-                            positions_set.end());
-    ribosome_positions_history.push_back(positions_vector);
-  }
-  if (clear_population_history) population_history.clear();
 }
 
 /**

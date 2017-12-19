@@ -5,6 +5,7 @@
 #include <deque>
 #include <fstream>
 #include <iostream>
+#include <list>
 #include <random>
 #include "initiationterminationcodon.h"
 #include "mrna_reader.h"

@@ -13,11 +13,6 @@ using namespace Simulations;
 
 #ifdef COMIPLE_PYTHON_MODULE
 PYBIND11_MODULE(ribosomesimulator, mod) {
-  py::class_<Gillespie>(mod, "gillespie")
-      .def(py::init<>())  // constructor
-      .def("setIterationLimit", &Gillespie::setIterationLimit)
-      .def("run", &Gillespie::run);
-
   py::class_<RibosomeSimulator>(mod, "ribosomesimulator")
       .def(py::init<>())  // constructor
       .def("setCodonForSimulation", &RibosomeSimulator::setCodonForSimulation)

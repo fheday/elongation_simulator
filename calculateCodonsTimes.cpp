@@ -3,7 +3,6 @@
 #include <iostream>
 #include "concentrationsreader.h"
 #include "enlongation_codon.h"
-#include "gillespie.h"
 #include "reactionsset.h"
 
 /**

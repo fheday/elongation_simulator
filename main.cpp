@@ -4,7 +4,6 @@
 #include <vector>
 #include "concentrationsreader.h"
 #include "enlogationsimulator.h"
-#include "gillespie.h"
 #include "mrna_reader.h"
 #include "ratecalculator.h"
 #include "reactionsset.h"
@@ -28,13 +27,13 @@ void testGillespie() {
   population(1, 1) = 800;
   std::cout << "initial population = " << population << "\n------\n";
   // create the Gillespie simulator object with the population and reactions
-  Simulations::Gillespie simulation(300, population, reactions_set);
+  //  Simulations::Gillespie simulation(300, population, reactions_set);
   // run the simulation.
-  simulation.run();
+  //  simulation.run();
 }
 
 std::map<std::string, double> load_average_times_file(
-    std::string average_times_file_name) {
+    const std::string& average_times_file_name) {
   std::ifstream ist{average_times_file_name};
   std::map<std::string, double> codons_times;
 
@@ -72,8 +71,9 @@ std::map<std::string, double> load_average_times_file(
 // }
 
 void test_enlogation_simulator(
-    std::string average_times_file_name = "../data/codons/average_time.csv",
-    std::string concentrations_file_name =
+    //    std::string average_times_file_name =
+    //    "../data/codons/average_time.csv",
+    const std::string& concentrations_file_name =
         "../../RSim/data_with_times/concentrations.csv",
     double init_rate = 0.0001, int term_rate = 10, int iterations = 1000000) {
   Simulations::Translation t;
@@ -88,7 +88,9 @@ void test_enlogation_simulator(
   int i = 0;
   for (auto rib_pos_vec : t.ribosome_positions_history) {
     std::cout << "iteration = " << i << "positions = ";
-    for (int pos : rib_pos_vec) std::cout << " " << pos;
+    for (int pos : rib_pos_vec) {
+      std::cout << " " << pos;
+    }
     std::cout << "\n";
     i++;
   }
@@ -100,7 +102,7 @@ void test_enlogation_simulator(
   //      }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   std::cout << "Hello, world!" << std::endl;
   test_enlogation_simulator();
   //      std::map<std::string, double> decoding_times_map;

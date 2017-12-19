@@ -8,8 +8,8 @@ namespace Simulations {
 
 class Translation {
  public:
-  void loadMRNA(std::string);
-  void loadConcentrations(std::string);
+  void loadMRNA(const std::string&);
+  void loadConcentrations(const std::string&);
 
   void setInitiationRate(double);
   void setTerminationRate(double);
