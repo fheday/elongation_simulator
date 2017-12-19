@@ -2,7 +2,6 @@
 #define MRNA_UTILS_MRNA_READER_H
 
 #include <string>
-#include "ratecalculator.h"
 
 namespace mRNA_utils {
 

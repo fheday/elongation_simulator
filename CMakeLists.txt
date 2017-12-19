@@ -5,7 +5,7 @@ project(gillespie)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -flto -march=native -ftree-vectorize -Wall -DNDEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG "-std=c++17 -O0 -g3 -Wall -Wextra -fsanitize=address -fsanitize=leak -fno-omit-frame-pointer -fsanitize=undefined")
 
-set(common_sources concentrationsreader.cpp enlogationsimulator.cpp  mrna_reader.cpp ratecalculator.cpp ribosomesimulator.cpp ribosomesimulator.cpp enlongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.h translation.cpp)
+set(common_sources concentrationsreader.cpp enlogationsimulator.cpp  mrna_reader.cpp ribosomesimulator.cpp ribosomesimulator.cpp enlongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.h translation.cpp)
 
 #add_executable(gillespie main.cpp ${common_sources}) # Gillespie implementation more tighly tied to ribosome/mRNA simulator. disabling the canonical one.
 add_executable(calculateCodonsTimes calculateCodonsTimes.cpp ${common_sources})
