@@ -15,10 +15,10 @@ class InitiationTerminationCodon : public mRNAElement {
   int getState() override;
   void setState(int s) override;
   void updateAlphas() override;
-  double propensity;
-  double a0;
 
  private:
+  double propensity;
+  double a0;
   int state = 0;
   bool is_initiation;
 };

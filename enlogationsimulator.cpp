@@ -166,8 +166,7 @@ Simulations::EnlogationSimulator::getEnlogationDuration() {
   }
   bool previous_zero_occupied = false, previous_last_occupied = false;
   bool current_zero_occupied = false, current_last_occupied = false;
-  int last_codon_position =
-      static_cast<int>((mrna_reader.mRNA_sequence.size() / 3) - 1);
+  int last_codon_position = mrna_reader.sizeInCodons() - 1;
   for (int i = 1;
        static_cast<std::size_t>(i) < ribosome_positions_history.size(); i++) {
     std::vector<int>& ribosomes_positions =
@@ -198,7 +197,8 @@ Simulations::EnlogationSimulator::getEnlogationDuration() {
 }
 
 void Simulations::EnlogationSimulator::calculateAverageTimes() {
-  std::size_t number_codons = mrna_reader.mRNA_sequence.size() / 3;
+  std::size_t number_codons =
+      static_cast<std::size_t>(mrna_reader.sizeInCodons());
   // initialize the total_time vector.
   total_time = std::vector<double>(number_codons);
   std::fill(total_time.begin(), total_time.end(), 0);

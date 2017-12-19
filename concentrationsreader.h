@@ -19,6 +19,8 @@ class ConcentrationsReader {
   void loadConcentrations(const std::string&);
   void getContents(std::vector<concentration_entry>&);
   void getCodonsVector(std::vector<std::string>&);
+
+ private:
   std::vector<concentration_entry> contents;
 };
 }  // namespace csv_utils

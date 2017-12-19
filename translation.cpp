@@ -97,7 +97,7 @@ void Simulations::Translation::initializeMRNAReader() {
     mRNA_utils::mRNAReader mrr;
     mrr.loadmRNAFile(mrna_file_name);
     // fill codon vector.
-    int n_codons = static_cast<int>(mrr.mRNA_sequence.size() / 3);
+    int n_codons = mrr.sizeInCodons();
     std::shared_ptr<Simulations::InitiationTerminationCodon> initiation_codon(
         new Simulations::InitiationTerminationCodon(initiation_rate, true));
     initiation_codon->codon = mrr.getCodon(0);

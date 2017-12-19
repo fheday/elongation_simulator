@@ -29,8 +29,8 @@ std::map<std::string, double> calculate_codons_times(
     const std::string& concentrations_file_name, int iterations,
     const std::string& average_times_file_name,
     const std::string& times_vector_file_name, bool translocating_times) {
-  Simulations::EnlongationCodon enlongating_ribosome;
-  enlongating_ribosome.loadConcentrations(concentrations_file_name);
+  Simulations::RibosomeSimulator ribosome;
+  ribosome.loadConcentrations(concentrations_file_name);
   csv_utils::ConcentrationsReader cr;
   cr.loadConcentrations(concentrations_file_name);
   double decoding = 0, translocating = 0;
@@ -60,12 +60,12 @@ std::map<std::string, double> calculate_codons_times(
   for (const std::string& codon : codons) {
     codon_total_decoding = 0;
     codon_total_translocating = 0;
-    enlongating_ribosome.setCodon(codon);
+    ribosome.setCodonForSimulation(codon);
     average_times_file << "\"" << codon << "\"";
     std::cout << "Starting codon: " << codon;
     for (int i = 0; i < iterations; i++) {
-      enlongating_ribosome.ribosome.setState(0);
-      enlongating_ribosome.ribosome.run_and_get_times(decoding, translocating);
+      ribosome.setState(0);
+      ribosome.run_and_get_times(decoding, translocating);
       if (decoding * translocating <= std::numeric_limits<double>::epsilon()) {
         throw std::runtime_error("decoding nor translocation cannot be zero.");
       }

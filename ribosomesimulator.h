@@ -19,9 +19,9 @@ class RibosomeSimulator {
   void loadConcentrations(const std::string&);
   void setCodonForSimulation(const std::string&);
   void run_and_get_times(double&, double&);
-  csv_utils::ConcentrationsReader concentrations_reader;
 
  private:
+  csv_utils::ConcentrationsReader concentrations_reader;
   std::vector<std::vector<std::tuple<double, int>>> createReactionsGraph(
       const csv_utils::concentration_entry&);
   std::map<std::string, std::vector<std::vector<std::tuple<double, int>>>>

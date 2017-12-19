@@ -9,8 +9,6 @@ namespace Simulations {
 class EnlongationCodon : public mRNAElement {
  public:
   EnlongationCodon();
-  std::string concentrations_file_name;
-  RibosomeSimulator ribosome;
   void setCodon(const std::string&);
   void loadConcentrations(const std::string&);
   void getAlphas(std::vector<double>&, std::vector<int>&) override;
@@ -18,6 +16,10 @@ class EnlongationCodon : public mRNAElement {
   int getState() override;
   void setState(int) override;
   void updateAlphas() override;
+
+ private:
+  std::string concentrations_file_name;
+  RibosomeSimulator ribosome;
 };
 }  // namespace Simulations
 

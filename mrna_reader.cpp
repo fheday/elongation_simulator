@@ -50,3 +50,7 @@ void mRNA_utils::mRNAReader::setTerminationRate(double val) {
 std::string mRNA_utils::mRNAReader::getCodon(int codon_number) {
   return mRNA_sequence.substr(static_cast<std::size_t>(codon_number * 3), 3);
 }
+
+int mRNA_utils::mRNAReader::sizeInCodons() {
+  return static_cast<int>(mRNA_sequence.size() / 3);
+}

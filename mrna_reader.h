@@ -12,6 +12,9 @@ class mRNAReader {
   void setInitiationRate(double);
   void setTerminationRate(double);
   std::string getCodon(int);
+  int sizeInCodons();
+
+ private:
   std::string mRNA_sequence;
   double termination_rate;
   double initiation_rate;
