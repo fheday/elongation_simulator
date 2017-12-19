@@ -26,9 +26,9 @@
  * average decoding times. Average Translocating time is given by entry 'tra'
  */
 std::map<std::string, double> calculate_codons_times(
-    std::string concentrations_file_name, int iterations,
-    std::string average_times_file_name, std::string times_vector_file_name,
-    bool translocating_times) {
+    const std::string& concentrations_file_name, int iterations,
+    const std::string& average_times_file_name,
+    const std::string& times_vector_file_name, bool translocating_times) {
   Simulations::EnlongationCodon enlongating_ribosome;
   enlongating_ribosome.loadConcentrations(concentrations_file_name);
   csv_utils::ConcentrationsReader cr;
@@ -50,12 +50,14 @@ std::map<std::string, double> calculate_codons_times(
   // create header line.
   average_times_file << "codon, time\n";
   times_vector_file << "codon";
-  for (int i = 0; i < 2 * iterations; i++) times_vector_file << ", V" << i;
+  for (int i = 0; i < 2 * iterations; i++) {
+    times_vector_file << ", V" << i;
+  }
   times_vector_file << "\n";
   // calculate times and generate the vectors.
   std::vector<double> vector(static_cast<std::size_t>(2 * iterations), 0);
   double codon_total_translocating = 0;
-  for (std::string codon : codons) {
+  for (const std::string& codon : codons) {
     codon_total_decoding = 0;
     codon_total_translocating = 0;
     enlongating_ribosome.setCodon(codon);
@@ -64,8 +66,9 @@ std::map<std::string, double> calculate_codons_times(
     for (int i = 0; i < iterations; i++) {
       enlongating_ribosome.ribosome.setState(0);
       enlongating_ribosome.ribosome.run_and_get_times(decoding, translocating);
-      if (decoding * translocating <= std::numeric_limits<double>::epsilon())
+      if (decoding * translocating <= std::numeric_limits<double>::epsilon()) {
         throw std::runtime_error("decoding nor translocation cannot be zero.");
+      }
       codon_total_decoding += decoding;
       codon_total_translocating += translocating;
       n++;
@@ -83,8 +86,9 @@ std::map<std::string, double> calculate_codons_times(
                                 iterations;
     }
     average_times_file << "\n";
-    for (int j = 0; j < (2 * iterations) - 1; j++)
+    for (int j = 0; j < (2 * iterations) - 1; j++) {
       times_vector_file << vector[static_cast<std::size_t>(j)] << ",";
+    }
     times_vector_file << vector[static_cast<std::size_t>((2 * iterations)) - 1]
                       << vector[static_cast<std::size_t>((2 * iterations)) - 1]
                       << "\n";
@@ -111,7 +115,7 @@ std::map<std::string, double> calculate_codons_times(
   return codons_times;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   if (argc < 6) {
     std::cout << "Wrong number of parameters informed.\n";
     std::cout << "Usage: calculateCodonsTimes concentrations_file_name "
