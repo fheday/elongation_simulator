@@ -44,6 +44,7 @@ void Simulations::InitiationTerminationCodon::updateAlphas() {
 }
 
 void Simulations::InitiationTerminationCodon::executeReaction(int r) {
+  (void)r;  // just to silence unused parameter warning.
   if (state == 0) {
     setState(23);
   } else if (state == 23) {

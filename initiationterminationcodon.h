@@ -2,7 +2,6 @@
 #define INITIATIONTERMINATIONCODON_H
 
 #include <math.h>
-#include <eigen3/Eigen/Dense>
 #include <random>
 #include "mrnaelement.h"
 
@@ -12,9 +11,9 @@ class InitiationTerminationCodon : public mRNAElement {
   InitiationTerminationCodon(double, bool);
   void getAlphas(std::vector<double>& as,
                  std::vector<int>& reactions_index) override;
-  void executeReaction(int) override;
+  void executeReaction(int r) override;
   int getState() override;
-  void setState(int) override;
+  void setState(int s) override;
   void updateAlphas() override;
   double propensity;
   double a0;
