@@ -226,9 +226,9 @@ void Simulations::EnlogationSimulator::calculateAverageTimes() {
     }
     iteration_number++;
   }
-  // the above procedure does not count for the last time a position has been
-  // occupied: it ignores it.  we could try to fix this in a number of ways, but
-  // I guess it wouldn't matter much in the big picture.
+  // TODO(Heday):the above procedure does not count for the last time a position
+  // has been occupied: it ignores it.  we could try to fix this in a number of
+  // ways, but I guess it wouldn't matter much in the big picture.
 
   // now we calculate the averages.
   codons_average_occupation_time.clear();
