@@ -91,10 +91,6 @@ void EnlogationSimulator::intializeMRNAReader() {
     mrna_reader.loadmRNAFile(mRNA_file_name);
     mrna_reader.setInitiationRate(initiation_rate);
     mrna_reader.setTerminationRate(termination_rate);
-    mrna_reader.generateInitialPopulation();
-    mrna_reader.generateReactions();
-    //    setInitialPopulation(mrna_reader.initial_population);
-    //    setReactionsSet(mrna_reader.reactions_set);
   }
 }
 

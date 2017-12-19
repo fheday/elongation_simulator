@@ -44,59 +44,6 @@ void mRNAReader::setTerminationRate(double val) {
   }
 }
 
-void mRNAReader::generateInitialPopulation() {
-  int n_codons = static_cast<int>(mRNA_sequence.size() / 3);
-  initial_population = Eigen::MatrixXi(4, n_codons);
-  initial_population.row(0).setOnes();
-  initial_population.row(1).setOnes();
-  initial_population.row(2).setZero();
-  initial_population.row(3).setZero();
-}
-
 std::string mRNA_utils::mRNAReader::getCodon(int codon_number) {
   return mRNA_sequence.substr(static_cast<std::size_t>(codon_number * 3), 3);
-}
-
-void mRNAReader::generateReactions() {
-  int n_codons = static_cast<int>(mRNA_sequence.size() / 3);
-  std::string codon;
-  Eigen::MatrixXi matrix;
-
-  // initiation
-
-  for (int i = 0; i < n_codons; i++) {
-    codon = mRNA_sequence.substr(static_cast<std::size_t>(i * 3), 3);
-    // Decoding
-    matrix = Eigen::MatrixXi(4, n_codons);
-    matrix.fill(0);
-    if (i == 0) {
-      matrix.col(i) << -1, -1, 0, 1;
-      reactions_set.addReaction(matrix, initiation_rate, "ini");
-    } else {
-      matrix.col(i) << -1, 0, -1, +1;
-    }
-    if (i < n_codons - 1) {
-      // Translocating reactions  - to be optimised
-      matrix = Eigen::MatrixXi(4, n_codons);
-      matrix.fill(0);
-      matrix(3, i) = -1;
-      matrix.col(i + 1) << 0, -1, +1, 0;
-      if (i > 8 && i <= n_codons - 2) {
-        // we need to replenish the mRNA slots
-        matrix(0, i - 9) = 1;
-        matrix(1, i - 9) = 1;
-      }
-    }
-  }
-  // termination
-  matrix = Eigen::MatrixXi(4, n_codons);
-  matrix.fill(0);
-  matrix.col(matrix.cols() - 1) << 0, 0, 0, -1;
-  // we need to replenish the mRNA slots
-  for (int j = n_codons - 10; j < n_codons; j++) {
-    matrix(0, j) = 1;
-    matrix(1, j) = 1;
-  }
-
-  reactions_set.addReaction(matrix, termination_rate, "ter");
 }

@@ -6,7 +6,6 @@
 #include <tuple>
 #include <vector>
 #include "concentrationsreader.h"
-#include "reactionsset.h"
 
 namespace Simulations {
 

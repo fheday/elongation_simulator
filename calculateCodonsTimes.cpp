@@ -3,7 +3,6 @@
 #include <iostream>
 #include "concentrationsreader.h"
 #include "enlongation_codon.h"
-#include "reactionsset.h"
 
 /**
  * @brief use the concentrations informed in concentrations_file_name, execute
