@@ -16,7 +16,6 @@ class mRNAReader {
   double termination_rate;
   double initiation_rate;
   std::string mRNA_file_name;
-  //  Simulations::ReactionsSet reactions_set;
 };
 }  // namespace mRNA_utils
 
