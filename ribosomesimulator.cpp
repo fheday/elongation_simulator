@@ -5,6 +5,8 @@ namespace py = pybind11;
 #endif
 
 #include <float.h>
+#include <algorithm>
+#include <eigen3/Eigen/Dense>
 #include <numeric>
 #include "concentrationsreader.h"
 #include "ribosomesimulator.h"
