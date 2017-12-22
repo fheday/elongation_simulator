@@ -1,4 +1,3 @@
-
 #include "ribosomesimulator.h"
 #include <float.h>
 #include <algorithm>

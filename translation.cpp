@@ -98,14 +98,14 @@ void Simulations::Translation::initializeMRNAReader() {
     mrr.loadmRNAFile(mrna_file_name);
     // fill codon vector.
     int n_codons = mrr.sizeInCodons();
-    std::shared_ptr<Simulations::InitiationTerminationCodon> initiation_codon(
+    std::unique_ptr<Simulations::InitiationTerminationCodon> initiation_codon(
         new Simulations::InitiationTerminationCodon(initiation_rate, true));
     initiation_codon->codon = mrr.getCodon(0);
     initiation_codon->index = 0;
     initiation_codon->setState(0);
     codons_vector.push_back(std::move(initiation_codon));
     for (int i = 1; i < n_codons - 1; i++) {
-      std::shared_ptr<Simulations::EnlongationCodon> c(
+      std::unique_ptr<Simulations::EnlongationCodon> c(
           new Simulations::EnlongationCodon());
       c->loadConcentrations(concentrations_file_name);
       c->codon = mrr.getCodon(i);
@@ -124,12 +124,12 @@ void Simulations::Translation::initializeMRNAReader() {
 
     // link codons.
     for (unsigned int i = 1; i < codons_vector.size() - 1; i++) {
-      codons_vector[i]->setNextCodon(codons_vector[i + 1]);
-      codons_vector[i]->setPreviousCodon(codons_vector[i - 1]);
+      codons_vector[i]->setNextCodon(codons_vector[i + 1].get());
+      codons_vector[i]->setPreviousCodon(codons_vector[i - 1].get());
     }
     codons_vector[codons_vector.size() - 1]->setPreviousCodon(
-        codons_vector[codons_vector.size() - 2]);
-    codons_vector[0]->setNextCodon(codons_vector[1]);
+        codons_vector[codons_vector.size() - 2].get());
+    codons_vector[0]->setNextCodon(codons_vector[1].get());
   }
 }
 

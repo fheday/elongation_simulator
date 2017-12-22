@@ -29,7 +29,7 @@ void Simulations::InitiationTerminationCodon::setState(int s) {
     reactions_index[0] = 23;
   } else if (state == 23 &&
              (!is_initiation ||
-              (is_initiation && next_mRNA_element.lock()->isAvailable()))) {
+              (is_initiation && next_mRNA_element->isAvailable()))) {
     alphas = std::vector<double>(1);
     alphas[0] = 10000;  // verify
     reactions_index = std::vector<int>(1);

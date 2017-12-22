@@ -1,7 +1,6 @@
 #ifndef MRNAELEMENT_H
 #define MRNAELEMENT_H
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -11,17 +10,18 @@ class mRNAElement {
  public:
   std::string codon;
   int index;
+  mRNAElement();
   virtual ~mRNAElement();
   void setAvailable(bool);
   void setOccupied(bool);
   bool isAvailable();
   bool isOccupied();
-  virtual void getAlphas(std::vector<double>&, std::vector<int>&) {}
+  virtual void getAlphas(std::vector<double> &, std::vector<int> &) {}
   virtual void executeReaction(int) {}
   virtual int getState() { return -1; }
   virtual void setState(int) {}
-  void setNextCodon(const std::shared_ptr<mRNAElement>&);
-  void setPreviousCodon(const std::shared_ptr<mRNAElement>&);
+  void setNextCodon(mRNAElement *);
+  void setPreviousCodon(mRNAElement *);
   virtual void updateAlphas() {}
 
  protected:
@@ -33,7 +33,7 @@ class mRNAElement {
                              // 'isAvailable' to false, and the 10th previous
                              // 'isAvailable' to true. When terminates, sets
                              // last 10 'isAvailable' to true.
-  std::weak_ptr<mRNAElement> next_mRNA_element, previous_mRNA_element;
+  mRNAElement *next_mRNA_element, *previous_mRNA_element;
 };
 }  // namespace Simulations
 

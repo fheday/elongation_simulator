@@ -1,12 +1,18 @@
 #include "mrnaelement.h"
 
+Simulations::mRNAElement::mRNAElement() {
+  index = -1;
+  alphas.resize(2);
+  reactions_index.resize(2);
+  previous_mRNA_element = nullptr;
+  next_mRNA_element = nullptr;
+}
+
 void Simulations::mRNAElement::setAvailable(bool avail) {
   is_available = avail;
-  if (avail) {
+  if (avail && previous_mRNA_element != nullptr) {
     // update the next codon.
-    if (auto tmp = previous_mRNA_element.lock()) {
-      tmp->updateAlphas();
-    }
+    previous_mRNA_element->updateAlphas();
   }
 }
 void Simulations::mRNAElement::setOccupied(bool occup) {
@@ -16,13 +22,11 @@ void Simulations::mRNAElement::setOccupied(bool occup) {
   }
 }
 
-void Simulations::mRNAElement::setNextCodon(
-    const std::shared_ptr<mRNAElement>& n_c) {
+void Simulations::mRNAElement::setNextCodon(mRNAElement* n_c) {
   next_mRNA_element = n_c;
 }
 
-void Simulations::mRNAElement::setPreviousCodon(
-    const std::shared_ptr<mRNAElement>& p_c) {
+void Simulations::mRNAElement::setPreviousCodon(mRNAElement* p_c) {
   previous_mRNA_element = p_c;
 }
 
