@@ -10,6 +10,8 @@
 #include "initiationterminationcodon.h"
 #include "mrna_reader.h"
 
+#define RIBOSOME_SIZE 10
+
 #ifdef COMIPLE_PYTHON_MODULE
 
 #include <pybind11/pybind11.h>
@@ -202,7 +204,8 @@ void Simulations::Translation::getAlphas() {
   std::size_t ribosome_index;
   // add initiation if needed.
   if (ribosome_positions.empty() ||
-      (ribosome_positions[0] > 9 && codons_vector[0]->isAvailable())) {
+      (ribosome_positions[0] > (RIBOSOME_SIZE - 1) &&
+       codons_vector[0]->isAvailable())) {
     // need to add initalization.
     codons_vector[0]->getAlphas(a, r_i);
     alphas.insert(alphas.end(), a.begin(), a.end());
@@ -239,7 +242,7 @@ void Simulations::Translation::run() {
   int i = 0;
 
   int finished_ribosomes = 0, pre_filled_ribosomes = 0;
-  std::vector<int> rib_positions((codons_vector.size() / 10) + 1);
+  std::vector<int> rib_positions((codons_vector.size() / RIBOSOME_SIZE) + 1);
   rib_positions.clear();
   // pre-fill codons based on the rates.
   if (pre_populate) {
@@ -254,7 +257,7 @@ void Simulations::Translation::run() {
     codons_vector[last_index]->setState(0);
     pre_filled_ribosomes++;
     for (int i = static_cast<int>(codons_vector.size() - 2); i >= 0; i--) {
-      if (last_index - static_cast<std::size_t>(i) <= 9) {
+      if (last_index - static_cast<std::size_t>(i) <= RIBOSOME_SIZE - 1) {
         codons_vector[static_cast<std::size_t>(i)]->setAvailable(false);
       } else {
         // update ribosome.
@@ -380,19 +383,19 @@ void Simulations::Translation::run() {
             false);
       }
       // update free codons due to the size of the ribosome.
-      if (static_cast<std::size_t>(moved_codon) > 9) {
+      if (static_cast<std::size_t>(moved_codon) > RIBOSOME_SIZE - 1) {
         // we need to do some tidying up after the ribosome.
         if (static_cast<std::size_t>(moved_codon) < codons_vector.size()) {
           // update freed space left by the ribosome's movement.
-          codons_vector[static_cast<std::size_t>(moved_codon - 10)]
+          codons_vector[static_cast<std::size_t>(moved_codon - RIBOSOME_SIZE)]
               ->setAvailable(true);
         } else if (static_cast<std::size_t>(moved_codon) ==
                    codons_vector.size()) {
           // ribosome terminated. free codons positions occupied by it.
           termination = true;
-          for (std::size_t
-                   i = static_cast<std::size_t>(codons_vector.size() - 10),
-                   total = codons_vector.size();
+          for (std::size_t i = static_cast<std::size_t>(codons_vector.size() -
+                                                        RIBOSOME_SIZE),
+                           total = codons_vector.size();
                i < total; ++i) {
             codons_vector[i]->setAvailable(true);
           }
