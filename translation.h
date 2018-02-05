@@ -28,6 +28,10 @@ class Translation {
   std::tuple<std::vector<double>, std::vector<int>> getEnlogationDuration();
   void getInitiationEnlongationTermination();
 
+  void setLogCodonStates(bool log);
+  std::vector<std::tuple<std::vector<int>, std::vector<double>>>
+  getLogCodonStates();
+
   std::vector<double> initiations_durations, enlongations_durations,
       terminations_durations;
   std::vector<int> initiation_iteration, termination_iteration;
@@ -35,8 +39,9 @@ class Translation {
   double termination_rate = -1;
   double initiation_rate = -1;
   int iteration_limit = -1;
-  double time_limit = -1;
+
   int finished_ribosomes_limit = -1;
+  double time_limit = -1;
 
   std::vector<double> alphas =
       std::vector<double>(10);  // reactions alphas - all available ones.
@@ -51,6 +56,13 @@ class Translation {
   std::vector<double> dt_history;
   std::vector<std::vector<int>> ribosome_positions_history;
 
+  void setWCPropensities(std::array<double, 10> prop);
+  void setWooblePropensities(std::array<double, 10> prop);
+  void setNearCognatePropensities(std::array<double, 10> prop);
+  void setNonCogPropensities(std::array<double, 2> prop);
+  void setTranslocationPropensities(std::array<double, 9> prop);
+  std::vector<std::map<std::string, double>> getPropensities();
+
   // array with the total times the ribosomes spent in the codons
   std::vector<double> total_time;
   // number of times a codon was occupied
@@ -61,6 +73,7 @@ class Translation {
  private:
   void initializeMRNAReader();
   bool pre_populate = false;
+  bool is_logging_codon_state = false;
 };
 }  // namespace Simulations
 #endif  // TRANSLATION_H

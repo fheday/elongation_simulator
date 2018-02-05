@@ -34,4 +34,14 @@ bool Simulations::mRNAElement::isAvailable() { return is_available; }
 
 bool Simulations::mRNAElement::isOccupied() { return is_occupied; }
 
+void Simulations::mRNAElement::addReactionToHistory(int state, double dt) {
+  state_history.push_back(state);
+  dt_history.push_back(dt);
+}
+
+std::pair<std::vector<int>, std::vector<double>>
+Simulations::mRNAElement::getHistory() {
+  return {state_history, dt_history};
+}
+
 Simulations::mRNAElement::~mRNAElement() {}

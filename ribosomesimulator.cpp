@@ -19,12 +19,27 @@ PYBIND11_MODULE(ribosomesimulator, mod) {
       .def("setCodonForSimulation",
            &Simulations::RibosomeSimulator::setCodonForSimulation)
       .def("setState", &Simulations::RibosomeSimulator::setState)
-      .def("run_and_get_times", [](Simulations::RibosomeSimulator& rs) {
-        double d = 0.0;
-        double t = 0.0;
-        rs.run_and_get_times(d, t);
-        return std::make_tuple(d, t);
-      });
+      .def("run_and_get_times",
+           [](Simulations::RibosomeSimulator& rs) {
+             double d = 0.0;
+             double t = 0.0;
+             rs.run_and_get_times(d, t);
+             return std::make_tuple(d, t);
+           })
+      .def("setWCPropensities",
+           &Simulations::RibosomeSimulator::setWCPropensities)
+      .def("setWooblePropensities",
+           &Simulations::RibosomeSimulator::setWooblePropensities)
+      .def("setNearCognatePropensities",
+           &Simulations::RibosomeSimulator::setNearCognatePropensities)
+      .def("setNonCogPropensities",
+           &Simulations::RibosomeSimulator::setNonCogPropensities)
+      .def("setTranslocationPropensities",
+           &Simulations::RibosomeSimulator::setTranslocationPropensities)
+      .def("getPropensities", &Simulations::RibosomeSimulator::getPropensities)
+      .def_readonly("dt_history", &Simulations::RibosomeSimulator::dt_history)
+      .def_readonly("ribosome_state_history",
+                    &Simulations::RibosomeSimulator::ribosome_state_history);
 }
 #endif
 
@@ -35,35 +50,301 @@ Simulations::RibosomeSimulator::RibosomeSimulator() {
 
 void Simulations::RibosomeSimulator::loadConcentrations(
     const std::string& file_name) {
-  csv_utils::ConcentrationsReader cr;
-  cr.loadConcentrations(file_name);
-  std::vector<csv_utils::concentration_entry> concentrations_vector;
-  concentrations_reader = cr;
-  // copied code from RibosomeSimulator(csv_utils::concentrations_reader& cr)
-  // TODO(Heday): NEEDS TO IMPROVE software engineering here.
-  std::vector<std::string> stop_codons = {"UAG", "UAA", "UGA"};
+  concentrations_reader.loadConcentrations(file_name);
+  buildReactionsMap();
+}
+
+void Simulations::RibosomeSimulator::buildReactionsMap() {
   std::vector<csv_utils::concentration_entry> codons_concentrations;
-  cr.getContents(codons_concentrations);
+  concentrations_reader.getContents(codons_concentrations);
+  reactions_map.clear();  // make sure the map is clear.
   for (csv_utils::concentration_entry entry : codons_concentrations) {
     auto result =
         std::find(stop_codons.begin(), stop_codons.end(), entry.codon);
     if (result == end(stop_codons)) {
       // Not a stop codon. Proceed.
+      double nonconc = totalconc - entry.wc_cognate_conc -
+                       entry.wobblecognate_conc - entry.nearcognate_conc;
+      // constants for WCcognate interaction in 1/sec
+      WC1f[entry.codon] = 1.4e8 * entry.wc_cognate_conc;
+
+      // constants for wobblecognate interaction in 1/sec
+      wobble1f[entry.codon] = 1.4e8 * entry.wobblecognate_conc;
+
+      // constants for nearcognate interaction in 1/sec
+      near1f[entry.codon] = 1.4e8 * entry.nearcognate_conc;
+
+      // constants for noncognate interaction in 1/sec.
+      // Non-cognates are assumed to not undergo any significant
+      // interaction but to simply dissociate quickly.
+      non1f[entry.codon] = 1.4e8 * nonconc;
+
       reactions_map[entry.codon] = createReactionsGraph(entry);
+    }
+  }
+  if (!simulation_codon_3_letters.empty()) {
+    reactions_graph = reactions_map.at(simulation_codon_3_letters);
+  }
+}
+
+void Simulations::RibosomeSimulator::setWCPropensities(
+    std::array<double, 10> prop) {
+  for (std::size_t i = 0; i < prop.size(); i++) {
+    if (prop.at(i) >= 0) {
+      switch (i) {
+        case 0:
+          for (auto& item : WC1f) {
+            item.second = prop.at(i);
+          }
+          //          WC1f = prop.at(i);
+          break;
+        case 1:
+          WC1r = prop.at(i);
+          break;
+        case 2:
+          WC2f = prop.at(i);
+          break;
+        case 3:
+          WC2r = prop.at(i);
+          break;
+        case 4:
+          WC3f = prop.at(i);
+          break;
+        case 5:
+          WC4f = prop.at(i);
+          break;
+        case 6:
+          WC5f = prop.at(i);
+          break;
+        case 7:
+          WCdiss = prop.at(i);
+          break;
+        case 8:
+          WC6f = prop.at(i);
+          break;
+        case 9:
+          WC7f = prop.at(i);
+          break;
+      }
     }
   }
 }
 
+void Simulations::RibosomeSimulator::setWooblePropensities(
+    std::array<double, 10> prop) {
+  for (std::size_t i = 0; i < prop.size(); i++) {
+    if (prop.at(i) >= 0) {
+      switch (i) {
+        case 0:
+          for (auto& item : wobble1f) {
+            item.second = prop.at(i);
+          }
+          //          wobble1f = prop.at(i);
+          break;
+        case 1:
+          wobble1r = prop.at(i);
+          break;
+        case 2:
+          wobble2f = prop.at(i);
+          break;
+        case 3:
+          wobble2r = prop.at(i);
+          break;
+        case 4:
+          wobble3f = prop.at(i);
+          break;
+        case 5:
+          wobble4f = prop.at(i);
+          break;
+        case 6:
+          wobble5f = prop.at(i);
+          break;
+        case 7:
+          wobblediss = prop.at(i);
+          break;
+        case 8:
+          wobble6f = prop.at(i);
+          break;
+        case 9:
+          wobble7f = prop.at(i);
+          break;
+      }
+    }
+  }
+}
+
+void Simulations::RibosomeSimulator::setNearCognatePropensities(
+    std::array<double, 10> prop) {
+  for (std::size_t i = 0; i < prop.size(); i++) {
+    if (prop.at(i) >= 0) {
+      switch (i) {
+        case 0:
+          for (auto& item : near1f) {
+            item.second = prop.at(i);
+          }
+          //          near1f = prop.at(i);
+          break;
+        case 1:
+          near1r = prop.at(i);
+          break;
+        case 2:
+          near2f = prop.at(i);
+          break;
+        case 3:
+          near2r = prop.at(i);
+          break;
+        case 4:
+          near3f = prop.at(i);
+          break;
+        case 5:
+          near4f = prop.at(i);
+          break;
+        case 6:
+          near5f = prop.at(i);
+          break;
+        case 7:
+          neardiss = prop.at(i);
+          break;
+        case 8:
+          near6f = prop.at(i);
+          break;
+        case 9:
+          near7f = prop.at(i);
+          break;
+      }
+    }
+  }
+}
+
+void Simulations::RibosomeSimulator::setNonCogPropensities(
+    std::array<double, 2> prop) {
+  for (std::size_t i = 0; i < prop.size(); i++) {
+    if (prop.at(i) >= 0) {
+      switch (i) {
+        case 0:
+          for (auto& item : non1f) {
+            item.second = prop.at(i);
+          }
+          //          non1f = prop.at(i);
+          break;
+        case 1:
+          non1r = prop.at(i);
+          break;
+      }
+    }
+  }
+  //  buildReactionsMap();
+}
+
+void Simulations::RibosomeSimulator::setTranslocationPropensities(
+    std::array<double, 9> prop) {
+  for (std::size_t i = 0; i < prop.size(); i++) {
+    if (prop.at(i) >= 0) {
+      switch (i) {
+        case 0:
+          trans1r = prop.at(i);
+          break;
+        case 1:
+          trans2 = prop.at(i);
+          break;
+        case 2:
+          trans3 = prop.at(i);
+          break;
+        case 3:
+          trans4 = prop.at(i);
+          break;
+        case 4:
+          trans5 = prop.at(i);
+          break;
+        case 5:
+          trans6 = prop.at(i);
+          break;
+        case 6:
+          trans7 = prop.at(i);
+          break;
+        case 7:
+          trans8 = prop.at(i);
+          break;
+        case 8:
+          trans9 = prop.at(i);
+          break;
+      }
+    }
+  }
+}
+
+std::map<std::string, double>
+Simulations::RibosomeSimulator::getPropensities() {
+  std::map<std::string, double> result;
+  std::vector<double> ks = {non1f[simulation_codon_3_letters],
+                            near1f[simulation_codon_3_letters],
+                            wobble1f[simulation_codon_3_letters],
+                            WC1f[simulation_codon_3_letters],
+                            non1r,
+                            near1r,
+                            near2f,
+                            near2r,
+                            near3f,
+                            near4f,
+                            near5f,
+                            neardiss,
+                            near6f,
+                            near7f,
+                            trans1f,
+                            wobble1r,
+                            wobble2f,
+                            wobble2r,
+                            wobble3f,
+                            wobble4f,
+                            wobble5f,
+                            wobblediss,
+                            wobble6f,
+                            wobble7f,
+                            trans1f,
+                            WC1r,
+                            WC2f,
+                            WC2r,
+                            WC3f,
+                            WC4f,
+                            WC5f,
+                            WCdiss,
+                            WC6f,
+                            WC7f,
+                            trans1f,
+                            trans1r,
+                            trans2,
+                            trans3,
+                            trans4,
+                            trans5,
+                            trans6,
+                            trans7,
+                            trans8,
+                            trans9};
+
+  std::vector<std::string> reactions_identifiers = {
+      "non1f",    "near1f",   "wobble1f", "WC1f",       "non1r",    "near1r",
+      "near2f",   "near2r",   "near3f",   "near4f",     "near5f",   "neardiss",
+      "near6f",   "near7f",   "trans1f",  "wobble1r",   "wobble2f", "wobble2r",
+      "wobble3f", "wobble4f", "wobble5f", "wobblediss", "wobble6f", "wobble7f",
+      "trans1f",  "WC1r",     "WC2f",     "WC2r",       "WC3f",     "WC4f",
+      "WC5f",     "WCdiss",   "WC6f",     "WC7f",       "trans1f",  "trans1r",
+      "trans2",   "trans3",   "trans4",   "trans5",     "trans6",   "trans7",
+      "trans8",   "trans9"};
+  for (std::size_t i = 0; i < ks.size(); i++) {
+    result[reactions_identifiers[i]] = ks[i];
+  }
+  return result;
+}
+
 void Simulations::RibosomeSimulator::setCodonForSimulation(
     const std::string& codon) {
+  simulation_codon_3_letters = codon;
   reactions_graph = reactions_map.at(codon);
 }
 
 void Simulations::RibosomeSimulator::run_and_get_times(
     double& decoding_time, double& translocation_time) {
-  std::vector<double> dt_history;
   dt_history.clear();
-  std::vector<int> ribosome_state_history;
   ribosome_state_history.clear();
 
   // initialize the random generator
@@ -123,88 +404,53 @@ void Simulations::RibosomeSimulator::run_and_get_times(
   }
 }
 
-std::vector<std::vector<std::tuple<double, int>>>
+std::vector<std::vector<std::tuple<std::reference_wrapper<double>, int>>>
 Simulations::RibosomeSimulator::createReactionsGraph(
     const csv_utils::concentration_entry& codon) {
-  double totalconc = 1.9e-4;
-  double nonconc = totalconc - codon.wc_cognate_conc -
-                   codon.wobblecognate_conc - codon.nearcognate_conc;
-  // based on yeast value of 226000 molecules per cell as determined
-  // in von der Haar 2008 (PMID 18925958)
-  double eEF2conc = 1.36e-5;
-  // constants for WCcognate interaction in 1/sec
-  double WC1f = 1.4e8 * codon.wc_cognate_conc;
-  double WC1r = 85;
-  double WC2f = 190;
-  double WC2r = 0.23;
-  double WC3f = 260;
-  double WC4f = 1000;
-  double WC5f = 1000;
-  double WCdiss = 60;
-  double WC6f = 1000;
-  double WC7f = 200;
-
-  // constants for wobblecognate interaction in 1/sec
-  double wobble1f = 1.4e8 * codon.wobblecognate_conc;
-  double wobble1r = 85;
-  double wobble2f = 190;
-  double wobble2r = 1;
-  double wobble3f = 25;
-  double wobble4f = 1000;
-  double wobble5f = 1000;
-  double wobblediss = 1.1;
-  double wobble6f = 1.6;
-  double wobble7f = 200;
-
-  // constants for nearcognate interaction in 1/sec
-  double near1f = 1.4e8 * codon.nearcognate_conc;
-  double near1r = 85;
-  double near2f = 190;
-  double near2r = 80;
-  double near3f = 0.4;
-  double near4f = 1000;
-  double near5f = 1000;
-  double neardiss = 1000;
-  double near6f = 60;
-  double near7f = 200;
-
-  // constants for noncognate interaction in 1/sec.
-  // Non-cognates are assumed to not undergo any significant
-  // interaction but to simply dissociate quickly.
-  double non1f = 1.4e8 * nonconc;
-  double non1r = 1e5;
-
-  // constants for translocation in 1/sec
-  // 150 uM-1 s-1 = is from Fluitt et al 2007 (PMID 17897886)
-  double trans1f = eEF2conc * 1.5e8;
-  double trans1r = 140;
-  double trans2 = 250;
-  double trans3 = 350;
-  double trans4 = 1000;
-  double trans5 = 1000;
-  double trans6 = 1000;
-  double trans7 = 1000;
-  double trans8 = 1000;
-  double trans9 = 1000;
-
-  std::vector<double> ks = {
-      non1f,      near1f,   wobble1f, WC1f,     non1r,    near1r,   near2f,
-      near2r,     near3f,   near4f,   near5f,   neardiss, near6f,   near7f,
-      trans1f,    wobble1r, wobble2f, wobble2r, wobble3f, wobble4f, wobble5f,
-      wobblediss, wobble6f, wobble7f, trans1f,  WC1r,     WC2f,     WC2r,
-      WC3f,       WC4f,     WC5f,     WCdiss,   WC6f,     WC7f,     trans1f,
-      trans1r,    trans2,   trans3,   trans4,   trans5,   trans6,   trans7,
-      trans8,     trans9};
-
-  std::vector<std::string> reactions_identifiers = {
-      "non1f",    "near1f",   "wobble1f", "WC1f",       "non1r",    "near1r",
-      "near2f",   "near2r",   "near3f",   "near4f",     "near5f",   "neardiss",
-      "near6f",   "near7f",   "trans1f",  "wobble1r",   "wobble2f", "wobble2r",
-      "wobble3f", "wobble4f", "wobble5f", "wobblediss", "wobble6f", "wobble7f",
-      "trans1f",  "WC1r",     "WC2f",     "WC2r",       "WC3f",     "WC4f",
-      "WC5f",     "WCdiss",   "WC6f",     "WC7f",       "trans1f",  "trans1r",
-      "trans2",   "trans3",   "trans4",   "trans5",     "trans6",   "trans7",
-      "trans8",   "trans9"};
+  std::array<std::reference_wrapper<double>, 44> ks = {{non1f[codon.codon],
+                                                        near1f[codon.codon],
+                                                        wobble1f[codon.codon],
+                                                        WC1f[codon.codon],
+                                                        non1r,
+                                                        near1r,
+                                                        near2f,
+                                                        near2r,
+                                                        near3f,
+                                                        near4f,
+                                                        near5f,
+                                                        neardiss,
+                                                        near6f,
+                                                        near7f,
+                                                        trans1f,
+                                                        wobble1r,
+                                                        wobble2f,
+                                                        wobble2r,
+                                                        wobble3f,
+                                                        wobble4f,
+                                                        wobble5f,
+                                                        wobblediss,
+                                                        wobble6f,
+                                                        wobble7f,
+                                                        trans1f,
+                                                        WC1r,
+                                                        WC2f,
+                                                        WC2r,
+                                                        WC3f,
+                                                        WC4f,
+                                                        WC5f,
+                                                        WCdiss,
+                                                        WC6f,
+                                                        WC7f,
+                                                        trans1f,
+                                                        trans1r,
+                                                        trans2,
+                                                        trans3,
+                                                        trans4,
+                                                        trans5,
+                                                        trans6,
+                                                        trans7,
+                                                        trans8,
+                                                        trans9}};
 
   Eigen::MatrixXi reactionMatrix[44];
   // build the vector of reactions.
@@ -473,9 +719,10 @@ Simulations::RibosomeSimulator::createReactionsGraph(
   reactionMatrix[43](31, 0) = 1;
 
   int ii = 0;
-  std::vector<std::vector<std::tuple<double, int>>> r_g;
+  std::vector<std::vector<std::tuple<std::reference_wrapper<double>, int>>> r_g;
   r_g.resize(32);
-  std::fill(r_g.begin(), r_g.end(), std::vector<std::tuple<double, int>>());
+  std::fill(r_g.begin(), r_g.end(),
+            std::vector<std::tuple<std::reference_wrapper<double>, int>>());
   // the vector reactions_graph (I know, not a good name. needs to be changed at
   // some point.), have the following format: reactions_graph[current ribisome
   // state] = [vector of tuples(reaction propensity, ribosome state)] this way,

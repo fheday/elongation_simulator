@@ -41,6 +41,18 @@ PYBIND11_MODULE(translation, mod) {
       .def("setPrepopulate", &Simulations::Translation::setPrepopulate)
       .def("getInitiationEnlongationTermination",
            &Simulations::Translation::getInitiationEnlongationTermination)
+      .def("setLogCodonStates", &Simulations::Translation::setLogCodonStates)
+      .def("getLogCodonStates", &Simulations::Translation::getLogCodonStates)
+      .def("setWCPropensities", &Simulations::Translation::setWCPropensities)
+      .def("setWooblePropensities",
+           &Simulations::Translation::setWooblePropensities)
+      .def("setNearCognatePropensities",
+           &Simulations::Translation::setNearCognatePropensities)
+      .def("setNonCogPropensities",
+           &Simulations::Translation::setNonCogPropensities)
+      .def("setTranslocationPropensities",
+           &Simulations::Translation::setTranslocationPropensities)
+      .def("getPropensities", &Simulations::Translation::getPropensities)
 
       .def_readonly("mrna_file_name", &Simulations::Translation::mrna_file_name)
       .def_readonly("concentrations_file_name",
@@ -133,6 +145,50 @@ void Simulations::Translation::initializeMRNAReader() {
         codons_vector[codons_vector.size() - 2].get());
     codons_vector[0]->setNextCodon(codons_vector[1].get());
   }
+}
+
+void Simulations::Translation::setWCPropensities(std::array<double, 10> prop) {
+  for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
+    codons_vector[i]->setWCPropensities(prop);
+  }
+}
+
+void Simulations::Translation::setWooblePropensities(
+    std::array<double, 10> prop) {
+  for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
+    codons_vector[i]->setWooblePropensities(prop);
+  }
+}
+
+void Simulations::Translation::setNearCognatePropensities(
+    std::array<double, 10> prop) {
+  for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
+    codons_vector[i]->setNearCognatePropensities(prop);
+  }
+}
+
+void Simulations::Translation::setNonCogPropensities(
+    std::array<double, 2> prop) {
+  for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
+    codons_vector[i]->setNonCogPropensities(prop);
+  }
+}
+
+void Simulations::Translation::setTranslocationPropensities(
+    std::array<double, 9> prop) {
+  for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
+    codons_vector[i]->setTranslocationPropensities(prop);
+  }
+}
+
+std::vector<std::map<std::string, double>>
+Simulations::Translation::getPropensities() {
+  auto result = std::vector<std::map<std::string, double>>();
+  result.push_back(std::map<std::string, double>());  // codon 0 will be empty.
+  for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
+    result.push_back(codons_vector[i]->getPropensities());
+  }
+  return result;
 }
 
 void Simulations::Translation::setInitiationRate(double ir) {
@@ -405,6 +461,13 @@ void Simulations::Translation::run() {
     }
     // Update time
     tau = (1.0 / a0) * log(1.0 / r1);
+    if (is_logging_codon_state) {
+      // add state reaction to the codon's history
+      codons_vector[static_cast<std::size_t>(current_codon)]
+          ->addReactionToHistory(reaction_index[static_cast<std::size_t>(
+                                     selected_alpha_vector_index)],
+                                 tau);
+    }
     clock += tau;
     i++;  // update iteration number.
   }
@@ -432,13 +495,13 @@ void Simulations::Translation::getInitiationEnlongationTermination() {
   terminations_durations.clear();
   initiation_iteration.clear();
 
-  std::deque<int> indexes;
+  std::deque<int> indexes;  // array with the index number of the ribosomes
   indexes.clear();
   std::list<int> initiations, enlongations, terminations;
   std::size_t ribosomes_to_ignore = ribosome_positions_history[0].size();
   std::size_t last_position = codons_vector.size() - 1,
               previous_size = ribosomes_to_ignore;
-  for (int i = 0; static_cast<std::size_t>(i) < ribosomes_to_ignore; i++) {
+  for (std::size_t i = 0; i < ribosomes_to_ignore; i++) {
     indexes.push_back(static_cast<int>(indexes.size()));
     initiations_durations.push_back(0);
     enlongations_durations.push_back(0);
@@ -551,4 +614,21 @@ void Simulations::Translation::calculateAverageTimes() {
             ? total_time[codon_position] / n_times_occupied[codon_position]
             : 0;
   }
+}
+
+void Simulations::Translation::setLogCodonStates(bool log) {
+  is_logging_codon_state = log;
+}
+
+std::vector<std::tuple<std::vector<int>, std::vector<double>>>
+Simulations::Translation::getLogCodonStates() {
+  std::vector<std::tuple<std::vector<int>, std::vector<double>>> result(
+      codons_vector.size());
+  std::vector<int> state;
+  std::vector<double> dt;
+  for (std::size_t i = 0; i < codons_vector.size(); i++) {
+    std::tie(state, dt) = codons_vector[i]->getHistory();
+    result[i] = std::tie(state, dt);
+  }
+  return result;
 }

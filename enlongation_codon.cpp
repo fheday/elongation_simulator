@@ -17,6 +17,40 @@ void Simulations::EnlongationCodon::loadConcentrations(
   }
 }
 
+void Simulations::EnlongationCodon::setWCPropensities(
+    std::array<double, 10> prop) {
+  ribosome.setWCPropensities(prop);
+  updateAlphas();
+}
+
+void Simulations::EnlongationCodon::setWooblePropensities(
+    std::array<double, 10> prop) {
+  ribosome.setWooblePropensities(prop);
+  updateAlphas();
+}
+
+void Simulations::EnlongationCodon::setNearCognatePropensities(
+    std::array<double, 10> prop) {
+  ribosome.setNearCognatePropensities(prop);
+  updateAlphas();
+}
+
+void Simulations::EnlongationCodon::setNonCogPropensities(
+    std::array<double, 2> prop) {
+  ribosome.setNonCogPropensities(prop);
+  updateAlphas();
+}
+
+void Simulations::EnlongationCodon::setTranslocationPropensities(
+    std::array<double, 9> prop) {
+  ribosome.setTranslocationPropensities(prop);
+  updateAlphas();
+}
+
+std::map<std::string, double> Simulations::EnlongationCodon::getPropensities() {
+  return ribosome.getPropensities();
+}
+
 void Simulations::EnlongationCodon::setCodon(const std::string& cdn) {
   ribosome.setCodonForSimulation(cdn);
   // update reactions.
