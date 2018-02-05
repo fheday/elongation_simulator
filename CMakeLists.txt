@@ -3,21 +3,23 @@ project(gillespie)
 
 #-fopt-info-vec-missed -g -fno-inline
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -ffast-math -march=native -ftree-vectorize -Wall -DNDEBUG -flto")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -Wall -Wextra -fsanitize=address -fsanitize=leak -fno-omit-frame-pointer -fsanitize=undefined")
+set(CMAKE_CXX_FLAGS_DEFAULT "${CMAKE_CXX_FLAGS_DEFAULT} -O0 -g3 -Wall -Wextra -fsanitize=address -fsanitize=leak -fno-omit-frame-pointer -fsanitize=undefined")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -Wall -Wextra")
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC")
 
 set(common_sources concentrationsreader.cpp mrna_reader.cpp)
-set(ribosome_simulator_sources ribosomesimulator.cpp)
-set(enlongation_simulator_sources enlogationsimulator.cpp  enlongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.cpp ribosomesimulator.cpp)
+set(ribosome_simulator_sources ribosomesimulator.cpp ${common_sources})
+set(enlongation_simulator_sources enlogationsimulator.cpp  enlongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.cpp ${ribosome_simulator_sources})
 
 add_library(util_lib STATIC ${common_sources})
 add_library(ribosome_simulator_lib STATIC ${ribosome_simulator_sources})
-add_library(enlongation_simulator_lib STATIC ${common_sources} ${enlongation_simulator_sources})
+add_library(enlongation_simulator_lib STATIC  ${enlongation_simulator_sources})
 
 add_executable(calculateCodonsTimes calculateCodonsTimes.cpp)
-target_link_libraries(calculateCodonsTimes PRIVATE util_lib ribosome_simulator_lib)
+target_link_libraries(calculateCodonsTimes PRIVATE ribosome_simulator_lib)
 add_executable(run_translation run_translation.cpp)
-target_link_libraries(run_translation PRIVATE util_lib ribosome_simulator_lib enlongation_simulator_lib)
+target_link_libraries(run_translation PRIVATE enlongation_simulator_lib)
 
 #add_executable(calculateCodonsTimes calculateCodonsTimes.cpp ${common_sources} ${ribosome_simulator_sources})
 #add_executable(run_translation run_translation.cpp ${common_sources} ${enlongation_simulator_sources})
