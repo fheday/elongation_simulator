@@ -59,12 +59,10 @@ void execute_translation(const std::string& concentrations_file,
                                      // future.
   ts.run();
   ts.calculateAverageTimes();
-
   std::vector<double> enlongation_duration;
   std::vector<int> iteration_initiation;
   std::tie(enlongation_duration, iteration_initiation) =
       ts.getEnlogationDuration();
-  ts.getInitiationEnlongationTermination();
   // save enlongation data into csv file.
   std::vector<double> clock, clock_at_initiation;
   double c = 0;
