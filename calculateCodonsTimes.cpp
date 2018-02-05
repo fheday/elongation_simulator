@@ -1,3 +1,4 @@
+#include <getopt.h>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -22,13 +23,16 @@
  * @param translocating_times boolean if true, all codons have only decoding
  * times and the translocating time is represented by the codon 'tra'. If false,
  * all the codons times are decoding + translocating.
+ * @param states_file_name string containing the path to write the csv file with
+ * the times spent in the ribosome's states
  * @return std::map< std::__cxx11::string, double > a map with codons and
  * average decoding times. Average Translocating time is given by entry 'tra'
  */
 std::map<std::string, double> calculate_codons_times(
     const std::string& concentrations_file_name, int iterations,
     const std::string& average_times_file_name,
-    const std::string& times_vector_file_name, bool translocating_times) {
+    const std::string& times_vector_file_name,
+    const std::string& sates_file_name, bool translocating_times) {
   Simulations::RibosomeSimulator ribosome;
   ribosome.loadConcentrations(concentrations_file_name);
   csv_utils::ConcentrationsReader cr;
@@ -109,33 +113,91 @@ std::map<std::string, double> calculate_codons_times(
     std::cout << "Average translocating time: " << (total_translocating / n)
               << "\n";
   }
+
+  if (!sates_file_name.empty()) {
+    // save states file.
+  }
   // close files.
   average_times_file.close();
   times_vector_file.close();
   return codons_times;
 }
 
+void printHelp() {
+  std::cout << "Wrong number of parameters informed.\n";
+  std::cout << "Usage: calculateCodonsTimes concentrations_file_name "
+               "iterations average_times_file_name translocating_times\n";
+  std::cout << "concentrations_file_name  - The path to the csv file "
+               "containing the concentrations in the cell.\n";
+  std::cout << "iterations - Number of iterations to run per codon base.\n";
+  std::cout << "average_times_file_name - The path to write the average "
+               "times calculated by the algorithm.\n";
+  std::cout << "times_vector_file_name - The path to write the vector with "
+               "the calculated times by the algorithm.\n";
+  std::cout << "translocating_times - if true or 1, all codons have only "
+               "decoding times and the translocating time is represented by "
+               "the codon 'tra'. Otherwise, all the codons times are "
+               "decoding + translocating.\n";
+}
+
 int main(int argc, char** argv) {
-  if (argc < 6) {
-    std::cout << "Wrong number of parameters informed.\n";
-    std::cout << "Usage: calculateCodonsTimes concentrations_file_name "
-                 "iterations average_times_file_name translocating_times\n";
-    std::cout << "concentrations_file_name  - The path to the csv file "
-                 "containing the concentrations in the cell.\n";
-    std::cout << "iterations - Number of iterations to run per codon base.\n";
-    std::cout << "average_times_file_name - The path to write the average "
-                 "times calculated by the algorithm.\n";
-    std::cout << "times_vector_file_name - The path to write the vector with "
-                 "the calculated times by the algorithm.\n";
-    std::cout << "translocating_times - if true or 1, all codons have only "
-                 "decoding times and the translocating time is represented by "
-                 "the codon 'tra'. Otherwise, all the codons times are "
-                 "decoding + translocating.\n";
+  const char* const short_opts = "c:l:ta:v:s:h";
+  const option long_opts[] = {
+      {"concentration", 1, nullptr, 'c'}, {"iterations", 1, nullptr, 'l'},
+      {"translocation", 0, nullptr, 't'}, {"averageFile", 1, nullptr, 'a'},
+      {"vector", 1, nullptr, 'v'},        {"statesFile", 1, nullptr, 's'},
+      {"help", 0, nullptr, 'h'},          {nullptr, 0, nullptr, 0}};
+
+  std::string concentration_file, average_file, vector_file, states_file;
+  int iterations = 0;
+  bool translocation = false;
+
+  if (argc == 1) {
+    // no options given. Print help and exit program.
+    printHelp();
     return 0;
   }
-  calculate_codons_times(
-      argv[1], std::stoi(argv[2]), argv[3], argv[4],
-      std::string(argv[5]) == "true" || std::string(argv[5]) == "1");
+  while (optind < argc) {
+    const auto opt = getopt_long(argc, argv, short_opts, long_opts, nullptr);
+    if (opt != -1) {
+      // Option argument
+      switch (opt) {
+        case 'c': {
+          concentration_file = std::string(optarg);
+          break;
+        }
+        case 'l':
+          iterations = std::stoi(optarg);
+          break;
+        case 't':
+          translocation = true;
+          break;
+        case 'a':
+          average_file = std::string(optarg);
+          break;
+        case 'v':
+          vector_file = std::string(optarg);
+          break;
+        case 's':
+          states_file = std::string(optarg);
+          break;
+        case 'h':  // -h or --help
+        case '?':  // Unrecognized option
+        default:
+          printHelp();
+          return 0;
+      }
+    } else {
+      break;
+    }
+  }
+  // check if we have all we need:
+  if (concentration_file.empty() || iterations == 0) {
+    printHelp();
+    return 0;
+  }
+  calculate_codons_times(concentration_file, iterations, average_file,
+                         vector_file, states_file, translocation);
 
   return 0;
 }
