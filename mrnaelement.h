@@ -28,11 +28,11 @@ class mRNAElement {
   void addReactionToHistory(int state, double dt);
   std::pair<std::vector<int>, std::vector<double>> getHistory();
 
-  virtual void setWCPropensities(std::array<double, 10> prop) {}
-  virtual void setWooblePropensities(std::array<double, 10> prop) {}
-  virtual void setNearCognatePropensities(std::array<double, 10> prop) {}
-  virtual void setNonCogPropensities(std::array<double, 2> prop) {}
-  virtual void setTranslocationPropensities(std::array<double, 9> prop) {}
+  virtual void setWCPropensities(std::array<double, 10>) {}
+  virtual void setWooblePropensities(std::array<double, 10>) {}
+  virtual void setNearCognatePropensities(std::array<double, 10>) {}
+  virtual void setNonCogPropensities(std::array<double, 2>) {}
+  virtual void setTranslocationPropensities(std::array<double, 9>) {}
   virtual std::map<std::string, double> getPropensities() {
     return std::map<std::string, double>();
   }
