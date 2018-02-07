@@ -175,7 +175,7 @@ void Simulations::Translation::setNonCogPropensities(
 }
 
 void Simulations::Translation::setTranslocationPropensities(
-    std::array<double, 9> prop) {
+    std::array<double, 10> prop) {
   for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
     codons_vector[i]->setTranslocationPropensities(prop);
   }

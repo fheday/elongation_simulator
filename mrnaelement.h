@@ -32,7 +32,7 @@ class mRNAElement {
   virtual void setWooblePropensities(std::array<double, 10>) {}
   virtual void setNearCognatePropensities(std::array<double, 10>) {}
   virtual void setNonCogPropensities(std::array<double, 2>) {}
-  virtual void setTranslocationPropensities(std::array<double, 9>) {}
+  virtual void setTranslocationPropensities(std::array<double, 10>) {}
   virtual std::map<std::string, double> getPropensities() {
     return std::map<std::string, double>();
   }

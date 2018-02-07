@@ -21,7 +21,7 @@ class RibosomeSimulator {
   void setWooblePropensities(std::array<double, 10> prop);
   void setNearCognatePropensities(std::array<double, 10> prop);
   void setNonCogPropensities(std::array<double, 2> prop);
-  void setTranslocationPropensities(std::array<double, 9> prop);
+  void setTranslocationPropensities(std::array<double, 10> prop);
   std::map<std::string, double> getPropensities();
   void loadConcentrations(const std::string&);
   void setCodonForSimulation(const std::string&);

@@ -237,35 +237,38 @@ void Simulations::RibosomeSimulator::setNonCogPropensities(
 }
 
 void Simulations::RibosomeSimulator::setTranslocationPropensities(
-    std::array<double, 9> prop) {
+    std::array<double, 10> prop) {
   for (std::size_t i = 0; i < prop.size(); i++) {
     if (prop.at(i) >= 0) {
       switch (i) {
         case 0:
-          trans1r = prop.at(i);
+          trans1f = prop.at(i);
           break;
         case 1:
-          trans2 = prop.at(i);
+          trans1r = prop.at(i);
           break;
         case 2:
-          trans3 = prop.at(i);
+          trans2 = prop.at(i);
           break;
         case 3:
-          trans4 = prop.at(i);
+          trans3 = prop.at(i);
           break;
         case 4:
-          trans5 = prop.at(i);
+          trans4 = prop.at(i);
           break;
         case 5:
-          trans6 = prop.at(i);
+          trans5 = prop.at(i);
           break;
         case 6:
-          trans7 = prop.at(i);
+          trans6 = prop.at(i);
           break;
         case 7:
-          trans8 = prop.at(i);
+          trans7 = prop.at(i);
           break;
         case 8:
+          trans8 = prop.at(i);
+          break;
+        case 9:
           trans9 = prop.at(i);
           break;
       }

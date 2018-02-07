@@ -42,7 +42,7 @@ void Simulations::EnlongationCodon::setNonCogPropensities(
 }
 
 void Simulations::EnlongationCodon::setTranslocationPropensities(
-    std::array<double, 9> prop) {
+    std::array<double, 10> prop) {
   ribosome.setTranslocationPropensities(prop);
   updateAlphas();
 }
