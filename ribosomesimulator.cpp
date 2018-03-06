@@ -9,6 +9,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
 namespace py = pybind11;
 
 PYBIND11_MODULE(ribosomesimulator, mod) {
@@ -26,16 +27,9 @@ PYBIND11_MODULE(ribosomesimulator, mod) {
              rs.run_and_get_times(d, t);
              return std::make_tuple(d, t);
            })
-      .def("setWCPropensities",
-           &Simulations::RibosomeSimulator::setWCPropensities)
-      .def("setWooblePropensities",
-           &Simulations::RibosomeSimulator::setWooblePropensities)
-      .def("setNearCognatePropensities",
-           &Simulations::RibosomeSimulator::setNearCognatePropensities)
-      .def("setNonCogPropensities",
-           &Simulations::RibosomeSimulator::setNonCogPropensities)
-      .def("setTranslocationPropensities",
-           &Simulations::RibosomeSimulator::setTranslocationPropensities)
+      .def("setPropensities",
+           &Simulations::RibosomeSimulator::setPropensities)
+
       .def("getPropensities", &Simulations::RibosomeSimulator::getPropensities)
       .def_readonly("dt_history", &Simulations::RibosomeSimulator::dt_history)
       .def_readonly("ribosome_state_history",
@@ -87,188 +81,129 @@ void Simulations::RibosomeSimulator::buildReactionsMap() {
   }
 }
 
-void Simulations::RibosomeSimulator::setWCPropensities(
-    std::array<double, 10> prop) {
+void Simulations::RibosomeSimulator::setPropensities(
+    std::array<double, 40> prop) {
   for (std::size_t i = 0; i < prop.size(); i++) {
     if (prop.at(i) >= 0) {
       switch (i) {
         case 0:
-          for (auto& item : WC1f) {
-            item.second = prop.at(i);
-          }
-          //          WC1f = prop.at(i);
+          non1f[simulation_codon_3_letters] = prop.at(i);
           break;
         case 1:
-          WC1r = prop.at(i);
+          near1f[simulation_codon_3_letters] = prop.at(i);
           break;
         case 2:
-          WC2f = prop.at(i);
+          wobble1f[simulation_codon_3_letters] = prop.at(i);
           break;
         case 3:
-          WC2r = prop.at(i);
+          WC1f[simulation_codon_3_letters] = prop.at(i);
           break;
         case 4:
-          WC3f = prop.at(i);
-          break;
-        case 5:
-          WC4f = prop.at(i);
-          break;
-        case 6:
-          WC5f = prop.at(i);
-          break;
-        case 7:
-          WCdiss = prop.at(i);
-          break;
-        case 8:
-          WC6f = prop.at(i);
-          break;
-        case 9:
-          WC7f = prop.at(i);
-          break;
-      }
-    }
-  }
-}
-
-void Simulations::RibosomeSimulator::setWooblePropensities(
-    std::array<double, 10> prop) {
-  for (std::size_t i = 0; i < prop.size(); i++) {
-    if (prop.at(i) >= 0) {
-      switch (i) {
-        case 0:
-          for (auto& item : wobble1f) {
-            item.second = prop.at(i);
-          }
-          //          wobble1f = prop.at(i);
-          break;
-        case 1:
-          wobble1r = prop.at(i);
-          break;
-        case 2:
-          wobble2f = prop.at(i);
-          break;
-        case 3:
-          wobble2r = prop.at(i);
-          break;
-        case 4:
-          wobble3f = prop.at(i);
-          break;
-        case 5:
-          wobble4f = prop.at(i);
-          break;
-        case 6:
-          wobble5f = prop.at(i);
-          break;
-        case 7:
-          wobblediss = prop.at(i);
-          break;
-        case 8:
-          wobble6f = prop.at(i);
-          break;
-        case 9:
-          wobble7f = prop.at(i);
-          break;
-      }
-    }
-  }
-}
-
-void Simulations::RibosomeSimulator::setNearCognatePropensities(
-    std::array<double, 10> prop) {
-  for (std::size_t i = 0; i < prop.size(); i++) {
-    if (prop.at(i) >= 0) {
-      switch (i) {
-        case 0:
-          for (auto& item : near1f) {
-            item.second = prop.at(i);
-          }
-          //          near1f = prop.at(i);
-          break;
-        case 1:
-          near1r = prop.at(i);
-          break;
-        case 2:
-          near2f = prop.at(i);
-          break;
-        case 3:
-          near2r = prop.at(i);
-          break;
-        case 4:
-          near3f = prop.at(i);
-          break;
-        case 5:
-          near4f = prop.at(i);
-          break;
-        case 6:
-          near5f = prop.at(i);
-          break;
-        case 7:
-          neardiss = prop.at(i);
-          break;
-        case 8:
-          near6f = prop.at(i);
-          break;
-        case 9:
-          near7f = prop.at(i);
-          break;
-      }
-    }
-  }
-}
-
-void Simulations::RibosomeSimulator::setNonCogPropensities(
-    std::array<double, 2> prop) {
-  for (std::size_t i = 0; i < prop.size(); i++) {
-    if (prop.at(i) >= 0) {
-      switch (i) {
-        case 0:
-          for (auto& item : non1f) {
-            item.second = prop.at(i);
-          }
-          //          non1f = prop.at(i);
-          break;
-        case 1:
           non1r = prop.at(i);
           break;
-      }
-    }
-  }
-  //  buildReactionsMap();
-}
-
-void Simulations::RibosomeSimulator::setTranslocationPropensities(
-    std::array<double, 10> prop) {
-  for (std::size_t i = 0; i < prop.size(); i++) {
-    if (prop.at(i) >= 0) {
-      switch (i) {
-        case 0:
-          trans1f = prop.at(i);
-          break;
-        case 1:
-          trans1r = prop.at(i);
-          break;
-        case 2:
-          trans2 = prop.at(i);
-          break;
-        case 3:
-          trans3 = prop.at(i);
-          break;
-        case 4:
-          trans4 = prop.at(i);
-          break;
         case 5:
-          trans5 = prop.at(i);
+          near1r = prop.at(i);
           break;
         case 6:
-          trans6 = prop.at(i);
+          near2f = prop.at(i);
           break;
         case 7:
-          trans7 = prop.at(i);
+          near2r = prop.at(i);
           break;
         case 8:
-          trans8 = prop.at(i);
+          near3f = prop.at(i);
           break;
         case 9:
+          near4f = prop.at(i);
+          break;
+        case 10:
+          near5f = prop.at(i);
+          break;
+        case 11:
+          neardiss = prop.at(i);
+          break;
+        case 12:
+          near6f = prop.at(i);
+          break;
+        case 13:
+          wobble1r = prop.at(i);
+          break;
+        case 14:
+          wobble2f = prop.at(i);
+          break;
+        case 15:
+          wobble2r = prop.at(i);
+          break;
+        case 16:
+          wobble3f = prop.at(i);
+          break;
+        case 17:
+          wobble4f = prop.at(i);
+          break;
+        case 18:
+          wobble5f = prop.at(i);
+          break;
+        case 19:
+          wobblediss = prop.at(i);
+          break;
+        case 20:
+          wobble6f = prop.at(i);
+          break;
+        case 21:
+          WC1r = prop.at(i);
+          break;
+        case 22:
+          WC2f = prop.at(i);
+          break;
+        case 23:
+          WC2r = prop.at(i);
+          break;
+        case 24:
+          WC3f = prop.at(i);
+          break;
+        case 25:
+          WC4f = prop.at(i);
+          break;
+        case 26:
+          WC5f = prop.at(i);
+          break;
+        case 27:
+          WCdiss = prop.at(i);
+          break;
+        case 28:
+          WC6f = prop.at(i);
+          break;
+        case 29:
+          dec7f = prop.at(i);
+          break;
+        case 30:
+          trans1f= prop.at(i);
+          break;
+        case 31:
+          trans1r = prop.at(i);
+          break;
+        case 32:
+          trans2 = prop.at(i);
+          break;
+        case 33:
+          trans3 = prop.at(i);
+          break;
+        case 34:
+          trans4 = prop.at(i);
+          break;
+        case 35:
+          trans5 = prop.at(i);
+          break;
+        case 36:
+          trans6 = prop.at(i);
+          break;
+        case 37:
+          trans7 = prop.at(i);
+          break;
+        case 38:
+          trans8 = prop.at(i);
+          break;
+        case 39:
           trans9 = prop.at(i);
           break;
       }
@@ -292,8 +227,6 @@ Simulations::RibosomeSimulator::getPropensities() {
                             near5f,
                             neardiss,
                             near6f,
-                            near7f,
-                            trans1f,
                             wobble1r,
                             wobble2f,
                             wobble2r,
@@ -302,8 +235,6 @@ Simulations::RibosomeSimulator::getPropensities() {
                             wobble5f,
                             wobblediss,
                             wobble6f,
-                            wobble7f,
-                            trans1f,
                             WC1r,
                             WC2f,
                             WC2r,
@@ -312,7 +243,7 @@ Simulations::RibosomeSimulator::getPropensities() {
                             WC5f,
                             WCdiss,
                             WC6f,
-                            WC7f,
+                            dec7f,
                             trans1f,
                             trans1r,
                             trans2,
@@ -324,15 +255,15 @@ Simulations::RibosomeSimulator::getPropensities() {
                             trans8,
                             trans9};
 
-  std::vector<std::string> reactions_identifiers = {
-      "non1f",    "near1f",   "wobble1f", "WC1f",       "non1r",    "near1r",
-      "near2f",   "near2r",   "near3f",   "near4f",     "near5f",   "neardiss",
-      "near6f",   "near7f",   "trans1f",  "wobble1r",   "wobble2f", "wobble2r",
-      "wobble3f", "wobble4f", "wobble5f", "wobblediss", "wobble6f", "wobble7f",
-      "trans1f",  "WC1r",     "WC2f",     "WC2r",       "WC3f",     "WC4f",
-      "WC5f",     "WCdiss",   "WC6f",     "WC7f",       "trans1f",  "trans1r",
-      "trans2",   "trans3",   "trans4",   "trans5",     "trans6",   "trans7",
-      "trans8",   "trans9"};
+//   std::vector<std::string> reactions_identifiers = {
+//       "non1f",    "near1f",   "wobble1f", "WC1f",       "non1r",    "near1r",
+//       "near2f",   "near2r",   "near3f",   "near4f",     "near5f",   "neardiss",
+//       "near6f",   "near7f",   "trans1f",  "wobble1r",   "wobble2f", "wobble2r",
+//       "wobble3f", "wobble4f", "wobble5f", "wobblediss", "wobble6f", "wobble7f",
+//       "trans1f",  "WC1r",     "WC2f",     "WC2r",       "WC3f",     "WC4f",
+//       "WC5f",     "WCdiss",   "WC6f",     "WC7f",       "trans1f",  "trans1r",
+//       "trans2",   "trans3",   "trans4",   "trans5",     "trans6",   "trans7",
+//       "trans8",   "trans9"};
   for (std::size_t i = 0; i < ks.size(); i++) {
     result[reactions_identifiers[i]] = ks[i];
   }
@@ -410,7 +341,7 @@ void Simulations::RibosomeSimulator::run_and_get_times(
 std::vector<std::vector<std::tuple<std::reference_wrapper<double>, int>>>
 Simulations::RibosomeSimulator::createReactionsGraph(
     const csv_utils::concentration_entry& codon) {
-  std::array<std::reference_wrapper<double>, 44> ks = {{non1f[codon.codon],
+  std::array<std::reference_wrapper<double>, 40> ks = {{non1f[codon.codon],
                                                         near1f[codon.codon],
                                                         wobble1f[codon.codon],
                                                         WC1f[codon.codon],
@@ -423,8 +354,6 @@ Simulations::RibosomeSimulator::createReactionsGraph(
                                                         near5f,
                                                         neardiss,
                                                         near6f,
-                                                        near7f,
-                                                        trans1f,
                                                         wobble1r,
                                                         wobble2f,
                                                         wobble2r,
@@ -433,8 +362,6 @@ Simulations::RibosomeSimulator::createReactionsGraph(
                                                         wobble5f,
                                                         wobblediss,
                                                         wobble6f,
-                                                        wobble7f,
-                                                        trans1f,
                                                         WC1r,
                                                         WC2f,
                                                         WC2r,
@@ -443,7 +370,7 @@ Simulations::RibosomeSimulator::createReactionsGraph(
                                                         WC5f,
                                                         WCdiss,
                                                         WC6f,
-                                                        WC7f,
+                                                        dec7f,
                                                         trans1f,
                                                         trans1r,
                                                         trans2,
@@ -455,7 +382,7 @@ Simulations::RibosomeSimulator::createReactionsGraph(
                                                         trans8,
                                                         trans9}};
 
-  Eigen::MatrixXi reactionMatrix[44];
+  Eigen::MatrixXi reactionMatrix[40];
   // build the vector of reactions.
   // [] x=0 -> non1f:(x'=1);
   reactionMatrix[0].resize(32, 1);
@@ -529,197 +456,209 @@ Simulations::RibosomeSimulator::createReactionsGraph(
   reactionMatrix[11](6, 0) = -1;
   reactionMatrix[11](0, 0) = 1;
 
-  // [] x=6 -> near6f:(x'=7);
+//   // [] x=6 -> near6f:(x'=7);
+//   reactionMatrix[12].resize(32, 1);
+//   reactionMatrix[12].fill(0);
+//   reactionMatrix[12](6, 0) = -1;
+//   reactionMatrix[12](7, 0) = 1;
+
+  //   // [] x=6 -> dec7f:(x'=21);
   reactionMatrix[12].resize(32, 1);
   reactionMatrix[12].fill(0);
   reactionMatrix[12](6, 0) = -1;
-  reactionMatrix[12](7, 0) = 1;
+  reactionMatrix[12](21, 0) = 1;
 
   // [] x=7 -> near7f:(x'=8);
-  reactionMatrix[13].resize(32, 1);
-  reactionMatrix[13].fill(0);
-  reactionMatrix[13](7, 0) = -1;
-  reactionMatrix[13](8, 0) = 1;
+//   reactionMatrix[13].resize(32, 1);
+//   reactionMatrix[13].fill(0);
+//   reactionMatrix[13](7, 0) = -1;
+//   reactionMatrix[13](8, 0) = 1;
 
   // [] x=8 -> trans1f:(x'=23);
-  reactionMatrix[14].resize(32, 1);
-  reactionMatrix[14].fill(0);
-  reactionMatrix[14](8, 0) = -1;
-  reactionMatrix[14](23, 0) = 1;
+//   reactionMatrix[14].resize(32, 1);
+//   reactionMatrix[14].fill(0);
+//   reactionMatrix[14](8, 0) = -1;
+//   reactionMatrix[14](23, 0) = 1;
 
   // [] x=9 -> wobble1r:(x'=0);
-  reactionMatrix[15].resize(32, 1);
-  reactionMatrix[15].fill(0);
-  reactionMatrix[15](9, 0) = -1;
-  reactionMatrix[15](0, 0) = 1;
+  reactionMatrix[13].resize(32, 1);
+  reactionMatrix[13].fill(0);
+  reactionMatrix[13](9, 0) = -1;
+  reactionMatrix[13](0, 0) = 1;
 
   // [] x=9 -> wobble2f:(x'=10);
-  reactionMatrix[16].resize(32, 1);
-  reactionMatrix[16].fill(0);
-  reactionMatrix[16](9, 0) = -1;
-  reactionMatrix[16](10, 0) = 1;
+  reactionMatrix[14].resize(32, 1);
+  reactionMatrix[14].fill(0);
+  reactionMatrix[14](9, 0) = -1;
+  reactionMatrix[14](10, 0) = 1;
 
   // [] x=10 -> wobble2r:(x'=9);
-  reactionMatrix[17].resize(32, 1);
-  reactionMatrix[17].fill(0);
-  reactionMatrix[17](10, 0) = -1;
-  reactionMatrix[17](9, 0) = 1;
+  reactionMatrix[15].resize(32, 1);
+  reactionMatrix[15].fill(0);
+  reactionMatrix[15](10, 0) = -1;
+  reactionMatrix[15](9, 0) = 1;
 
   // [] x=10 -> wobble3f:(x'=11);
-  reactionMatrix[18].resize(32, 1);
-  reactionMatrix[18].fill(0);
-  reactionMatrix[18](10, 0) = -1;
-  reactionMatrix[18](11, 0) = 1;
+  reactionMatrix[16].resize(32, 1);
+  reactionMatrix[16].fill(0);
+  reactionMatrix[16](10, 0) = -1;
+  reactionMatrix[16](11, 0) = 1;
 
   // [] x=11 -> wobble4f:(x'=12);
-  reactionMatrix[19].resize(32, 1);
-  reactionMatrix[19].fill(0);
-  reactionMatrix[19](11, 0) = -1;
-  reactionMatrix[19](12, 0) = 1;
+  reactionMatrix[17].resize(32, 1);
+  reactionMatrix[17].fill(0);
+  reactionMatrix[17](11, 0) = -1;
+  reactionMatrix[17](12, 0) = 1;
 
   // [] x=12 -> wobble5f:(x'=13);
-  reactionMatrix[20].resize(32, 1);
-  reactionMatrix[20].fill(0);
-  reactionMatrix[20](12, 0) = -1;
-  reactionMatrix[20](13, 0) = 1;
+  reactionMatrix[18].resize(32, 1);
+  reactionMatrix[18].fill(0);
+  reactionMatrix[18](12, 0) = -1;
+  reactionMatrix[18](13, 0) = 1;
 
   // [] x=13 -> wobblediss:(x'=0);
-  reactionMatrix[21].resize(32, 1);
-  reactionMatrix[21].fill(0);
-  reactionMatrix[21](13, 0) = -1;
-  reactionMatrix[21](0, 0) = 1;
+  reactionMatrix[19].resize(32, 1);
+  reactionMatrix[19].fill(0);
+  reactionMatrix[19](13, 0) = -1;
+  reactionMatrix[19](0, 0) = 1;
 
-  // [] x=13 -> wobble6f:(x'=14);
-  reactionMatrix[22].resize(32, 1);
-  reactionMatrix[22].fill(0);
-  reactionMatrix[22](13, 0) = -1;
-  reactionMatrix[22](14, 0) = 1;
+//   // [] x=13 -> wobble6f:(x'=14);
+//   reactionMatrix[22].resize(32, 1);
+//   reactionMatrix[22].fill(0);
+//   reactionMatrix[22](13, 0) = -1;
+//   reactionMatrix[22](14, 0) = 1;
 
-  // [] x=14 -> wobble7f:(x'=15);
-  reactionMatrix[23].resize(32, 1);
-  reactionMatrix[23].fill(0);
-  reactionMatrix[23](14, 0) = -1;
-  reactionMatrix[23](15, 0) = 1;
+// [] x=13 -> dec7f:(x'=21);
+  reactionMatrix[20].resize(32, 1);
+  reactionMatrix[20].fill(0);
+  reactionMatrix[20](13, 0) = -1;
+  reactionMatrix[20](21, 0) = 1;
 
-  // [] x=15 -> trans1f:(x'=23);
-  reactionMatrix[24].resize(32, 1);
-  reactionMatrix[24].fill(0);
-  reactionMatrix[24](15, 0) = -1;
-  reactionMatrix[24](23, 0) = 1;
+//   // [] x=14 -> wobble7f:(x'=15);
+//   reactionMatrix[23].resize(32, 1);
+//   reactionMatrix[23].fill(0);
+//   reactionMatrix[23](14, 0) = -1;
+//   reactionMatrix[23](15, 0) = 1;
+
+//   // [] x=15 -> trans1f:(x'=23);
+//   reactionMatrix[24].resize(32, 1);
+//   reactionMatrix[24].fill(0);
+//   reactionMatrix[24](15, 0) = -1;
+//   reactionMatrix[24](23, 0) = 1;
 
   // [] x=16 -> WC1r:(x'=0);
-  reactionMatrix[25].resize(32, 1);
-  reactionMatrix[25].fill(0);
-  reactionMatrix[25](16, 0) = -1;
-  reactionMatrix[25](0, 0) = 1;
+  reactionMatrix[21].resize(32, 1);
+  reactionMatrix[21].fill(0);
+  reactionMatrix[21](16, 0) = -1;
+  reactionMatrix[21](0, 0) = 1;
 
   // [] x=16 -> WC2f:(x'=17);
-  reactionMatrix[26].resize(32, 1);
-  reactionMatrix[26].fill(0);
-  reactionMatrix[26](16, 0) = -1;
-  reactionMatrix[26](17, 0) = 1;
+  reactionMatrix[22].resize(32, 1);
+  reactionMatrix[22].fill(0);
+  reactionMatrix[22](16, 0) = -1;
+  reactionMatrix[22](17, 0) = 1;
 
   // [] x=17 -> WC2r:(x'=16);
-  reactionMatrix[27].resize(32, 1);
-  reactionMatrix[27].fill(0);
-  reactionMatrix[27](17, 0) = -1;
-  reactionMatrix[27](16, 0) = 1;
+  reactionMatrix[23].resize(32, 1);
+  reactionMatrix[23].fill(0);
+  reactionMatrix[23](17, 0) = -1;
+  reactionMatrix[23](16, 0) = 1;
 
   // [] x=17 -> WC3f:(x'=18);
-  reactionMatrix[28].resize(32, 1);
-  reactionMatrix[28].fill(0);
-  reactionMatrix[28](17, 0) = -1;
-  reactionMatrix[28](18, 0) = 1;
+  reactionMatrix[24].resize(32, 1);
+  reactionMatrix[24].fill(0);
+  reactionMatrix[24](17, 0) = -1;
+  reactionMatrix[24](18, 0) = 1;
 
   // [] x=18 -> WC4f:(x'=19);
-  reactionMatrix[29].resize(32, 1);
-  reactionMatrix[29].fill(0);
-  reactionMatrix[29](18, 0) = -1;
-  reactionMatrix[29](19, 0) = 1;
+  reactionMatrix[25].resize(32, 1);
+  reactionMatrix[25].fill(0);
+  reactionMatrix[25](18, 0) = -1;
+  reactionMatrix[25](19, 0) = 1;
 
   // [] x=19 -> WC5f:(x'=20);
-  reactionMatrix[30].resize(32, 1);
-  reactionMatrix[30].fill(0);
-  reactionMatrix[30](19, 0) = -1;
-  reactionMatrix[30](20, 0) = 1;
+  reactionMatrix[26].resize(32, 1);
+  reactionMatrix[26].fill(0);
+  reactionMatrix[26](19, 0) = -1;
+  reactionMatrix[26](20, 0) = 1;
 
   // [] x=20 -> WCdiss:(x'=0);
-  reactionMatrix[31].resize(32, 1);
-  reactionMatrix[31].fill(0);
-  reactionMatrix[31](20, 0) = -1;
-  reactionMatrix[31](0, 0) = 1;
+  reactionMatrix[27].resize(32, 1);
+  reactionMatrix[27].fill(0);
+  reactionMatrix[27](20, 0) = -1;
+  reactionMatrix[27](0, 0) = 1;
 
   // [] x=20 -> WC6f:(x'=21);
-  reactionMatrix[32].resize(32, 1);
-  reactionMatrix[32].fill(0);
-  reactionMatrix[32](20, 0) = -1;
-  reactionMatrix[32](21, 0) = 1;
+  reactionMatrix[28].resize(32, 1);
+  reactionMatrix[28].fill(0);
+  reactionMatrix[28](20, 0) = -1;
+  reactionMatrix[28](21, 0) = 1;
 
   // [] x=21 -> WC7f:(x'=22);
-  reactionMatrix[33].resize(32, 1);
-  reactionMatrix[33].fill(0);
-  reactionMatrix[33](21, 0) = -1;
-  reactionMatrix[33](22, 0) = 1;
+  reactionMatrix[29].resize(32, 1);
+  reactionMatrix[29].fill(0);
+  reactionMatrix[29](21, 0) = -1;
+  reactionMatrix[29](22, 0) = 1;
 
   // [] x=22 -> trans1f:(x'=23);
-  reactionMatrix[34].resize(32, 1);
-  reactionMatrix[34].fill(0);
-  reactionMatrix[34](22, 0) = -1;
-  reactionMatrix[34](23, 0) = 1;
+  reactionMatrix[30].resize(32, 1);
+  reactionMatrix[30].fill(0);
+  reactionMatrix[30](22, 0) = -1;
+  reactionMatrix[30](23, 0) = 1;
 
   // [] x=23 -> trans1r:(x'=22);
-  reactionMatrix[35].resize(32, 1);
-  reactionMatrix[35].fill(0);
-  reactionMatrix[35](23, 0) = -1;
-  reactionMatrix[35](22, 0) = 1;
+  reactionMatrix[31].resize(32, 1);
+  reactionMatrix[31].fill(0);
+  reactionMatrix[31](23, 0) = -1;
+  reactionMatrix[31](22, 0) = 1;
 
   // [] x=23 -> trans2:(x'=24);
-  reactionMatrix[36].resize(32, 1);
-  reactionMatrix[36].fill(0);
-  reactionMatrix[36](23, 0) = -1;
-  reactionMatrix[36](24, 0) = 1;
+  reactionMatrix[32].resize(32, 1);
+  reactionMatrix[32].fill(0);
+  reactionMatrix[32](23, 0) = -1;
+  reactionMatrix[32](24, 0) = 1;
 
   // [] x=24 -> trans3:(x'=25);
-  reactionMatrix[37].resize(32, 1);
-  reactionMatrix[37].fill(0);
-  reactionMatrix[37](24, 0) = -1;
-  reactionMatrix[37](25, 0) = 1;
+  reactionMatrix[33].resize(32, 1);
+  reactionMatrix[33].fill(0);
+  reactionMatrix[33](24, 0) = -1;
+  reactionMatrix[33](25, 0) = 1;
 
   // [] x=25 -> trans4:(x'=26);
-  reactionMatrix[38].resize(32, 1);
-  reactionMatrix[38].fill(0);
-  reactionMatrix[38](25, 0) = -1;
-  reactionMatrix[38](26, 0) = 1;
+  reactionMatrix[34].resize(32, 1);
+  reactionMatrix[34].fill(0);
+  reactionMatrix[34](25, 0) = -1;
+  reactionMatrix[34](26, 0) = 1;
 
   // [] x=26 -> trans5:(x'=27);
-  reactionMatrix[39].resize(32, 1);
-  reactionMatrix[39].fill(0);
-  reactionMatrix[39](26, 0) = -1;
-  reactionMatrix[39](27, 0) = 1;
+  reactionMatrix[35].resize(32, 1);
+  reactionMatrix[35].fill(0);
+  reactionMatrix[35](26, 0) = -1;
+  reactionMatrix[35](27, 0) = 1;
 
   // [] x=27 -> trans6:(x'=28);
-  reactionMatrix[40].resize(32, 1);
-  reactionMatrix[40].fill(0);
-  reactionMatrix[40](27, 0) = -1;
-  reactionMatrix[40](28, 0) = 1;
+  reactionMatrix[36].resize(32, 1);
+  reactionMatrix[36].fill(0);
+  reactionMatrix[36](27, 0) = -1;
+  reactionMatrix[36](28, 0) = 1;
 
   // [] x=28 -> trans7:(x'=29);
-  reactionMatrix[41].resize(32, 1);
-  reactionMatrix[41].fill(0);
-  reactionMatrix[41](28, 0) = -1;
-  reactionMatrix[41](29, 0) = 1;
+  reactionMatrix[37].resize(32, 1);
+  reactionMatrix[37].fill(0);
+  reactionMatrix[37](28, 0) = -1;
+  reactionMatrix[37](29, 0) = 1;
 
   // [] x=29 -> trans8:(x'=30);
-  reactionMatrix[42].resize(32, 1);
-  reactionMatrix[42].fill(0);
-  reactionMatrix[42](29, 0) = -1;
-  reactionMatrix[42](30, 0) = 1;
+  reactionMatrix[38].resize(32, 1);
+  reactionMatrix[38].fill(0);
+  reactionMatrix[38](29, 0) = -1;
+  reactionMatrix[38](30, 0) = 1;
 
   // [] x=30 -> trans9:(x'=31);
-  reactionMatrix[43].resize(32, 1);
-  reactionMatrix[43].fill(0);
-  reactionMatrix[43](30, 0) = -1;
-  reactionMatrix[43](31, 0) = 1;
+  reactionMatrix[39].resize(32, 1);
+  reactionMatrix[39].fill(0);
+  reactionMatrix[39](30, 0) = -1;
+  reactionMatrix[39](31, 0) = 1;
 
   int ii = 0;
   std::vector<std::vector<std::tuple<std::reference_wrapper<double>, int>>> r_g;

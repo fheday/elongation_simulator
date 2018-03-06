@@ -17,11 +17,7 @@ class EnlongationCodon : public mRNAElement {
   void setState(int) override;
   void updateAlphas() override;
 
-  void setWCPropensities(std::array<double, 10> prop) override;
-  void setWooblePropensities(std::array<double, 10> prop) override;
-  void setNearCognatePropensities(std::array<double, 10> prop) override;
-  void setNonCogPropensities(std::array<double, 2> prop) override;
-  void setTranslocationPropensities(std::array<double, 10> prop) override;
+  void setPropensities(std::array<double, 40> prop) override;
   std::map<std::string, double> getPropensities() override;
 
  private:

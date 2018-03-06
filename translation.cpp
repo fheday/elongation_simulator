@@ -43,15 +43,7 @@ PYBIND11_MODULE(translation, mod) {
            &Simulations::Translation::getInitiationEnlongationTermination)
       .def("setLogCodonStates", &Simulations::Translation::setLogCodonStates)
       .def("getLogCodonStates", &Simulations::Translation::getLogCodonStates)
-      .def("setWCPropensities", &Simulations::Translation::setWCPropensities)
-      .def("setWooblePropensities",
-           &Simulations::Translation::setWooblePropensities)
-      .def("setNearCognatePropensities",
-           &Simulations::Translation::setNearCognatePropensities)
-      .def("setNonCogPropensities",
-           &Simulations::Translation::setNonCogPropensities)
-      .def("setTranslocationPropensities",
-           &Simulations::Translation::setTranslocationPropensities)
+      .def("setPropensities", &Simulations::Translation::setPropensities)
       .def("getPropensities", &Simulations::Translation::getPropensities)
 
       .def_readonly("mrna_file_name", &Simulations::Translation::mrna_file_name)
@@ -147,39 +139,12 @@ void Simulations::Translation::initializeMRNAReader() {
   }
 }
 
-void Simulations::Translation::setWCPropensities(std::array<double, 10> prop) {
+void Simulations::Translation::setPropensities(std::array<double, 40> prop) {
   for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
-    codons_vector[i]->setWCPropensities(prop);
+    codons_vector[i]->setPropensities(prop);
   }
 }
 
-void Simulations::Translation::setWooblePropensities(
-    std::array<double, 10> prop) {
-  for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
-    codons_vector[i]->setWooblePropensities(prop);
-  }
-}
-
-void Simulations::Translation::setNearCognatePropensities(
-    std::array<double, 10> prop) {
-  for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
-    codons_vector[i]->setNearCognatePropensities(prop);
-  }
-}
-
-void Simulations::Translation::setNonCogPropensities(
-    std::array<double, 2> prop) {
-  for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
-    codons_vector[i]->setNonCogPropensities(prop);
-  }
-}
-
-void Simulations::Translation::setTranslocationPropensities(
-    std::array<double, 10> prop) {
-  for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
-    codons_vector[i]->setTranslocationPropensities(prop);
-  }
-}
 
 std::vector<std::map<std::string, double>>
 Simulations::Translation::getPropensities() {

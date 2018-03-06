@@ -7,6 +7,7 @@
 #include <tuple>
 #include <vector>
 #include "concentrationsreader.h"
+#include <array>
 
 namespace Simulations {
 
@@ -17,11 +18,9 @@ class RibosomeSimulator {
   void setState(int);
   void getAlphas(std::vector<double>&, std::vector<int>&);
   void getDecodingAlphas(std::vector<double>&, std::vector<int>&);
-  void setWCPropensities(std::array<double, 10> prop);
-  void setWooblePropensities(std::array<double, 10> prop);
-  void setNearCognatePropensities(std::array<double, 10> prop);
-  void setNonCogPropensities(std::array<double, 2> prop);
-  void setTranslocationPropensities(std::array<double, 10> prop);
+  
+  void setPropensities(std::array<double, 40> prop);
+  
   std::map<std::string, double> getPropensities();
   void loadConcentrations(const std::string&);
   void setCodonForSimulation(const std::string&);
@@ -57,7 +56,7 @@ class RibosomeSimulator {
   double WC5f = 1000;
   double WCdiss = 60;
   double WC6f = 1000;
-  double WC7f = 200;
+  double dec7f = 200;
 
   // constants for wobblecognate interaction in 1/sec
   std::map<std::string, double> wobble1f;
@@ -69,7 +68,6 @@ class RibosomeSimulator {
   double wobble5f = 1000;
   double wobblediss = 1.1;
   double wobble6f = 1.6;
-  double wobble7f = 200;
 
   // constants for nearcognate interaction in 1/sec
   std::map<std::string, double> near1f;
@@ -81,7 +79,6 @@ class RibosomeSimulator {
   double near5f = 1000;
   double neardiss = 1000;
   double near6f = 60;
-  double near7f = 200;
 
   double totalconc = 1.9e-4;
 
@@ -108,15 +105,15 @@ class RibosomeSimulator {
   double trans9 = 1000;
 
   std::array<std::string, 44> reactions_identifiers = {
-      {"non1f",    "near1f",   "wobble1f", "WC1f",       "non1r",    "near1r",
-       "near2f",   "near2r",   "near3f",   "near4f",     "near5f",   "neardiss",
-       "near6f",   "near7f",   "trans1f",  "wobble1r",   "wobble2f", "wobble2r",
-       "wobble3f", "wobble4f", "wobble5f", "wobblediss", "wobble6f", "wobble7f",
-       "trans1f",  "WC1r",     "WC2f",     "WC2r",       "WC3f",     "WC4f",
-       "WC5f",     "WCdiss",   "WC6f",     "WC7f",       "trans1f",  "trans1r",
-       "trans2",   "trans3",   "trans4",   "trans5",     "trans6",   "trans7",
-       "trans8",   "trans9"}};
+      {"non1f",    "near1f",     "wobble1f", "WC1f",     "non1r",    "near1r",
+       "near2f",   "near2r",     "near3f",   "near4f",   "near5f",   "neardiss",
+       "near6f",   "wobble1r",   "wobble2f", "wobble2r", "wobble3f", "wobble4f",
+       "wobble5f", "wobblediss", "wobble6f", "WC1r",     "WC2f",     "WC2r",
+       "WC3f",     "WC4f",       "WC5f",     "WCdiss",   "WC6f",     "dec7f",
+       "trans1f",  "trans1r",    "trans2",   "trans3",   "trans4",   "trans5",
+       "trans6",   "trans7",     "trans8",   "trans9"}};
 };
+
 }  // namespace Simulations
 
 #endif  // SIMULATIONS_RIBOSOMESIMULATOR_H

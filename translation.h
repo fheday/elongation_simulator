@@ -56,11 +56,7 @@ class Translation {
   std::vector<double> dt_history;
   std::vector<std::vector<int>> ribosome_positions_history;
 
-  void setWCPropensities(std::array<double, 10> prop);
-  void setWooblePropensities(std::array<double, 10> prop);
-  void setNearCognatePropensities(std::array<double, 10> prop);
-  void setNonCogPropensities(std::array<double, 2> prop);
-  void setTranslocationPropensities(std::array<double, 10> prop);
+  void setPropensities(std::array<double, 40> prop);
   std::vector<std::map<std::string, double>> getPropensities();
 
   // array with the total times the ribosomes spent in the codons
