@@ -23,6 +23,11 @@ void Simulations::EnlongationCodon::setPropensities(
   updateAlphas();
 }
 
+void Simulations::EnlongationCodon::setNoNonCognate(bool noNonCog) {
+  ribosome.setNoNonCognate(noNonCog);
+  updateAlphas();
+}
+
 std::map<std::string, double> Simulations::EnlongationCodon::getPropensities() {
   return ribosome.getPropensities();
 }

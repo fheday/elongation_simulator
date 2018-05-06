@@ -44,6 +44,7 @@ PYBIND11_MODULE(translation, mod) {
       .def("setLogCodonStates", &Simulations::Translation::setLogCodonStates)
       .def("getLogCodonStates", &Simulations::Translation::getLogCodonStates)
       .def("setPropensities", &Simulations::Translation::setPropensities)
+      .def("setNonCognate", &Simulations::Translation::setNoNonCognate)
       .def("getPropensities", &Simulations::Translation::getPropensities)
 
       .def_readonly("mrna_file_name", &Simulations::Translation::mrna_file_name)
@@ -145,6 +146,12 @@ void Simulations::Translation::setPropensities(std::array<double, 40> prop) {
   }
 }
 
+void Simulations::Translation::setNoNonCognate(bool noNonCog) {
+  no_noCognate = noNonCog;
+  for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
+    codons_vector[i]->setNoNonCognate(noNonCog);
+  }
+}
 
 std::vector<std::map<std::string, double>>
 Simulations::Translation::getPropensities() {
@@ -283,7 +290,17 @@ void Simulations::Translation::run() {
       } else {
         // update ribosome.
         codons_vector[static_cast<std::size_t>(i)]->getAlphas(a, r_i);
-        time_sum += 1 / a[0];
+        double sum = 0;
+        int n_elements = 0;
+        for (std::size_t j = 0; j < a.size(); j++) {
+          //          if (r_i[j] != 0) {
+          sum += a[j];
+          n_elements++;
+          //          } // colateral : only correct if there are NO
+          //          non-cognates!!!
+        }
+        time_sum += n_elements / sum;
+        //        time_sum += 1 / a[0];
       }
       if (time_sum >= initiation_time) {
         // put a ribosome here.

@@ -18,6 +18,7 @@ class EnlongationCodon : public mRNAElement {
   void updateAlphas() override;
 
   void setPropensities(std::array<double, 40> prop) override;
+  void setNoNonCognate(bool noNonCog) override;
   std::map<std::string, double> getPropensities() override;
 
  private:

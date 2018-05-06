@@ -24,12 +24,13 @@ class mRNAElement {
   virtual void setState(int) {}
   void setNextCodon(mRNAElement *);
   void setPreviousCodon(mRNAElement *);
-  virtual void updateAlphas(){};
+  virtual void updateAlphas() {}
   void addReactionToHistory(int state, double dt);
   std::pair<std::vector<int>, std::vector<double>> getHistory();
 
   virtual void setPropensities(std::array<double, 40>) {}
-  
+  virtual void setNoNonCognate(bool) {}
+
   virtual std::map<std::string, double> getPropensities() {
     return std::map<std::string, double>();
   }

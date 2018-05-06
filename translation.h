@@ -42,6 +42,7 @@ class Translation {
 
   int finished_ribosomes_limit = -1;
   double time_limit = -1;
+  bool no_noCognate = false;
 
   std::vector<double> alphas =
       std::vector<double>(10);  // reactions alphas - all available ones.
@@ -57,6 +58,7 @@ class Translation {
   std::vector<std::vector<int>> ribosome_positions_history;
 
   void setPropensities(std::array<double, 40> prop);
+  void setNoNonCognate(bool noNonCog);
   std::vector<std::map<std::string, double>> getPropensities();
 
   // array with the total times the ribosomes spent in the codons

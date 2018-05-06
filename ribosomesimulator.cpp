@@ -27,8 +27,22 @@ PYBIND11_MODULE(ribosomesimulator, mod) {
              rs.run_and_get_times(d, t);
              return std::make_tuple(d, t);
            })
+      .def("repeat_run_and_get_average_times",
+          [](Simulations::RibosomeSimulator& rs, int repeats){
+            double d = 0.0;
+            double t = 0.0;
+            double tot_time = 0;
+            for (int i = 0; i < repeats; i++){
+              d = 0.0;
+              t = 0.0;
+              rs.setState(0);
+              rs.run_and_get_times(d, t);
+              tot_time += d + t;
+            }
+            return tot_time/repeats;
+      })
       .def("setPropensities", &Simulations::RibosomeSimulator::setPropensities)
-
+      .def("setNoNonCognate", &Simulations::RibosomeSimulator::setNoNonCognate)
       .def("getPropensities", &Simulations::RibosomeSimulator::getPropensities)
       .def_readonly("dt_history", &Simulations::RibosomeSimulator::dt_history)
       .def_readonly("ribosome_state_history",
@@ -207,6 +221,13 @@ void Simulations::RibosomeSimulator::setPropensities(
           break;
       }
     }
+  }
+}
+
+void Simulations::RibosomeSimulator::setNoNonCognate(bool noNonCog) {
+  if (noNonCog) {
+    non1f[simulation_codon_3_letters] = 0;
+    non1r = 0;
   }
 }
 

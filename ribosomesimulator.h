@@ -1,13 +1,13 @@
 #ifndef SIMULATIONS_RIBOSOMESIMULATOR_H
 #define SIMULATIONS_RIBOSOMESIMULATOR_H
 
+#include <array>
 #include <functional>
 #include <map>
 #include <random>
 #include <tuple>
 #include <vector>
 #include "concentrationsreader.h"
-#include <array>
 
 namespace Simulations {
 
@@ -18,9 +18,10 @@ class RibosomeSimulator {
   void setState(int);
   void getAlphas(std::vector<double>&, std::vector<int>&);
   void getDecodingAlphas(std::vector<double>&, std::vector<int>&);
-  
+
   void setPropensities(std::array<double, 40> prop);
-  
+  void setNoNonCognate(bool noNonCog);
+
   std::map<std::string, double> getPropensities();
   void loadConcentrations(const std::string&);
   void setCodonForSimulation(const std::string&);
