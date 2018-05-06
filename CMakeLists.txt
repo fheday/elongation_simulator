@@ -8,6 +8,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -Wall -Wextra")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC")
 
+find_package(gflags REQUIRED)
+
 set(common_sources concentrationsreader.cpp mrna_reader.cpp)
 set(ribosome_simulator_sources ribosomesimulator.cpp ${common_sources})
 set(enlongation_simulator_sources enlogationsimulator.cpp  enlongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.cpp ${ribosome_simulator_sources})
@@ -17,9 +19,9 @@ add_library(ribosome_simulator_lib STATIC ${ribosome_simulator_sources})
 add_library(enlongation_simulator_lib STATIC  ${enlongation_simulator_sources})
 
 add_executable(calculateCodonsTimes calculateCodonsTimes.cpp)
-target_link_libraries(calculateCodonsTimes PRIVATE ribosome_simulator_lib)
+target_link_libraries(calculateCodonsTimes PRIVATE ribosome_simulator_lib gflags)
 add_executable(run_translation run_translation.cpp)
-target_link_libraries(run_translation PRIVATE enlongation_simulator_lib)
+target_link_libraries(run_translation PRIVATE enlongation_simulator_lib gflags)
 
 #add_executable(calculateCodonsTimes calculateCodonsTimes.cpp ${common_sources} ${ribosome_simulator_sources})
 #add_executable(run_translation run_translation.cpp ${common_sources} ${enlongation_simulator_sources})
