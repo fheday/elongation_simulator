@@ -20,6 +20,8 @@ class RibosomeSimulator {
   void getDecodingAlphas(std::vector<double>&, std::vector<int>&);
 
   void setPropensities(std::array<double, 40> prop);
+  void setPropensity(std::string&, const double);
+  double getPropensity(std::string);
   void setNoNonCognate(bool noNonCog);
 
   std::map<std::string, double> getPropensities();
@@ -113,6 +115,12 @@ class RibosomeSimulator {
        "WC3f",     "WC4f",       "WC5f",     "WCdiss",   "WC6f",     "dec7f",
        "trans1f",  "trans1r",    "trans2",   "trans3",   "trans4",   "trans5",
        "trans6",   "trans7",     "trans8",   "trans9"}};
+
+  // TEMPORARY SOLUTION: in order to provide a mechanism easily change only one
+  // propensity I've created a map of references to the propensities variables,
+  // but this must be updated manually if in the future we add or remove
+  // reactions.
+  std::map<std::string, double*> propensities_map;
 };
 
 }  // namespace Simulations

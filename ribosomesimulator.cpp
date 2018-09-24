@@ -28,22 +28,24 @@ PYBIND11_MODULE(ribosomesimulator, mod) {
              return std::make_tuple(d, t);
            })
       .def("repeat_run_and_get_average_times",
-          [](Simulations::RibosomeSimulator& rs, int repeats){
-            double d = 0.0;
-            double t = 0.0;
-            double tot_time = 0;
-            for (int i = 0; i < repeats; i++){
-              d = 0.0;
-              t = 0.0;
-              rs.setState(0);
-              rs.run_and_get_times(d, t);
-              tot_time += d + t;
-            }
-            return tot_time/repeats;
-      })
+           [](Simulations::RibosomeSimulator& rs, int repeats) {
+             double d = 0.0;
+             double t = 0.0;
+             double tot_time = 0;
+             for (int i = 0; i < repeats; i++) {
+               d = 0.0;
+               t = 0.0;
+               rs.setState(0);
+               rs.run_and_get_times(d, t);
+               tot_time += d + t;
+             }
+             return tot_time / repeats;
+           })
       .def("setPropensities", &Simulations::RibosomeSimulator::setPropensities)
       .def("setNoNonCognate", &Simulations::RibosomeSimulator::setNoNonCognate)
       .def("getPropensities", &Simulations::RibosomeSimulator::getPropensities)
+      .def("getPropensity", &Simulations::RibosomeSimulator::getPropensity)
+      .def("setPropensity", &Simulations::RibosomeSimulator::setPropensity)
       .def_readonly("dt_history", &Simulations::RibosomeSimulator::dt_history)
       .def_readonly("ribosome_state_history",
                     &Simulations::RibosomeSimulator::ribosome_state_history);
@@ -224,11 +226,20 @@ void Simulations::RibosomeSimulator::setPropensities(
   }
 }
 
+void Simulations::RibosomeSimulator::setPropensity(std::string& reaction,
+                                                   const double propensity) {
+  *propensities_map.at(reaction) = propensity;
+}
+
 void Simulations::RibosomeSimulator::setNoNonCognate(bool noNonCog) {
   if (noNonCog) {
     non1f[simulation_codon_3_letters] = 0;
     non1r = 0;
   }
+}
+
+double Simulations::RibosomeSimulator::getPropensity(std::string reaction) {
+  return *propensities_map.at(reaction);
 }
 
 std::map<std::string, double>
@@ -295,6 +306,48 @@ void Simulations::RibosomeSimulator::setCodonForSimulation(
     const std::string& codon) {
   simulation_codon_3_letters = codon;
   reactions_graph = reactions_map.at(codon);
+  // populate propensities map so we can change propensities later.
+  propensities_map.clear();
+  propensities_map.emplace("non1f", &non1f[codon]);
+  propensities_map.emplace("near1f", &near1f[codon]);
+  propensities_map.emplace("wobble1f", &wobble1f[codon]);
+  propensities_map.emplace("WC1f", &WC1f[codon]);
+  propensities_map.emplace("non1r", &non1r);
+  propensities_map.emplace("near1r", &near1r);
+  propensities_map.emplace("near2f", &near2f);
+  propensities_map.emplace("near2r", &near2r);
+  propensities_map.emplace("near3f", &near3f);
+  propensities_map.emplace("near4f", &near4f);
+  propensities_map.emplace("near5f", &near5f);
+  propensities_map.emplace("neardiss", &neardiss);
+  propensities_map.emplace("near6f", &near6f);
+  propensities_map.emplace("wobble1r", &wobble1r);
+  propensities_map.emplace("wobble2f", &wobble2f);
+  propensities_map.emplace("wobble2r", &wobble2r);
+  propensities_map.emplace("wobble3f", &wobble3f);
+  propensities_map.emplace("wobble4f", &wobble4f);
+  propensities_map.emplace("wobble5f", &wobble5f);
+  propensities_map.emplace("wobblediss", &wobblediss);
+  propensities_map.emplace("wobble6f", &wobble6f);
+  propensities_map.emplace("WC1r", &WC1r);
+  propensities_map.emplace("WC2f", &WC2f);
+  propensities_map.emplace("WC2r", &WC2r);
+  propensities_map.emplace("WC3f", &WC3f);
+  propensities_map.emplace("WC4f", &WC4f);
+  propensities_map.emplace("WC5f", &WC5f);
+  propensities_map.emplace("WCdiss", &WCdiss);
+  propensities_map.emplace("WC6f", &WC6f);
+  propensities_map.emplace("dec7f", &dec7f);
+  propensities_map.emplace("trans1f", &trans1f);
+  propensities_map.emplace("trans1r", &trans1r);
+  propensities_map.emplace("trans2", &trans2);
+  propensities_map.emplace("trans3", &trans3);
+  propensities_map.emplace("trans4", &trans4);
+  propensities_map.emplace("trans5", &trans5);
+  propensities_map.emplace("trans6", &trans6);
+  propensities_map.emplace("trans7", &trans7);
+  propensities_map.emplace("trans8", &trans8);
+  propensities_map.emplace("trans9", &trans9);
 }
 
 void Simulations::RibosomeSimulator::run_and_get_times(
@@ -686,15 +739,15 @@ Simulations::RibosomeSimulator::createReactionsGraph(
   r_g.resize(32);
   std::fill(r_g.begin(), r_g.end(),
             std::vector<std::tuple<std::reference_wrapper<double>, int>>());
-  // the vector reactions_graph (I know, not a good name. needs to be changed at
-  // some point.), have the following format: reactions_graph[current ribisome
-  // state] = [vector of tuples(reaction propensity, ribosome state)] this way,
-  // if the ribosome state is, say, 0, we check the possible reactions at
-  // reactions_graph[0]. if, say we select the reaction with the tuple (0.3,
-  // 16), it means that the reaction propensity is 0.3 and it will make the
-  // ribosome state go to 16. This is purely for the sake of optimization. the
-  // loop below populates reactions_graph automatically. It assumes that each
-  // reaction is first-degree.
+  // the vector reactions_graph (I know, not a good name. needs to be changed
+  // at some point.), have the following format: reactions_graph[current
+  // ribisome state] = [vector of tuples(reaction propensity, ribosome state)]
+  // this way, if the ribosome state is, say, 0, we check the possible
+  // reactions at reactions_graph[0]. if, say we select the reaction with the
+  // tuple (0.3, 16), it means that the reaction propensity is 0.3 and it will
+  // make the ribosome state go to 16. This is purely for the sake of
+  // optimization. the loop below populates reactions_graph automatically. It
+  // assumes that each reaction is first-degree.
   for (const Eigen::MatrixXi& m : reactionMatrix) {
     if (ks.at(static_cast<std::size_t>(ii)) > 0) {
       // populate the local index.
