@@ -65,14 +65,15 @@ std::map<std::string, double> calculate_codons_times(
     codon_total_decoding = 0;
     codon_total_translocating = 0;
     ribosome.setCodonForSimulation(codon);
+    ribosome.setNoNonCognate(true);
     average_times_file << "\"" << codon << "\"";
     std::cout << "Starting codon: " << codon;
     for (int i = 0; i < iterations; i++) {
       ribosome.setState(0);
       ribosome.run_and_get_times(decoding, translocating);
-      if (decoding * translocating <= std::numeric_limits<double>::epsilon()) {
-        throw std::runtime_error("decoding nor translocation cannot be zero.");
-      }
+     if (decoding * translocating <= std::numeric_limits<double>::epsilon()) {
+       throw std::runtime_error("decoding nor translocation cannot be zero.");
+     }
       codon_total_decoding += decoding;
       codon_total_translocating += translocating;
       n++;
@@ -125,8 +126,9 @@ std::map<std::string, double> calculate_codons_times(
 
 void printHelp() {
   std::cout << "Wrong number of parameters informed.\n";
-  std::cout << "Usage: calculateCodonsTimes concentrations_file_name "
-               "iterations average_times_file_name translocating_times\n";
+  std::cout << "Usage: calculateCodonsTimes  -c concentrations_file_name "
+               "-l iterations -a average_times_file_name -v "
+               "times_vector_file_name -t\n";
   std::cout << "concentrations_file_name  - The path to the csv file "
                "containing the concentrations in the cell.\n";
   std::cout << "iterations - Number of iterations to run per codon base.\n";
@@ -134,9 +136,9 @@ void printHelp() {
                "times calculated by the algorithm.\n";
   std::cout << "times_vector_file_name - The path to write the vector with "
                "the calculated times by the algorithm.\n";
-  std::cout << "translocating_times - if true or 1, all codons have only "
+  std::cout << "-t - if passed, all codons have only "
                "decoding times and the translocating time is represented by "
-               "the codon 'tra'. Otherwise, all the codons times are "
+               "the codon 'tra'. If ommited, all the codons times are "
                "decoding + translocating.\n";
 }
 

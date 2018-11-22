@@ -233,8 +233,44 @@ void Simulations::RibosomeSimulator::setPropensity(std::string& reaction,
 
 void Simulations::RibosomeSimulator::setNoNonCognate(bool noNonCog) {
   if (noNonCog) {
+      for(auto it=non1f.begin(); it!=non1f.end(); ++it){
+          it->second = 0.0;
+      }
     non1f[simulation_codon_3_letters] = 0;
     non1r = 0;
+    int i = 0;
+    int pos = -1;
+    double k;
+    int index;
+    for (auto it=reactions_map.begin(); it!=reactions_map.end(); ++it){
+        i = 0;
+        pos = -1;
+        for (auto element : it->second[0]) {
+          std::tie(k, index) = element;
+          if (k == 0.0 && index == 1){
+              pos = i;
+          }
+          i++;
+        }
+        if (pos >= 0){
+            // delete reaction with propensity zero
+            it->second[0].erase(it->second[0].begin()+pos);
+        }
+    }
+    // now correct reactions_graph
+    i =0;
+    pos =-1;
+    for (auto element : reactions_graph[0]) {
+      std::tie(k, index) = element;
+      if (k == 0.0 && index == 1){
+          pos = i;
+      }
+      i++;
+    }
+    if (pos >= 0){
+        // delete reaction with propensity zero
+        reactions_graph[0].erase(reactions_graph[0].begin()+pos);
+    }
   }
 }
 
@@ -392,6 +428,11 @@ void Simulations::RibosomeSimulator::run_and_get_times(
         } else {
           decoding_time += dt_history[static_cast<std::size_t>(i)];
         }
+      }
+      // however, if quitting because there is no more reactions, time is infinity
+      if (ribosome_state_history.size() == 0){
+          translocation_time = std::numeric_limits<double>::infinity();
+          decoding_time = std::numeric_limits<double>::infinity();
       }
       return;
     }
@@ -754,8 +795,10 @@ Simulations::RibosomeSimulator::createReactionsGraph(
       Eigen::Index maxRow, maxCol, minRow, minCol;
       m.maxCoeff(&maxRow, &maxCol);  // 1
       m.minCoeff(&minRow, &minCol);  // -1
-      r_g.at(static_cast<std::size_t>(minRow))
-          .push_back({ks.at(static_cast<std::size_t>(ii)), maxRow});
+      if (ks.at(static_cast<std::size_t>(ii)) > 0) {
+        r_g.at(static_cast<std::size_t>(minRow))
+            .push_back({ks.at(static_cast<std::size_t>(ii)), maxRow});
+      }
     }
     ii++;
   }
