@@ -1,0 +1,1 @@
+/usr/bin/c++   -std=c++17 -fPIC -O3 -DNDEBUG -O3 -ffast-math -march=native -ftree-vectorize -Wall -DNDEBUG -flto  -rdynamic CMakeFiles/translatortester_test.dir/translatortester_test.cpp.o  -o translatortester_test -lgtest -lgtest_main ../experiments/libutil_lib.a ../experiments/libribosome_simulator_lib.a ../experiments/libenlongation_simulator_lib.a 
