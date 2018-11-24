@@ -20,7 +20,7 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(translation, mod) {
   py::class_<Simulations::Translation>(mod, "translation")
-      .def(py::init<>())  // constructor
+      .def(py::init<>()) // constructor
       .def("loadMRNA", &Simulations::Translation::loadMRNA)
       .def("loadConcentrations", &Simulations::Translation::loadConcentrations)
       .def("setInitiationRate", &Simulations::Translation::setInitiationRate)
@@ -41,6 +41,8 @@ PYBIND11_MODULE(translation, mod) {
       .def("setPrepopulate", &Simulations::Translation::setPrepopulate)
       .def("getInitiationEnlongationTermination",
            &Simulations::Translation::getInitiationEnlongationTermination)
+      .def("getRibosomesPositions", &Simulations::Translation::getRibosomesPositions)
+      .def("setRibosomePositions", &Simulations::Translation::setRibosomePositions)
       .def("setLogCodonStates", &Simulations::Translation::setLogCodonStates)
       .def("getLogCodonStates", &Simulations::Translation::getLogCodonStates)
       .def("setPropensities", &Simulations::Translation::setPropensities)
@@ -250,6 +252,25 @@ void Simulations::Translation::getAlphas() {
   }
 }
 
+void Simulations::Translation::insertRibosome(std::size_t position, bool set_neighborhood=false)
+{
+  codons_vector[position]->setOccupied(true);
+  codons_vector[position]->setAvailable(false);
+  codons_vector[position]->setState(0);
+  if (position == 0)
+  {
+    codons_vector[position]->setState(23);
+  }
+  if (set_neighborhood) {
+    if (codons_vector.size() - position > RIBOSOME_SIZE - 1){
+      for (std::size_t i = position; i < RIBOSOME_SIZE; i++)
+      {
+        codons_vector[i]->setAvailable(false);
+        }
+      }
+  }
+}
+
 void Simulations::Translation::run() {
   dt_history = std::vector<double>(
       iteration_limit > 0 ? static_cast<std::size_t>(iteration_limit) : 100000);
@@ -304,12 +325,7 @@ void Simulations::Translation::run() {
       }
       if (time_sum >= initiation_time) {
         // put a ribosome here.
-        codons_vector[static_cast<std::size_t>(i)]->setOccupied(true);
-        codons_vector[static_cast<std::size_t>(i)]->setAvailable(false);
-        codons_vector[static_cast<std::size_t>(i)]->setState(0);
-        if (i == 0) {
-          codons_vector[static_cast<std::size_t>(i)]->setState(23);
-        }
+        insertRibosome(static_cast<std::size_t>(i), false);
         time_sum = 0;  // reset timer.
         last_index = static_cast<std::size_t>(
             i);  // mark this as last inserted ribosome.
@@ -550,6 +566,49 @@ void Simulations::Translation::getInitiationEnlongationTermination() {
     enlongations_durations.pop_back();
     terminations_durations.pop_back();
     initiation_iteration.pop_back();
+  }
+}
+
+/*
+* @brief Return the codon number of all ribosomes in the current simualtion state.
+*/
+std::vector<int> Simulations::Translation::getRibosomesPositions()
+{
+  std::vector<int> result;
+  for (std::size_t i = 0; i < codons_vector.size(); i++){
+    if (codons_vector[i]->isOccupied()){
+      result.emplace_back(i);
+    }
+  }
+  return result;
+}
+
+/*
+* @brief set ribosome positions in the mRNA strip. Used before starting the simulation.
+*/
+void Simulations::Translation::setRibosomePositions(std::vector<int> positions) {
+  //validate: did the user passed ribosomes?
+  if (positions.size() == 0) {
+    throw std::out_of_range("No ribosomes in the vector...");
+  }
+  // validate: check if all ribosomes are inside mRNA
+  if (static_cast<std::size_t>(*std::max_element(positions.begin(), positions.end())) >= codons_vector.size()) {
+    throw std::out_of_range("Ribosome positioned after the end of mRNA.");
+  }
+  if (*min_element(positions.begin(), positions.end()) < 0 ) {
+    throw std::out_of_range("Invalid (negative) position informed.");
+  }
+  std::sort(positions.begin(), positions.end()); // sort positions.
+  //validate: minimum distance between ribosomes = RIBOSOME_SIZE.
+  insertRibosome(positions[0]);
+  for (std::size_t i = 1; i < positions.size(); i++)
+  {
+    if (positions[i] - positions[i - 1] < RIBOSOME_SIZE)
+    {
+      throw std::out_of_range("Ribosome " + std::to_string(positions[i]) + " too close to ribosome " + std::to_string(positions[i]));
+    } else {
+      insertRibosome(positions[i], true);
+    }
   }
 }
 

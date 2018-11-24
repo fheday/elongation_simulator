@@ -28,6 +28,9 @@ class Translation {
   std::tuple<std::vector<double>, std::vector<int>> getEnlogationDuration();
   void getInitiationEnlongationTermination();
 
+  std::vector<int> getRibosomesPositions();
+  void setRibosomePositions(std::vector<int>);
+
   void setLogCodonStates(bool log);
   std::vector<std::tuple<std::vector<int>, std::vector<double>>>
   getLogCodonStates();
@@ -70,6 +73,7 @@ class Translation {
 
  private:
   void initializeMRNAReader();
+  void insertRibosome(std::size_t, bool);
   bool pre_populate = false;
   bool is_logging_codon_state = false;
 };
