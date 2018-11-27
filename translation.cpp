@@ -101,7 +101,7 @@ void Simulations::Translation::loadMRNA(const std::string& file_name) {
 
 void Simulations::Translation::initializeMRNAReader() {
   if (!concentrations_file_name.empty() && !mrna_file_name.empty() &&
-      initiation_rate > 0 && termination_rate > 0) {
+      is_initiation_set && is_termination_set) {
     // we have the concentrations and mrna file names. we can proceed.
     mRNA_utils::mRNAReader mrr;
     mrr.loadmRNAFile(mrna_file_name);
@@ -166,16 +166,18 @@ Simulations::Translation::getPropensities() {
 }
 
 void Simulations::Translation::setInitiationRate(double ir) {
-  if (ir > 0) {
+  if (ir >= 0) {
     initiation_rate = ir;
   }
+  is_initiation_set = true;
   initializeMRNAReader();
 }
 
 void Simulations::Translation::setTerminationRate(double tr) {
-  if (tr > 0) {
+  if (tr >= 0) {
     termination_rate = tr;
   }
+  is_termination_set = true;
   initializeMRNAReader();
 }
 

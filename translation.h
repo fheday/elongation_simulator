@@ -76,6 +76,8 @@ class Translation {
   void insertRibosome(std::size_t, bool);
   bool pre_populate = false;
   bool is_logging_codon_state = false;
+  bool is_initiation_set = false;
+  bool is_termination_set = false;
 };
 }  // namespace Simulations
 #endif  // TRANSLATION_H
