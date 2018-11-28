@@ -235,9 +235,10 @@ void Simulations::Translation::getAlphas() {
   std::vector<int> ribosome_positions = ribosome_positions_history.back();
   std::size_t ribosome_index;
   // add initiation if needed.
-  if (ribosome_positions.empty() ||
+  if (initiation_rate > 0 && (ribosome_positions.empty() ||
       (ribosome_positions[0] > (RIBOSOME_SIZE - 1) &&
-       codons_vector[0]->isAvailable())) {
+       codons_vector[0]->isAvailable())))
+  {
     // need to add initalization.
     codons_vector[0]->getAlphas(a, r_i);
     alphas.insert(alphas.end(), a.begin(), a.end());
