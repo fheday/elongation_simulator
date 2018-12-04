@@ -265,12 +265,10 @@ void Simulations::Translation::insertRibosome(std::size_t position, bool set_nei
     codons_vector[position]->setState(23);
   }
   if (set_neighborhood) {
-    if (codons_vector.size() - position > RIBOSOME_SIZE - 1){
-      for (std::size_t i = position; i < RIBOSOME_SIZE; i++)
-      {
-        codons_vector[i]->setAvailable(false);
-        }
-      }
+    for (int i = 0; i < RIBOSOME_SIZE && i <= position; i++)
+    {
+      codons_vector[position - static_cast<std::size_t>(i)]->setAvailable(false);
+    }
   }
 }
 
@@ -304,10 +302,8 @@ void Simulations::Translation::run() {
     double initiation_time = 1 / a[0];  // propensity
     std::size_t last_index = codons_vector.size() - 1;
     double time_sum = 0;
-    codons_vector[last_index]->setOccupied(true);
-    codons_vector[last_index]->setAvailable(false);
-    codons_vector[last_index]->setState(0);
-    pre_filled_ribosomes++;
+    insertRibosome(last_index, false);
+    // pre_filled_ribosomes++;
     for (int i = static_cast<int>(codons_vector.size() - 2); i >= 0; i--) {
       if (last_index - static_cast<std::size_t>(i) <= RIBOSOME_SIZE - 1) {
         codons_vector[static_cast<std::size_t>(i)]->setAvailable(false);
@@ -332,13 +328,14 @@ void Simulations::Translation::run() {
         time_sum = 0;  // reset timer.
         last_index = static_cast<std::size_t>(
             i);  // mark this as last inserted ribosome.
-        pre_filled_ribosomes++;
+        // pre_filled_ribosomes++;
       }
     }
   }
   for (unsigned int i = 0; i < codons_vector.size(); i++) {
     if (codons_vector[i]->isOccupied()) {
       rib_positions.push_back(static_cast<int>(i));
+      pre_filled_ribosomes++;
     }
   }
   finished_ribosomes -=
@@ -603,7 +600,7 @@ void Simulations::Translation::setRibosomePositions(std::vector<int> positions) 
   }
   std::sort(positions.begin(), positions.end()); // sort positions.
   //validate: minimum distance between ribosomes = RIBOSOME_SIZE.
-  insertRibosome(positions[0]);
+  insertRibosome(positions[0], true);
   for (std::size_t i = 1; i < positions.size(); i++)
   {
     if (positions[i] - positions[i - 1] < RIBOSOME_SIZE)
