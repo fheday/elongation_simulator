@@ -265,7 +265,7 @@ void Simulations::Translation::insertRibosome(std::size_t position, bool set_nei
     codons_vector[position]->setState(23);
   }
   if (set_neighborhood) {
-    for (int i = 0; i < RIBOSOME_SIZE && i <= position; i++)
+    for (int i = 0; i < RIBOSOME_SIZE && static_cast<std::size_t>(i) <= position; i++)
     {
       codons_vector[position - static_cast<std::size_t>(i)]->setAvailable(false);
     }
