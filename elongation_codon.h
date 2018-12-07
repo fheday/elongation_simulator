@@ -1,14 +1,14 @@
-#ifndef SIMULATIONS_ENLONGATION_CODON_H
-#define SIMULATIONS_ENLONGATION_CODON_H
+#ifndef SIMULATIONS_ELONGATION_CODON_H
+#define SIMULATIONS_ELONGATION_CODON_H
 
 #include "mrnaelement.h"
 #include "ribosomesimulator.h"
 
 namespace Simulations {
 
-class EnlongationCodon : public mRNAElement {
+class ElongationCodon : public mRNAElement {
  public:
-  EnlongationCodon();
+  ElongationCodon();
   void setCodon(const std::string&);
   void loadConcentrations(const std::string&);
   void getAlphas(std::vector<double>&, std::vector<int>&) override;
@@ -27,4 +27,4 @@ class EnlongationCodon : public mRNAElement {
 };
 }  // namespace Simulations
 
-#endif  // SIMULATIONS_ENLONGATION_CODON_H
+#endif  // SIMULATIONS_ELONGATION_CODON_H

@@ -12,19 +12,19 @@ find_package(gflags REQUIRED)
 
 set(common_sources concentrationsreader.cpp mrna_reader.cpp)
 set(ribosome_simulator_sources ribosomesimulator.cpp ${common_sources})
-set(enlongation_simulator_sources enlogationsimulator.cpp  enlongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.cpp ${ribosome_simulator_sources})
+set(elongation_simulator_sources elongationsimulator.cpp  elongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.cpp ${ribosome_simulator_sources})
 
 add_library(util_lib STATIC ${common_sources})
 add_library(ribosome_simulator_lib STATIC ${ribosome_simulator_sources})
-add_library(enlongation_simulator_lib STATIC  ${enlongation_simulator_sources})
+add_library(elongation_simulator_lib STATIC  ${elongation_simulator_sources})
 
 add_executable(calculateCodonsTimes calculateCodonsTimes.cpp)
 target_link_libraries(calculateCodonsTimes PRIVATE ribosome_simulator_lib gflags)
 add_executable(run_translation run_translation.cpp)
-target_link_libraries(run_translation PRIVATE enlongation_simulator_lib gflags)
+target_link_libraries(run_translation PRIVATE elongation_simulator_lib gflags)
 
 #add_executable(calculateCodonsTimes calculateCodonsTimes.cpp ${common_sources} ${ribosome_simulator_sources})
-#add_executable(run_translation run_translation.cpp ${common_sources} ${enlongation_simulator_sources})
+#add_executable(run_translation run_translation.cpp ${common_sources} ${elongation_simulator_sources})
 
 
 set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/experiments)
@@ -35,7 +35,7 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 
 find_package(pybind11 REQUIRED)
 add_library(translation EXCLUDE_FROM_ALL MODULE translation.cpp mrna_reader.cpp initiationterminationcodon.cpp
-concentrationsreader.cpp ribosomesimulator.cpp mrnaelement.cpp enlongation_codon.cpp)
+concentrationsreader.cpp ribosomesimulator.cpp mrnaelement.cpp elongation_codon.cpp)
 target_compile_definitions(translation PRIVATE -DCOMIPLE_PYTHON_MODULE) # enable python pathway in code.
 target_link_libraries(translation PRIVATE pybind11::module ${PYTHON_LIBRARIES})
 set_target_properties(translation PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"

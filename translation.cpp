@@ -39,8 +39,8 @@ PYBIND11_MODULE(translation, mod) {
       .def("calculateAverageTimes",
            &Simulations::Translation::calculateAverageTimes)
       .def("setPrepopulate", &Simulations::Translation::setPrepopulate)
-      .def("getInitiationEnlongationTermination",
-           &Simulations::Translation::getInitiationEnlongationTermination)
+      .def("getInitiationElongationTermination",
+           &Simulations::Translation::getInitiationElongationTermination)
       .def("getRibosomesPositions", &Simulations::Translation::getRibosomesPositions)
       .def("setRibosomePositions", &Simulations::Translation::setRibosomePositions)
       .def("setLogCodonStates", &Simulations::Translation::setLogCodonStates)
@@ -62,8 +62,8 @@ PYBIND11_MODULE(translation, mod) {
 
       .def_readonly("initiations_durations",
                     &Simulations::Translation::initiations_durations)
-      .def_readonly("enlongations_durations",
-                    &Simulations::Translation::enlongations_durations)
+      .def_readonly("elongations_durations",
+                    &Simulations::Translation::elongations_durations)
       .def_readonly("terminations_durations",
                     &Simulations::Translation::terminations_durations)
 
@@ -114,8 +114,8 @@ void Simulations::Translation::initializeMRNAReader() {
     initiation_codon->setState(0);
     codons_vector.push_back(std::move(initiation_codon));
     for (int i = 1; i < n_codons - 1; i++) {
-      std::unique_ptr<Simulations::EnlongationCodon> c(
-          new Simulations::EnlongationCodon());
+      std::unique_ptr<Simulations::ElongationCodon> c(
+          new Simulations::ElongationCodon());
       c->loadConcentrations(concentrations_file_name);
       c->codon = mrr.getCodon(i);
       c->setCodon(c->codon);
@@ -481,28 +481,28 @@ void Simulations::Translation::run() {
  */
 std::tuple<std::vector<double>, std::vector<int>>
 Simulations::Translation::getEnlogationDuration() {
-  if (enlongations_durations.empty()) {
-    getInitiationEnlongationTermination();
+  if (elongations_durations.empty()) {
+    getInitiationElongationTermination();
   }
-  return std::make_tuple(enlongations_durations, initiation_iteration);
+  return std::make_tuple(elongations_durations, initiation_iteration);
 }
 
-void Simulations::Translation::getInitiationEnlongationTermination() {
+void Simulations::Translation::getInitiationElongationTermination() {
   initiations_durations.clear();
-  enlongations_durations.clear();
+  elongations_durations.clear();
   terminations_durations.clear();
   initiation_iteration.clear();
 
   std::deque<int> indexes;  // array with the index number of the ribosomes
   indexes.clear();
-  std::list<int> initiations, enlongations, terminations;
+  std::list<int> initiations, elongations, terminations;
   std::size_t ribosomes_to_ignore = ribosome_positions_history[0].size();
   std::size_t last_position = codons_vector.size() - 1,
               previous_size = ribosomes_to_ignore;
   for (std::size_t i = 0; i < ribosomes_to_ignore; i++) {
     indexes.push_back(static_cast<int>(indexes.size()));
     initiations_durations.push_back(0);
-    enlongations_durations.push_back(0);
+    elongations_durations.push_back(0);
     terminations_durations.push_back(0);
     initiation_iteration.push_back(0);
   }
@@ -517,7 +517,7 @@ void Simulations::Translation::getInitiationEnlongationTermination() {
           indexes.push_front(static_cast<int>(indexes.size()));
           // new ribosome initiating.
           initiations_durations.push_back(0);
-          enlongations_durations.push_back(0);
+          elongations_durations.push_back(0);
           terminations_durations.push_back(0);
           initiation_iteration.push_back(static_cast<int>(i));
         }
@@ -528,8 +528,8 @@ void Simulations::Translation::getInitiationEnlongationTermination() {
         terminations_durations[static_cast<std::size_t>(indexes[j])] +=
             dt_history[i];
       } else {
-        // enlongating codon.
-        enlongations_durations[static_cast<std::size_t>(indexes[j])] +=
+        // elongating codon.
+        elongations_durations[static_cast<std::size_t>(indexes[j])] +=
             dt_history[i];
       }
     }
@@ -540,9 +540,9 @@ void Simulations::Translation::getInitiationEnlongationTermination() {
     initiations_durations.erase(
         initiations_durations.begin(),
         initiations_durations.begin() + static_cast<int>(ribosomes_to_ignore));
-    enlongations_durations.erase(
-        enlongations_durations.begin(),
-        enlongations_durations.begin() + static_cast<int>(ribosomes_to_ignore));
+    elongations_durations.erase(
+        elongations_durations.begin(),
+        elongations_durations.begin() + static_cast<int>(ribosomes_to_ignore));
     terminations_durations.erase(
         terminations_durations.begin(),
         terminations_durations.begin() + static_cast<int>(ribosomes_to_ignore));
@@ -563,7 +563,7 @@ void Simulations::Translation::getInitiationEnlongationTermination() {
 
   for (unsigned int i = 0; i < ribosomes_to_remove; i++) {
     initiations_durations.pop_back();
-    enlongations_durations.pop_back();
+    elongations_durations.pop_back();
     terminations_durations.pop_back();
     initiation_iteration.pop_back();
   }

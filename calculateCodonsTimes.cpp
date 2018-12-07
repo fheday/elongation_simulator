@@ -3,7 +3,9 @@
 #include <iomanip>
 #include <iostream>
 #include "concentrationsreader.h"
-#include "enlongation_codon.h"
+#include <map>
+#include "ribosomesimulator.h"
+//#include "elongation_codon.h"
 
 /**
  * @brief use the concentrations informed in concentrations_file_name, execute
@@ -13,7 +15,7 @@
  * calculate_codons_propensities and used by it.
  *
  * This procedure should usually be used only for initializing values for the
- * EnlogationSimulator class.
+ * ElogationSimulator class.
  *
  * @param concentrations_file_name string containing the path to the csv file
  * containing the concentrations in the cell.

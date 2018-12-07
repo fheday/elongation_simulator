@@ -1,4 +1,4 @@
-#include "enlogationsimulator.h"
+#include "elongationsimulator.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>

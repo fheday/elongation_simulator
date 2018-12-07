@@ -1,7 +1,7 @@
 #ifndef SIMULATIONS_ENLOGATIONSIMULATOR_H
 #define SIMULATIONS_ENLOGATIONSIMULATOR_H
 
-#include "enlogationsimulator.h"
+#include "elongationsimulator.h"
 #include "mrna_reader.h"
 #include "ribosomesimulator.h"
 

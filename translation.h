@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <vector>
-#include "enlongation_codon.h"
+#include "elongation_codon.h"
 
 namespace Simulations {
 
@@ -26,7 +26,7 @@ class Translation {
 
   void calculateAverageTimes();
   std::tuple<std::vector<double>, std::vector<int>> getEnlogationDuration();
-  void getInitiationEnlongationTermination();
+  void getInitiationElongationTermination();
 
   std::vector<int> getRibosomesPositions();
   void setRibosomePositions(std::vector<int>);
@@ -35,7 +35,7 @@ class Translation {
   std::vector<std::tuple<std::vector<int>, std::vector<double>>>
   getLogCodonStates();
 
-  std::vector<double> initiations_durations, enlongations_durations,
+  std::vector<double> initiations_durations, elongations_durations,
       terminations_durations;
   std::vector<int> initiation_iteration, termination_iteration;
 

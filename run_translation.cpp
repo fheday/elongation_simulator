@@ -59,11 +59,11 @@ void execute_translation(const std::string& concentrations_file,
                                      // future.
   ts.run();
   ts.calculateAverageTimes();
-  std::vector<double> enlongation_duration;
+  std::vector<double> elongation_duration;
   std::vector<int> iteration_initiation;
-  std::tie(enlongation_duration, iteration_initiation) =
+  std::tie(elongation_duration, iteration_initiation) =
       ts.getEnlogationDuration();
-  // save enlongation data into csv file.
+  // save elongation data into csv file.
   std::vector<double> clock, clock_at_initiation;
   double c = 0;
   for (auto dt : ts.dt_history) {
@@ -74,19 +74,19 @@ void execute_translation(const std::string& concentrations_file,
   for (int iteration : iteration_initiation) {
     clock_at_initiation.push_back(clock[static_cast<std::size_t>(iteration)]);
   }
-  // now we save the clock_at_initiation and enlongation_duration.
-  std::ofstream clock_and_enlongation_csv_file;
-  clock_and_enlongation_csv_file.open(output_file_name);
+  // now we save the clock_at_initiation and elongation_duration.
+  std::ofstream clock_and_elongation_csv_file;
+  clock_and_elongation_csv_file.open(output_file_name);
   // header
-  clock_and_enlongation_csv_file
-      << "Clock at initiation, Ribosome enlongation duration\n";
+  clock_and_elongation_csv_file
+      << "Clock at initiation, Ribosome elongation duration\n";
   // data
   for (std::size_t i = 0, total = clock_at_initiation.size(); i < total; ++i) {
-    clock_and_enlongation_csv_file << std::fixed << std::setprecision(10)
+    clock_and_elongation_csv_file << std::fixed << std::setprecision(10)
                                    << clock_at_initiation[i] << ", "
-                                   << enlongation_duration[i] << "\n";
+                                   << elongation_duration[i] << "\n";
   }
-  clock_and_enlongation_csv_file.close();
+  clock_and_elongation_csv_file.close();
 
   std::ofstream codon_average_time_file;
   codon_average_time_file.open(path + "codon_average_time_" + file_name);

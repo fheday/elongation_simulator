@@ -1,9 +1,9 @@
-#include "enlongation_codon.h"
+#include "elongation_codon.h"
 #include <fstream>
 
-Simulations::EnlongationCodon::EnlongationCodon() {}
+Simulations::ElongationCodon::ElongationCodon() {}
 
-void Simulations::EnlongationCodon::loadConcentrations(
+void Simulations::ElongationCodon::loadConcentrations(
     const std::string& file_name) {
   std::ifstream ist{file_name};
 
@@ -17,47 +17,47 @@ void Simulations::EnlongationCodon::loadConcentrations(
   }
 }
 
-void Simulations::EnlongationCodon::setPropensities(
+void Simulations::ElongationCodon::setPropensities(
     std::array<double, 40> prop) {
   ribosome.setPropensities(prop);
   updateAlphas();
 }
 
-void Simulations::EnlongationCodon::setNoNonCognate(bool noNonCog) {
+void Simulations::ElongationCodon::setNoNonCognate(bool noNonCog) {
   ribosome.setNoNonCognate(noNonCog);
   updateAlphas();
 }
 
-std::map<std::string, double> Simulations::EnlongationCodon::getPropensities() {
+std::map<std::string, double> Simulations::ElongationCodon::getPropensities() {
   return ribosome.getPropensities();
 }
 
-void Simulations::EnlongationCodon::setCodon(const std::string& cdn) {
+void Simulations::ElongationCodon::setCodon(const std::string& cdn) {
   ribosome.setCodonForSimulation(cdn);
   // update reactions.
   ribosome.getAlphas(alphas, reactions_index);
 }
 
-void Simulations::EnlongationCodon::getAlphas(std::vector<double>& as,
+void Simulations::ElongationCodon::getAlphas(std::vector<double>& as,
                                               std::vector<int>& r_i) {
   as = alphas;
   r_i = reactions_index;
 }
 
-void Simulations::EnlongationCodon::executeReaction(int r) {
+void Simulations::ElongationCodon::executeReaction(int r) {
   // execute reaction.
   ribosome.setState(r);
   updateAlphas();
 }
 
-int Simulations::EnlongationCodon::getState() { return ribosome.getState(); }
+int Simulations::ElongationCodon::getState() { return ribosome.getState(); }
 
-void Simulations::EnlongationCodon::setState(int s) {
+void Simulations::ElongationCodon::setState(int s) {
   ribosome.setState(s);
   updateAlphas();
 }
 
-void Simulations::EnlongationCodon::updateAlphas() {
+void Simulations::ElongationCodon::updateAlphas() {
   if (next_mRNA_element->isAvailable()) {
     ribosome.getAlphas(alphas, reactions_index);
   } else {

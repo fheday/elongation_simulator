@@ -24,10 +24,10 @@ TEST(TranslatorTester, simulateAAAx100xlowInitxHighTerm) {
   std::vector<int> iteration_initiation;
   std::tie(enlongation_duration, iteration_initiation) =
       ts.getEnlogationDuration();
-  ts.getInitiationEnlongationTermination();
+  ts.getInitiationElongationTermination();
   double total = 0;
-  for (auto dur : ts.enlongations_durations) total += dur;
-  double average = total / ts.enlongations_durations.size();
+  for (auto dur : ts.elongations_durations) total += dur;
+  double average = total / ts.elongations_durations.size();
   ASSERT_LE(average / 100, 0.052 * 1.1);
   ASSERT_GE(average / 100, 0.052 * 0.9);
   std::cerr << "\naverage enlongation: " << average;
