@@ -22,7 +22,7 @@ class ElongationCodon : public mRNAElement {
   std::map<std::string, double> getPropensities() override;
 
  private:
-  std::string concentrations_file_name;
+  // std::string concentrations_file_name;
   RibosomeSimulator ribosome;
 };
 }  // namespace Simulations

@@ -10,7 +10,7 @@ void Simulations::ElongationCodon::loadConcentrations(
   if (!ist) {
     throw std::runtime_error("can't open input file: " + file_name);
   } else {
-    concentrations_file_name = file_name;
+    // concentrations_file_name = file_name;
     // when setting the concentrations file name, we can also
     // initialize the RibosomeSimulator object.
     ribosome.loadConcentrations(file_name);
