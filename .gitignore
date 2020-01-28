@@ -1,7 +1,7 @@
 **/build*/
 **/__pycache__/
 **/.kdev4/
-**.csv
+##**.csv
 **/nbproject/
 **.a
 **.so
