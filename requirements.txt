@@ -1,0 +1,10 @@
+# -*- coding: utf-8 -*-
+# :Project:   elongation_simulators -- Packaging
+# :Author:    Fabio Hedayioglu <fheday@gmail.com>
+# :License:   MIT License
+# :Copyright: © 2020 Fabio Hedayioglu
+##
+
+# Needed by make release
+pybind11=>2.3.0
+eigen>=3.0.0

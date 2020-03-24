@@ -1,0 +1,8 @@
+exclude .gitmodules .travis.yml .appveyor.yml
+exclude Unit-Tests
+
+include LICENSE MANIFEST.in *.cfg *.py *.rst *.txt
+include *.cpp *.h
+
+include docs Makefile  *.rst *.bat *.sh *.css *.py
+
