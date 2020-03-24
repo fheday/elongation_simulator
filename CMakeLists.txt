@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -Wall -Wextra")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC")
 
-find_package(gflags REQUIRED)
+# find_package(gflags REQUIRED)
 
 set(common_sources concentrationsreader.cpp mrna_reader.cpp)
 set(ribosome_simulator_sources ribosomesimulator.cpp ${common_sources})
@@ -47,5 +47,6 @@ target_link_libraries(ribosomesimulator PRIVATE pybind11::module ${PYTHON_LIBRAR
 set_target_properties(ribosomesimulator PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                           SUFFIX "${PYTHON_MODULE_EXTENSION}")
 
-
-add_subdirectory(Unit-Tests)
+if(BUILD_TESTS)
+    add_subdirectory(Unit-Tests)
+endif(BUILD_TESTS)
