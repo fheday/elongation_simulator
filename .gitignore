@@ -6,4 +6,6 @@
 **.a
 **.so
 .*
+**/dist/
+**/*.egg-info/
 !.gitignore
