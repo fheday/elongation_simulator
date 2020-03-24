@@ -15,7 +15,7 @@ namespace py = pybind11;
 PYBIND11_PLUGIN(enlogationsimulator) {
   pybind11::module mod("enlogationsimulator", "auto-compiled c++ extension");
 
-  py::class_<EnlogationSimulator, Gillespie>(mod, "enlogationsimulator")
+  py::class_<Simulations::EnlogationSimulator::EnlogationSimulator, Gillespie>(mod, "enlogationsimulator")
       .def(py::init<>())  // constructor
       .def("setAverageTimesFileName",
            &EnlogationSimulator::setAverageTimesFileName)
