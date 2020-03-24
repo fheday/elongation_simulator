@@ -10,6 +10,7 @@ import os
 import sys
 import subprocess
 from pathlib import Path
+import pybind11
 
 from setuptools.command.build_ext import build_ext
 
@@ -22,20 +23,30 @@ class CMakeExtension(Extension):
 class CMakeBuild(build_ext):
     def run(self):
         env = os.environ.copy()
-        env['PATH'] += ":~/.local/bin/"
         try:
             out = subprocess.run(['cmake', '--version'], env=env)
         except OSError:
             raise RuntimeError(
                 "CMake must be installed to build the following extensions: " +
                 ", ".join(e.name for e in self.extensions))
+        # create pybind11 cmake file.
+
+        subprocess.check_call(['cmake', '.'],
+                              cwd=os.getcwd()+'/pybind11', env=env)
+        subprocess.check_call(['make', '-j2'],
+                              cwd=os.getcwd()+'/pybind11', env=env)
+        subprocess.check_call(['make', 'mock_install'],
+                              cwd=os.getcwd()+'/pybind11', env=env)
+        
 
         build_directory = os.path.abspath(self.build_temp)
 
         cmake_args = [
             '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + build_directory,
             '-DPYTHON_EXECUTABLE=' + sys.executable,
-            '-DCMAKE_PREFIX_PATH='+ '~/.local/lib/python3.6/site-packages/'
+            '-Dpybind11_DIR=pybind11/mock_install/share/cmake/pybind11/',
+            # '-DCMAKE_MODULE_PATH=pybind11/tools'
+            # '-DCMAKE_PREFIX_PATH=~/.local/',
         ]
 
         cfg = 'Debug' if self.debug else 'Release'
@@ -44,7 +55,7 @@ class CMakeBuild(build_ext):
         cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
 
         # Assuming Makefiles
-        build_args += ['--', 'ribosomesimulator', 'translation', '-j4']
+        build_args += ['--', 'ribosomesimulator', 'translation', '-j2']
 
         self.build_args = build_args
 
@@ -95,7 +106,7 @@ setup(
     version=VERSION,
     description='Python wrapper around translation and ribosome simulators',
     long_description=LONG_DESCRIPTION + '\n\n' + CHANGES,
-    long_description_content_type='text/x-rst',
+    #long_description_content_type='text/x-rst',
     license='MIT License',
     keywords='elongation translation',
     author='Fabio Hedayioglu',
@@ -118,11 +129,11 @@ setup(
     ],
 
     packages=find_packages(),
-    install_requires=['cmake', 'pybind11', 'pybind11-cmake'],
+    install_requires=['cmake', 'pytest'],
     ext_modules=[
                 CMakeExtension('ribosomesimulator'),
                 CMakeExtension('translation')
     ],
     cmdclass=dict(build_ext=CMakeBuild),
-#  zip_safe=False,
+    zip_safe=False,
 )
