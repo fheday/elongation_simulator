@@ -28,6 +28,7 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/experiments)
 
 find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
+include_directories("eigen-3.3.7/")
 
 find_package(pybind11 REQUIRED)
 add_library(translation EXCLUDE_FROM_ALL MODULE translation.cpp mrna_reader.cpp initiationterminationcodon.cpp

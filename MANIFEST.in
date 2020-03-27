@@ -7,3 +7,4 @@ include *.cpp *.h
 include docs Makefile  *.rst *.bat *.sh *.css *.py
 
 graft pybind11
+graft eigen-3.3.7
