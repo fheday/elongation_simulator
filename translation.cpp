@@ -27,7 +27,6 @@ PYBIND11_MODULE(translation, mod) {
       .def("setTerminationRate", &Simulations::Translation::setTerminationRate)
       .def("setIterationLimit", &Simulations::Translation::setIterationLimit)
       .def("setTimeLimit", &Simulations::Translation::setTimeLimit)
-      .def("setIterationLimit", &Simulations::Translation::setIterationLimit)
       .def("setFinishedRibosomes",
            &Simulations::Translation::setFinishedRibosomes)
       .def("run", &Simulations::Translation::run,
