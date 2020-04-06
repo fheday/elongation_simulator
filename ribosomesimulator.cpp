@@ -390,6 +390,7 @@ void Simulations::RibosomeSimulator::run_and_get_times(
     double& decoding_time, double& translocation_time) {
   dt_history.clear();
   ribosome_state_history.clear();
+  current_state = 0;
 
   // initialize the random generator
   std::random_device
