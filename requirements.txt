@@ -7,4 +7,5 @@
 
 # Needed by make release
 pybind11=>2.3.0
-eigen>=3.0.0
+cmake=>2.6
+pytest

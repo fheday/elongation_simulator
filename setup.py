@@ -126,7 +126,7 @@ setup(
     ],
 
     packages=find_packages(),
-    install_requires=['cmake', 'pytest'],
+    # install_requires=['cmake', 'pytest'],
     ext_modules=[
                 CMakeExtension('ribosomesimulator'),
                 CMakeExtension('translation')
