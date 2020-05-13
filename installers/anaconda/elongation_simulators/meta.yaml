@@ -1,0 +1,25 @@
+package:
+  name: elongation_simulators
+  version: 1.0
+
+source:
+  git_rev: HEAD
+#  git_url: "/home/heday/Projects/Gillespie-Cpp/"
+  git_url: "git://heday@192.168.122.1/Projects/Gillespie-Cpp/"
+
+requirements:
+  build:
+    - git
+    - python
+    - numpy x.x
+    - setuptools
+    - cmake 
+    - pytest
+    
+  run:
+    - python
+    - numpy x.x
+
+
+about:
+  home:
