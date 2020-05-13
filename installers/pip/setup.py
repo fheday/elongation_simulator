@@ -5,14 +5,15 @@
 # :Copyright: © 2020 Fabio Hedayioglu
 #
 
-from setuptools import setup, Extension, find_packages
 import os
 import sys
 import subprocess
 from pathlib import Path
-import pybind11
+from setuptools import setup, Extension, find_packages
 
 from setuptools.command.build_ext import build_ext
+
+
 
 
 class CMakeExtension(Extension):
@@ -22,6 +23,7 @@ class CMakeExtension(Extension):
 
 class CMakeBuild(build_ext):
     def run(self):
+        os.chdir('source')
         env = os.environ.copy()
         try:
             out = subprocess.run(['cmake', '--version'], env=env)
@@ -63,7 +65,7 @@ class CMakeBuild(build_ext):
             os.makedirs(self.build_temp)
 
         # CMakeLists.txt is in the same directory as this setup.py file
-        cmake_list_dir = os.path.abspath(os.path.dirname(__file__))
+        cmake_list_dir = os.path.abspath(os.path.dirname(__file__))+"/source/"
         print('-'*10, 'Running CMake prepare', '-'*40)
         subprocess.check_call(['cmake', cmake_list_dir] + cmake_args,
                               cwd=self.build_temp, env=env)
@@ -89,13 +91,13 @@ if sys.version_info < (3,):
     raise NotImplementedError("Only Python 3+ is supported.")
 
 
-with open('./version.txt', encoding='utf-8') as f:
+with open('version.txt', encoding='utf-8') as f:
     VERSION = f.read()
 
-with open('./README.rst', encoding='utf-8') as f:
+with open('README.rst', encoding='utf-8') as f:
     LONG_DESCRIPTION = f.read()
 
-with open('./CHANGES.rst', encoding='utf-8') as f:
+with open('CHANGES.rst', encoding='utf-8') as f:
     CHANGES = f.read()
 
 setup(
