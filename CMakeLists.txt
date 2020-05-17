@@ -23,7 +23,7 @@ add_executable(run_translation run_translation.cpp)
 target_link_libraries(run_translation PRIVATE elongation_simulator_lib gflags)
 
 
-set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/experiments)
+#set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/experiments)
 ##python interface
 
 find_package(PythonLibs REQUIRED)
