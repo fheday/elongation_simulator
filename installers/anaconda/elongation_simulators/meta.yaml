@@ -15,10 +15,16 @@ requirements:
     - setuptools
     - cmake 
     - pytest
+    - libgcc-ng
+    - libstdcxx-ng
+    
     
   run:
     - python
-    - numpy x.x
+    - numpy >=1.1
+    - libgcc-ng
+    - libstdcxx-ng
+
 
 
 about:
