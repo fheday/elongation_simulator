@@ -1,0 +1,10 @@
+exclude .gitmodules .travis.yml .appveyor.yml
+exclude Unit-Tests
+
+include LICENSE MANIFEST.in *.cfg *.py *.rst *.txt
+include *.cpp *.h
+
+include docs CMake* *.rst
+
+graft pybind11/
+graft eigen-3.3.7/

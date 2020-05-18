@@ -23,7 +23,6 @@ class CMakeExtension(Extension):
 
 class CMakeBuild(build_ext):
     def run(self):
-        os.chdir('source')
         env = os.environ.copy()
         try:
             out = subprocess.run(['cmake', '--version'], env=env)
@@ -33,13 +32,13 @@ class CMakeBuild(build_ext):
                 ", ".join(e.name for e in self.extensions))
         workers = os.cpu_count()
         # create pybind11 cmake file.
-
-        subprocess.check_call(['cmake', '.'],
-                              cwd=os.getcwd()+'/pybind11', env=env)
+        subprocess.check_call(['cmake', '.', '-DPYBIND11_TEST=no'],
+                              cwd='pybind11', env=env)
         subprocess.check_call(['make', '-j'+str(workers)],
-                              cwd=os.getcwd()+'/pybind11', env=env)
-        subprocess.check_call(['make', 'mock_install'],
-                              cwd=os.getcwd()+'/pybind11', env=env)
+                              cwd='pybind11', env=env)
+        # print("make pybind11 mock install--------------------------------")
+        # subprocess.check_call(['make', 'mock_install'],
+        #                       cwd='pybind11', env=env)
         build_directory = os.path.abspath(self.build_temp)
 
         cmake_args = [
@@ -64,14 +63,13 @@ class CMakeBuild(build_ext):
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
 
-        # CMakeLists.txt is in the same directory as this setup.py file
-        cmake_list_dir = os.path.abspath(os.path.dirname(__file__))+"/source/"
+        cmake_list_dir = "./"
         print('-'*10, 'Running CMake prepare', '-'*40)
         subprocess.check_call(['cmake', cmake_list_dir] + cmake_args,
-                              cwd=self.build_temp, env=env)
+                              cwd='.', env=env)
 
         print('-'*10, 'Building extensions', '-'*40)
-        cmake_cmd = ['cmake', '--build', '.'] + self.build_args
+        cmake_cmd = ['cmake', '--build', '../../'] + self.build_args
         subprocess.check_call(cmake_cmd,
                               cwd=self.build_temp, env=env)
 
@@ -128,7 +126,7 @@ setup(
     ],
 
     packages=find_packages(),
-    # install_requires=['cmake', 'pytest'],
+    install_requires=['pytest'],
     ext_modules=[
                 CMakeExtension('ribosomesimulator'),
                 CMakeExtension('translation')

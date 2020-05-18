@@ -3,9 +3,9 @@ package:
   version: 1.0
 
 source:
-  git_rev: HEAD
-#  git_url: "/home/heday/Projects/Gillespie-Cpp/"
-  git_url: "git://heday@192.168.122.1/Projects/Gillespie-Cpp/"
+#  git_rev: HEAD
+#  git_url: "git://heday@192.168.122.1/Projects/Gillespie-Cpp/"
+  path: /home/heday/Projects/Gillespie_Cpp/
 
 requirements:
   build:
