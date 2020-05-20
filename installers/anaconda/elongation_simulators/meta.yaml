@@ -3,27 +3,27 @@ package:
   version: 1.0
 
 source:
-#  git_rev: HEAD
-#  git_url: "git://heday@192.168.122.1/Projects/Gillespie-Cpp/"
-  path: /home/heday/Projects/Gillespie_Cpp/
+  git_url: ssh://heday@192.168.122.1:/Projects/Gillespie_Cpp/.git
+  git_depth: 1
+  path: /home/heday/Projects/Gillespie_Cpp/ #[not win]
 
 requirements:
   build:
     - git
-    - python
+    - python #[not win]
     - numpy x.x
     - setuptools
     - cmake 
     - pytest
-    - libgcc-ng
-    - libstdcxx-ng
+    - libgcc-ng #[not win]
+    - libstdcxx-ng #[not win]
     
     
   run:
     - python
     - numpy >=1.1
-    - libgcc-ng
-    - libstdcxx-ng
+    - libgcc-ng #[not win]
+    - libstdcxx-ng #[not win]
 
 
 
