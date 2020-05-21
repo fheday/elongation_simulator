@@ -3,8 +3,8 @@ package:
   version: 1.0
 
 source:
-  git_url: ssh://heday@192.168.122.1:/Projects/Gillespie_Cpp/.git
-  git_depth: 1
+  git_url: ssh://heday@192.168.122.1:/Projects/Gillespie_Cpp/.git #[win]
+  git_depth: 1 #[win]
   path: /home/heday/Projects/Gillespie_Cpp/ #[not win]
 
 requirements:
