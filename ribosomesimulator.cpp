@@ -42,7 +42,7 @@ PYBIND11_MODULE(ribosomesimulator, mod) {
              return tot_time / repeats;
            })
       .def("setPropensities", &Simulations::RibosomeSimulator::setPropensities)
-      .def("setNoNonCognate", &Simulations::RibosomeSimulator::setNoNonCognate)
+      .def("setNonCognate", &Simulations::RibosomeSimulator::setNonCognate)
       .def("getPropensities", &Simulations::RibosomeSimulator::getPropensities)
       .def("getPropensity", &Simulations::RibosomeSimulator::getPropensity)
       .def("setPropensity", &Simulations::RibosomeSimulator::setPropensity)
@@ -53,10 +53,13 @@ PYBIND11_MODULE(ribosomesimulator, mod) {
                     [](py::object) {
                       py::object conc_path = py::module::import("concentrations"); // load module
                       std::string file_name = "/Saccharomyces_cerevisiae.csv"; // file name
+                      std::string conc_path_string;
                       for (auto item: conc_path.attr("__path__")) { // iterate the path list
                         //cast to string and concatenate with file to form proper path.
-                        return std::string(item.cast<py::str>()) + file_name;
+                        conc_path_string = std::string(item.cast<py::str>());
+                        break;
                       }
+                      return conc_path_string + file_name;
                     });
 }
 #endif
@@ -240,47 +243,8 @@ void Simulations::RibosomeSimulator::setPropensity(std::string& reaction,
   *propensities_map.at(reaction) = propensity;
 }
 
-void Simulations::RibosomeSimulator::setNoNonCognate(bool noNonCog) {
-  if (noNonCog) {
-      for(auto it=non1f.begin(); it!=non1f.end(); ++it){
-          it->second = 0.0;
-      }
-    non1f[simulation_codon_3_letters] = 0;
-    non1r = 0;
-    int i = 0;
-    int pos = -1;
-    double k;
-    int index;
-    for (auto it=reactions_map.begin(); it!=reactions_map.end(); ++it){
-        i = 0;
-        pos = -1;
-        for (auto element : it->second[0]) {
-          std::tie(k, index) = element;
-          if (k == 0.0 && index == 1){
-              pos = i;
-          }
-          i++;
-        }
-        if (pos >= 0){
-            // delete reaction with propensity zero
-            it->second[0].erase(it->second[0].begin()+pos);
-        }
-    }
-    // now correct reactions_graph
-    i =0;
-    pos =-1;
-    for (auto element : reactions_graph[0]) {
-      std::tie(k, index) = element;
-      if (k == 0.0 && index == 1){
-          pos = i;
-      }
-      i++;
-    }
-    if (pos >= 0){
-        // delete reaction with propensity zero
-        reactions_graph[0].erase(reactions_graph[0].begin()+pos);
-    }
-  }
+void Simulations::RibosomeSimulator::setNonCognate(double noNonCog) {
+    non1f[simulation_codon_3_letters] = noNonCog;
 }
 
 double Simulations::RibosomeSimulator::getPropensity(std::string reaction) {

@@ -22,7 +22,7 @@ class RibosomeSimulator {
   void setPropensities(std::array<double, 40> prop);
   void setPropensity(std::string&, const double);
   double getPropensity(std::string);
-  void setNoNonCognate(bool noNonCog);
+  void setNonCognate(double noNonCog);
 
   std::map<std::string, double> getPropensities();
   void loadConcentrations(const std::string&);
