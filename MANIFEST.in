@@ -8,3 +8,4 @@ include docs CMake* *.rst
 
 graft pybind11/
 graft eigen-3.3.7/
+include concentrations/*.csv

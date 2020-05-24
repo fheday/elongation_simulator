@@ -44,6 +44,9 @@ target_link_libraries(ribosomesimulator PRIVATE pybind11::module ${PYTHON_LIBRAR
 set_target_properties(ribosomesimulator PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                           SUFFIX "${PYTHON_MODULE_EXTENSION}")
 
+
+file(COPY concentrations/Saccharomyces_cerevisiae.csv DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/concentrations)
+
 if(BUILD_TESTS)
     add_subdirectory(Unit-Tests)
 endif(BUILD_TESTS)
