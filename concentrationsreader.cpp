@@ -1,5 +1,7 @@
 #include "concentrationsreader.h"
+#ifndef _MSC_VER
 #include <error.h>
+#endif
 #include <algorithm>
 #include <fstream>
 #include <string>
