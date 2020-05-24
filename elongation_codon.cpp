@@ -24,7 +24,9 @@ void Simulations::ElongationCodon::setPropensities(
 }
 
 void Simulations::ElongationCodon::setNoNonCognate(bool noNonCog) {
-  ribosome.setNoNonCognate(noNonCog);
+  if (noNonCog) {
+    ribosome.setNonCognate(0.0);
+  }
   updateAlphas();
 }
 
