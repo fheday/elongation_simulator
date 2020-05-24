@@ -48,7 +48,16 @@ PYBIND11_MODULE(ribosomesimulator, mod) {
       .def("setPropensity", &Simulations::RibosomeSimulator::setPropensity)
       .def_readonly("dt_history", &Simulations::RibosomeSimulator::dt_history)
       .def_readonly("ribosome_state_history",
-                    &Simulations::RibosomeSimulator::ribosome_state_history);
+                    &Simulations::RibosomeSimulator::ribosome_state_history)
+      .def_property_readonly("saccharomyces_cerevisiae_concentrations",
+                    [](py::object) {
+                      py::object conc_path = py::module::import("concentrations"); // load module
+                      std::string file_name = "/Saccharomyces_cerevisiae.csv"; // file name
+                      for (auto item: conc_path.attr("__path__")) { // iterate the path list
+                        //cast to string and concatenate with file to form proper path.
+                        return std::string(item.cast<py::str>()) + file_name;
+                      }
+                    });
 }
 #endif
 
