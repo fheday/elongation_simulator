@@ -75,7 +75,7 @@ void Simulations::EnlogationSimulator::setMRnaFileName(
 }
 
 void Simulations::EnlogationSimulator::intializeMRNAReader() {
-  if (!mRNA_file_name.empty() and !average_times_file_name.empty() &&
+  if (!mRNA_file_name.empty() && !average_times_file_name.empty() &&
       initiation_rate > 0 && termination_rate > 0) {
     // we can proceed with the mRNAReader object.
     //    mrna_reader.loadRateCalculatorFile(average_times_file_name);
