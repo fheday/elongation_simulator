@@ -67,7 +67,7 @@ std::map<std::string, double> calculate_codons_times(
     codon_total_decoding = 0;
     codon_total_translocating = 0;
     ribosome.setCodonForSimulation(codon);
-    ribosome.setNoNonCognate(true);
+    ribosome.setNonCognate(0.0);
     average_times_file << "\"" << codon << "\"";
     std::cout << "Starting codon: " << codon;
     for (int i = 0; i < iterations; i++) {
