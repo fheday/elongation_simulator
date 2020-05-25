@@ -3,6 +3,8 @@
 #include <float.h>
 #include <algorithm>
 #include <deque>
+#include <numeric>
+
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -12,7 +14,7 @@
 
 #define RIBOSOME_SIZE 10
 
-#ifdef COMIPLE_PYTHON_MODULE
+#if defined(COMIPLE_PYTHON_MODULE) || defined(TRANSLATIONSIMULATOR)
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>

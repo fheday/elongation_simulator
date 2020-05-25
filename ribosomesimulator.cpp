@@ -1,11 +1,15 @@
 #include "ribosomesimulator.h"
 #include <float.h>
 #include <algorithm>
-#include <eigen3/Eigen/Dense>
+#ifndef _MSC_VER
+    #include <eigen3/Eigen/Dense>
+#else
+#include <Eigen/Dense>
+#endif
 #include <numeric>
 #include "concentrationsreader.h"
 
-#ifdef COMIPLE_PYTHON_MODULE
+#if defined(COMIPLE_PYTHON_MODULE) || defined(RIBOSOMESIMULATOR)
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
