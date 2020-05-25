@@ -13,10 +13,13 @@ requirements:
     - python #[not win]
     - numpy x.x
     - setuptools
-    - cmake 
+    - cmake #[not win]
     - pytest
     - libgcc-ng #[not win]
     - libstdcxx-ng #[not win]
+##    - {{compiler('cxx')}} #[win]
+##  features:
+##    - vc19
     
     
   run:
