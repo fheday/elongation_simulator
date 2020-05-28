@@ -300,34 +300,44 @@ void Simulations::Translation::run() {
     std::vector<double> a;
     std::vector<int> r_i;
     codons_vector[0]->getAlphas(a, r_i);
-    double initiation_time = 1 / a[0];  // propensity
+    double initiation_time = (1 / a[0]) * log(2);  // propensity
+    std::cout<<"initiation average time: "<<initiation_time<< "secs\n";
     std::size_t last_index = codons_vector.size() - 1;
     double time_sum = 0;
-    insertRibosome(last_index, false);
-    // pre_filled_ribosomes++;
-    for (int i = static_cast<int>(codons_vector.size() - 2); i >= 0; i--) {
-      if (last_index - static_cast<std::size_t>(i) <= RIBOSOME_SIZE - 1) {
-        codons_vector[static_cast<std::size_t>(i)]->setAvailable(false);
-      } else {
-        // update ribosome.
-        codons_vector[static_cast<std::size_t>(i)]->getAlphas(a, r_i);
-        double propensity_sum = 0, propensity_sum_sq = 0;
-        double normalized_propensity = 0;
-        int n_elements = 0;
-        for (auto prop:a) {
-          propensity_sum += prop;
-          propensity_sum_sq += prop * prop;
-          n_elements ++;
-        }
-        time_sum += sqrt(propensity_sum_sq)/(n_elements * propensity_sum);
+    std::map<std::size_t, double> decoding_time; 
+    decoding_time[2] = 0.2 * (1/190 + 1/0.4 + 1/1000 + 1/1000 + 1/60); //near cognate
+    decoding_time[9] = 0.6 * (1/190 + 1/25 + 1/1000 + 1/1000 + 1/1.6); //wobble cognate
+    decoding_time[16] = 0.9 * (1/190 + 1/260 + 1/1000 + 1/1000 + 1/1000); // watson-crick cognate
+
+    insertRibosome(last_index, true);
+    for (std::size_t i = codons_vector.size() - RIBOSOME_SIZE - 1; i > 0; --i) {
+      if (last_index - i < RIBOSOME_SIZE) continue;
+      // if (last_index - static_cast<std::size_t>(i) > RIBOSOME_SIZE - 1) {
+      codons_vector[i]->getAlphas(a, r_i);
+      std::cout<<"--------------------\n";
+      std::cout<<"codon number: "<<i<<"\n";
+      for (auto propensity:a) std::cout<<" prop: "<<propensity;
+      auto start = a.begin();
+      if (r_i[0] == 1) {
+        ++start; // discard non-cognates.
       }
+      auto p_sum = std::accumulate(start, a.end(), 0.0);
+      double average_time = 0;
+      for (std::size_t i = 0; i < a.size(); i++){
+        if (r_i[i] != 0) {
+          average_time += a[i] * decoding_time[r_i[i]];
+        }
+      }
+
+      time_sum += average_time/p_sum;
+      std::cout<<" codon time: "<<average_time/p_sum;
+      std::cout<<" accumulated time: "<<time_sum<<"\n";
+      std::cout<<"--------------------\n";
       if (time_sum >= initiation_time) {
         // put a ribosome here.
-        insertRibosome(static_cast<std::size_t>(i), false);
+        insertRibosome(i, true);
         time_sum = 0;  // reset timer.
-        last_index = static_cast<std::size_t>(
-            i);  // mark this as last inserted ribosome.
-        // pre_filled_ribosomes++;
+        last_index = i;  // mark this as last inserted ribosome.
       }
     }
   }
