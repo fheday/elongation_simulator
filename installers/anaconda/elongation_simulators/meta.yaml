@@ -17,9 +17,9 @@ requirements:
     - pytest
     - libgcc-ng #[not win]
     - libstdcxx-ng #[not win]
-##    - {{compiler('cxx')}} #[win]
-##  features:
-##    - vc19
+    - {{compiler('cxx')}} #[win]
+  features:
+    - vc19
     
     
   run:
@@ -27,7 +27,7 @@ requirements:
     - numpy >=1.1
     - libgcc-ng #[not win]
     - libstdcxx-ng #[not win]
-    - vs2015_runtime
+##    - vs2015_runtime
 
 
 about:

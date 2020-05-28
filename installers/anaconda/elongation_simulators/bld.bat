@@ -1,11 +1,9 @@
 cd installers\bin
 rem if errorlevel 1 exit 1
 
-copy vcruntime140.dll "%PREFIX%"\
+copy vcruntime140_1.dll "%PREFIX%"
 if errorlevel 1 exit 1
-copy vcruntime140_1.dll "%PREFIX%"\
-if errorlevel 1 exit 1
-copy ribosomesimulator.pyd "%PREFIX%"\
+copy ribosomesimulator.pyd "%PREFIX%"
 if errorlevel 1 exit 1
 copy translation.pyd "%PREFIX%"\
 if errorlevel 1 exit 1
