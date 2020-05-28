@@ -311,17 +311,15 @@ void Simulations::Translation::run() {
       } else {
         // update ribosome.
         codons_vector[static_cast<std::size_t>(i)]->getAlphas(a, r_i);
-        double sum = 0;
+        double propensity_sum = 0, propensity_sum_sq = 0;
+        double normalized_propensity = 0;
         int n_elements = 0;
-        for (std::size_t j = 0; j < a.size(); j++) {
-          //          if (r_i[j] != 0) {
-          sum += a[j];
-          n_elements++;
-          //          } // colateral : only correct if there are NO
-          //          non-cognates!!!
+        for (auto prop:a) {
+          propensity_sum += prop;
+          propensity_sum_sq += prop * prop;
+          n_elements ++;
         }
-        time_sum += n_elements / sum;
-        //        time_sum += 1 / a[0];
+        time_sum += sqrt(propensity_sum_sq)/(n_elements * propensity_sum);
       }
       if (time_sum >= initiation_time) {
         // put a ribosome here.
