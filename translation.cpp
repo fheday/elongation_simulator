@@ -301,7 +301,6 @@ void Simulations::Translation::run() {
     std::vector<int> r_i;
     codons_vector[0]->getAlphas(a, r_i);
     double initiation_time = (1 / a[0]) * log(2);  // propensity
-    std::cout<<"initiation average time: "<<initiation_time<< "secs\n";
     std::size_t last_index = codons_vector.size() - 1;
     double time_sum = 0;
     std::map<std::size_t, double> decoding_time; 
@@ -314,9 +313,6 @@ void Simulations::Translation::run() {
       if (last_index - i < RIBOSOME_SIZE) continue;
       // if (last_index - static_cast<std::size_t>(i) > RIBOSOME_SIZE - 1) {
       codons_vector[i]->getAlphas(a, r_i);
-      std::cout<<"--------------------\n";
-      std::cout<<"codon number: "<<i<<"\n";
-      for (auto propensity:a) std::cout<<" prop: "<<propensity;
       auto start = a.begin();
       if (r_i[0] == 1) {
         ++start; // discard non-cognates.
@@ -330,9 +326,6 @@ void Simulations::Translation::run() {
       }
 
       time_sum += average_time/p_sum;
-      std::cout<<" codon time: "<<average_time/p_sum;
-      std::cout<<" accumulated time: "<<time_sum<<"\n";
-      std::cout<<"--------------------\n";
       if (time_sum >= initiation_time) {
         // put a ribosome here.
         insertRibosome(i, true);
