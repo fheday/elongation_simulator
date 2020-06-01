@@ -12,6 +12,8 @@
 #include "initiationterminationcodon.h"
 #include "mrna_reader.h"
 
+#include "circularbuffer.h"
+
 #define RIBOSOME_SIZE 10
 
 #if defined(COMIPLE_PYTHON_MODULE) || defined(TRANSLATIONSIMULATOR)
@@ -236,9 +238,7 @@ void Simulations::Translation::getAlphas() {
   std::vector<int> ribosome_positions = ribosome_positions_history.back();
   std::size_t ribosome_index;
   // add initiation if needed.
-  if (initiation_rate > 0 && (ribosome_positions.empty() ||
-      (ribosome_positions[0] > (RIBOSOME_SIZE - 1) &&
-       codons_vector[0]->isAvailable())))
+  if (initiation_rate > 0  &&codons_vector[0]->isAvailable())
   {
     // need to add initalization.
     codons_vector[0]->getAlphas(a, r_i);
@@ -293,8 +293,8 @@ void Simulations::Translation::run() {
   int i = 0;
 
   int finished_ribosomes = 0, pre_filled_ribosomes = 0;
-  std::vector<int> rib_positions((codons_vector.size() / RIBOSOME_SIZE) + 1);
-  rib_positions.clear();
+  utils::circular_buffer<int> rib_positions((codons_vector.size() / RIBOSOME_SIZE) + 1);
+
   // pre-fill codons based on the rates.
   if (pre_populate) {
     std::vector<double> a;
@@ -334,9 +334,9 @@ void Simulations::Translation::run() {
       }
     }
   }
-  for (unsigned int i = 0; i < codons_vector.size(); i++) {
+  for (int i = codons_vector.size() - 1; i >= 0; i--) {
     if (codons_vector[i]->isOccupied()) {
-      rib_positions.push_back(static_cast<int>(i));
+      rib_positions.put(static_cast<int>(i));
       pre_filled_ribosomes++;
     }
   }
@@ -353,15 +353,12 @@ void Simulations::Translation::run() {
     if (i > 0 && moved) {
       if (termination) {
         // terminated. remove last position.
-        rib_positions.pop_back();
+        rib_positions.get();
       } else if (initiation) {
         // initiated.
-        rib_positions.insert(rib_positions.begin(), 0);
+        rib_positions.put(0);
       } else if (moved) {
-        auto i = std::find(rib_positions.begin(), rib_positions.end(),
-                           moved_codon - 1);
-        auto pos = std::distance(rib_positions.begin(), i);
-        rib_positions[static_cast<std::size_t>(pos)] = moved_codon;
+        rib_positions.replace(moved_codon - 1, moved_codon);
       }
     }
     if (!moved) {
@@ -370,7 +367,7 @@ void Simulations::Translation::run() {
     } else {
       // ribosome movement detected. create new entry in the history.
       dt_history.push_back(tau);
-      ribosome_positions_history.push_back(rib_positions);
+      ribosome_positions_history.push_back(rib_positions.get_vector());
     }
 
     moved = false;
