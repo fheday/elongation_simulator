@@ -8,11 +8,6 @@
 #ifndef CIRCULARQUEUE_H_
 #define CIRCULARQUEUE_H_
 
-#include <cstdio>
-
-#include <memory>
-#include <mutex>
-
 namespace utils
 {
 
@@ -25,9 +20,7 @@ namespace utils
     {
     }
 
-    void put(T item)
-    {
-      std::lock_guard<std::mutex> lock(mutex_);
+    void put(T item) {
       buf_[head_] = item;
       if (full_)
       {
@@ -38,16 +31,9 @@ namespace utils
       full_ = head_ == tail_;
     }
 
-    T get()
-    {
-      std::lock_guard<std::mutex> lock(mutex_);
+    T get() {
+      if (empty()) return T();
 
-      if (empty())
-      {
-        return T();
-      }
-
-      //Read data and advance the tail (we now have a free space)
       auto val = buf_[tail_];
       full_ = false;
       tail_ = (tail_ + 1) % max_size_;
@@ -74,42 +60,30 @@ namespace utils
       return result;
     }
 
-    void reset()
-    {
-      std::lock_guard<std::mutex> lock(mutex_);
+    void reset() {
       head_ = tail_;
       full_ = false;
     }
 
-    bool empty() const
-    {
-      //if head and tail are equal, we are empty
+    bool empty() const {
       return (!full_ && (head_ == tail_));
     }
 
-    bool full() const
-    {
-      //If tail is ahead the head by 1, we are full
+    bool full() const {
       return full_;
     }
 
-    size_t capacity() const
-    {
+    size_t capacity() const {
       return max_size_;
     }
 
-    size_t size() const
-    {
+    size_t size() const {
       size_t size = max_size_;
 
-      if (!full_)
-      {
-        if (head_ >= tail_)
-        {
+      if (!full_) {
+        if (head_ >= tail_) {
           size = head_ - tail_;
-        }
-        else
-        {
+        } else {
           size = max_size_ + head_ - tail_;
         }
       }
@@ -118,7 +92,6 @@ namespace utils
     }
 
   private:
-    std::mutex mutex_;
     std::unique_ptr<T[]> buf_;
     size_t head_ = 0;
     size_t tail_ = 0;
