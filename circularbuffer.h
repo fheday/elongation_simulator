@@ -24,10 +24,10 @@ namespace utils
       buf_[head_] = item;
       if (full_)
       {
-        tail_ = (tail_ + 1) % max_size_;
+        tail_ = fast_mod((tail_ + 1) , max_size_);
       }
 
-      head_ = (head_ + 1) % max_size_;
+      head_ = fast_mod((head_ + 1) , max_size_);
       full_ = head_ == tail_;
     }
 
@@ -36,7 +36,7 @@ namespace utils
 
       auto val = buf_[tail_];
       full_ = false;
-      tail_ = (tail_ + 1) % max_size_;
+      tail_ = fast_mod((tail_ + 1) , max_size_);
 
       return val;
     }
@@ -48,14 +48,15 @@ namespace utils
           buf_[index] = new_item;
           return;
         }
-        index = (index + 1) % max_size_;
+        index = fast_mod((index + 1) , max_size_);
       }
     }
 
     std::vector<T> get_vector() {
-      std::vector<T> result(size());
+      std::size_t size_ = size();
+      std::vector<T> result(size_);
       for (std::size_t i = 0; i < result.size(); i++) {
-        result[(result.size() - 1) - i] = (buf_[(tail_ + i) % max_size_]);
+        result[size_ - 1 - i] = buf_[fast_mod((tail_ + i) , max_size_)];
       }
       return result;
     }
@@ -97,6 +98,12 @@ namespace utils
     size_t tail_ = 0;
     const size_t max_size_;
     bool full_ = 0;
+
+    int fast_mod(const int input, const int ceil) {
+      // get the modulus to be put into the buffer.
+      // input has to be positive and to greater than ceil.
+      return input < ceil ? input : input - ceil;
+}
   };
 
 } /* namespace utils */
