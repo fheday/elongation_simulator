@@ -230,11 +230,8 @@ void Simulations::Translation::setFinishedRibosomes(int n_ribosomes) {
 void Simulations::Translation::getAlphas() {
   std::size_t global_index = 0;
 
-  // populate the vectors.
-  std::vector<int> ribosome_positions = ribosome_positions_history.back();
-  std::size_t ribosome_index;
   // add initiation if needed.
-  if (initiation_rate > 0  && codons_vector[0]->isAvailable())
+  if (codons_vector[0]->isAvailable() && initiation_rate > 0)
   {
     // need to add initalization.
     for (global_index = 0; global_index < codons_vector[0]->alphas.size(); global_index++) {
@@ -243,8 +240,7 @@ void Simulations::Translation::getAlphas() {
       reaction_index[global_index] = codons_vector[0]->alphas[global_index];
     }
   }
-  for (unsigned i = 0; i < ribosome_positions.size(); i++) {
-    ribosome_index = static_cast<std::size_t>(ribosome_positions[i]);
+  for (auto ribosome_index:ribosome_positions_history.back()) {
     for (std::size_t index = 0; index < codons_vector[ribosome_index]->alphas.size(); index++) {
       alphas[global_index] = codons_vector[ribosome_index]->alphas[index];
       codon_index[global_index] = ribosome_index;
