@@ -228,9 +228,7 @@ void Simulations::Translation::setFinishedRibosomes(int n_ribosomes) {
 }
 
 void Simulations::Translation::getAlphas() {
-  alphas.clear();
-  codon_index.clear();
-  reaction_index.clear();
+  std::size_t global_index = 0;
   std::vector<double> a;
   std::vector<int> r_i;
 
@@ -238,22 +236,27 @@ void Simulations::Translation::getAlphas() {
   std::vector<int> ribosome_positions = ribosome_positions_history.back();
   std::size_t ribosome_index;
   // add initiation if needed.
-  if (initiation_rate > 0  &&codons_vector[0]->isAvailable())
+  if (initiation_rate > 0  && codons_vector[0]->isAvailable())
   {
     // need to add initalization.
     codons_vector[0]->getAlphas(a, r_i);
-    alphas.insert(alphas.end(), a.begin(), a.end());
-    std::fill_n(std::back_inserter(codon_index), a.size(), 0);
-    reaction_index.insert(reaction_index.end(), r_i.begin(), r_i.end());
+    for (global_index = 0; global_index < a.size(); global_index++) {
+      alphas[global_index] = a[global_index];
+      codon_index[global_index] = 0;
+      reaction_index[global_index] = r_i[global_index];
+    }
   }
-
   for (unsigned i = 0; i < ribosome_positions.size(); i++) {
     ribosome_index = static_cast<std::size_t>(ribosome_positions[i]);
     codons_vector[ribosome_index]->getAlphas(a, r_i);
-    alphas.insert(alphas.end(), a.begin(), a.end());
-    std::fill_n(std::back_inserter(codon_index), a.size(), ribosome_index);
-    reaction_index.insert(reaction_index.end(), r_i.begin(), r_i.end());
+    for (std::size_t index = 0; index < a.size(); index++) {
+      alphas[global_index] = a[index];
+      codon_index[global_index] = ribosome_index;
+      reaction_index[global_index] = r_i[index];
+      global_index++;
+    }
   }
+  global_size = global_index; // update global size.
 }
 
 void Simulations::Translation::insertRibosome(std::size_t position, bool set_neighborhood=false)
@@ -293,7 +296,12 @@ void Simulations::Translation::run() {
   int i = 0;
 
   int finished_ribosomes = 0, pre_filled_ribosomes = 0;
-  utils::circular_buffer<int> rib_positions((codons_vector.size() / RIBOSOME_SIZE) + 1);
+  // pre-allocate space for some vectors.
+  int max_ribosomes = (codons_vector.size() / RIBOSOME_SIZE) + 1;
+  utils::circular_buffer<int> rib_positions(max_ribosomes);
+  alphas.resize(4 * max_ribosomes);
+  codon_index.resize(4 * max_ribosomes);
+  reaction_index.resize(4 * max_ribosomes);
 
   // pre-fill codons based on the rates.
   if (pre_populate) {
@@ -379,12 +387,12 @@ void Simulations::Translation::run() {
     r2 = dis(gen);
     // calculate an
     getAlphas();
-    if (alphas.empty()) {
+    if (global_size == 0) {
       // no available reactions, quit loop prematurely.
       std::cout << "no available reactions. quitting.\n";
       break;
     }
-    double a0 = std::accumulate(alphas.begin(), alphas.end(), 0.0);
+    double a0 = std::accumulate(alphas.begin(), alphas.begin() + global_size, 0.0);
     int selected_alpha_vector_index = -1;
     // The commented code below is the vectorized version of the reaction
     // selection. upper_bound stops when it finds the first position that is
