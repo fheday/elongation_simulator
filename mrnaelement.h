@@ -18,7 +18,6 @@ class mRNAElement {
   void setOccupied(bool);
   bool isAvailable();
   bool isOccupied();
-  virtual void getAlphas(std::vector<double> &, std::vector<int> &) {}
   virtual void executeReaction(int) {}
   virtual int getState() { return -1; }
   virtual void setState(int) {}
@@ -35,9 +34,10 @@ class mRNAElement {
     return std::map<std::string, double>();
   }
 
- protected:
   std::vector<double> alphas;
   std::vector<int> reactions_index;
+
+ protected:
   bool is_available = true;  // true if the position can be used.
   bool is_occupied = false;  // true if there is  ribosome in the position. As
                              // the ribosome moves, it sets the next

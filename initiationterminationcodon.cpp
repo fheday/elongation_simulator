@@ -12,12 +12,6 @@ Simulations::InitiationTerminationCodon::InitiationTerminationCodon(double prop,
   a0 = 0;
 }
 
-void Simulations::InitiationTerminationCodon::getAlphas(std::vector<double>& as,
-                                                        std::vector<int>& r_i) {
-  as = alphas;
-  r_i = reactions_index;
-}
-
 int Simulations::InitiationTerminationCodon::getState() { return state; }
 
 void Simulations::InitiationTerminationCodon::setState(int s) {

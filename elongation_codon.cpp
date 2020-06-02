@@ -40,11 +40,6 @@ void Simulations::ElongationCodon::setCodon(const std::string& cdn) {
   ribosome.getAlphas(alphas, reactions_index);
 }
 
-void Simulations::ElongationCodon::getAlphas(std::vector<double>& as,
-                                              std::vector<int>& r_i) {
-  as = alphas;
-  r_i = reactions_index;
-}
 
 void Simulations::ElongationCodon::executeReaction(int r) {
   // execute reaction.

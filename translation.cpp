@@ -229,8 +229,6 @@ void Simulations::Translation::setFinishedRibosomes(int n_ribosomes) {
 
 void Simulations::Translation::getAlphas() {
   std::size_t global_index = 0;
-  std::vector<double> a;
-  std::vector<int> r_i;
 
   // populate the vectors.
   std::vector<int> ribosome_positions = ribosome_positions_history.back();
@@ -239,20 +237,18 @@ void Simulations::Translation::getAlphas() {
   if (initiation_rate > 0  && codons_vector[0]->isAvailable())
   {
     // need to add initalization.
-    codons_vector[0]->getAlphas(a, r_i);
-    for (global_index = 0; global_index < a.size(); global_index++) {
-      alphas[global_index] = a[global_index];
+    for (global_index = 0; global_index < codons_vector[0]->alphas.size(); global_index++) {
+      alphas[global_index] = codons_vector[0]->alphas[global_index];
       codon_index[global_index] = 0;
-      reaction_index[global_index] = r_i[global_index];
+      reaction_index[global_index] = codons_vector[0]->alphas[global_index];
     }
   }
   for (unsigned i = 0; i < ribosome_positions.size(); i++) {
     ribosome_index = static_cast<std::size_t>(ribosome_positions[i]);
-    codons_vector[ribosome_index]->getAlphas(a, r_i);
-    for (std::size_t index = 0; index < a.size(); index++) {
-      alphas[global_index] = a[index];
+    for (std::size_t index = 0; index < codons_vector[ribosome_index]->alphas.size(); index++) {
+      alphas[global_index] = codons_vector[ribosome_index]->alphas[index];
       codon_index[global_index] = ribosome_index;
-      reaction_index[global_index] = r_i[index];
+      reaction_index[global_index] = codons_vector[ribosome_index]->reactions_index[index];
       global_index++;
     }
   }
@@ -305,10 +301,7 @@ void Simulations::Translation::run() {
 
   // pre-fill codons based on the rates.
   if (pre_populate) {
-    std::vector<double> a;
-    std::vector<int> r_i;
-    codons_vector[0]->getAlphas(a, r_i);
-    double initiation_time = (1 / a[0]) * log(2);  // propensity
+    double initiation_time = (1 / codons_vector[0]->alphas[0]) * log(2);  // propensity
     std::size_t last_index = codons_vector.size() - 1;
     double time_sum = 0;
     std::map<std::size_t, double> decoding_time; 
@@ -320,16 +313,15 @@ void Simulations::Translation::run() {
     for (std::size_t i = codons_vector.size() - RIBOSOME_SIZE - 1; i > 0; --i) {
       if (last_index - i < RIBOSOME_SIZE) continue;
       // if (last_index - static_cast<std::size_t>(i) > RIBOSOME_SIZE - 1) {
-      codons_vector[i]->getAlphas(a, r_i);
-      auto start = a.begin();
-      if (r_i[0] == 1) {
+      auto start = codons_vector[i]->alphas.begin();
+      if (codons_vector[i]->reactions_index[0] == 1) {
         ++start; // discard non-cognates.
       }
-      auto p_sum = std::accumulate(start, a.end(), 0.0);
+      auto p_sum = std::accumulate(start, codons_vector[i]->alphas.end(), 0.0);
       double average_time = 0;
-      for (std::size_t i = 0; i < a.size(); i++){
-        if (r_i[i] != 0) {
-          average_time += a[i] * decoding_time[r_i[i]];
+      for (std::size_t i = 0; i < codons_vector[i]->alphas.size(); i++){
+        if (codons_vector[i]->reactions_index[i] != 0) {
+          average_time += codons_vector[i]->alphas[i] * decoding_time[codons_vector[i]->reactions_index[i]];
         }
       }
 
