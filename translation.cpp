@@ -297,31 +297,16 @@ void Simulations::Translation::run() {
 
   // pre-fill codons based on the rates.
   if (pre_populate) {
-    double initiation_time = (1 / codons_vector[0]->alphas[0]) * log(2);  // propensity
+    double initiation_time = 1 / codons_vector[0]->alphas[0];  // propensity
     std::size_t last_index = codons_vector.size() - 1;
     double time_sum = 0;
-    std::map<std::size_t, double> decoding_time; 
-    decoding_time[2] = 0.2 * (1/190 + 1/0.4 + 1/1000 + 1/1000 + 1/60); //near cognate
-    decoding_time[9] = 0.6 * (1/190 + 1/25 + 1/1000 + 1/1000 + 1/1.6); //wobble cognate
-    decoding_time[16] = 0.9 * (1/190 + 1/260 + 1/1000 + 1/1000 + 1/1000); // watson-crick cognate
+    double estimated_codon_time = 0.6315;
 
     insertRibosome(last_index, true);
     for (std::size_t i = codons_vector.size() - RIBOSOME_SIZE - 1; i > 0; --i) {
       if (last_index - i < RIBOSOME_SIZE) continue;
-      // if (last_index - static_cast<std::size_t>(i) > RIBOSOME_SIZE - 1) {
-      auto start = codons_vector[i]->alphas.begin();
-      if (codons_vector[i]->reactions_index[0] == 1) {
-        ++start; // discard non-cognates.
-      }
-      auto p_sum = std::accumulate(start, codons_vector[i]->alphas.end(), 0.0);
-      double average_time = 0;
-      for (std::size_t i = 0; i < codons_vector[i]->alphas.size(); i++){
-        if (codons_vector[i]->reactions_index[i] != 0) {
-          average_time += codons_vector[i]->alphas[i] * decoding_time[codons_vector[i]->reactions_index[i]];
-        }
-      }
 
-      time_sum += average_time/p_sum;
+      time_sum += estimated_codon_time;
       if (time_sum >= initiation_time) {
         // put a ribosome here.
         insertRibosome(i, true);
