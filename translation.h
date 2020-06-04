@@ -48,8 +48,8 @@ class Translation {
   bool no_noCognate = false;
 
   std::vector<double> alphas;  // reactions alphas - all available ones.
-  std::vector<int> codon_index;  // indexes of the codon where the alpha belongs to.
-  std::vector<int> reaction_index;  // in the codon, the index of the reaction.
+  std::vector<std::size_t> codon_index;  // indexes of the codon where the alpha belongs to.
+  std::vector<std::size_t> reaction_index;  // in the codon, the index of the reaction.
   std::size_t global_size = 0; // written size of alphas, codon_index, reaction_index.
   std::vector<std::unique_ptr<Simulations::mRNAElement>> codons_vector;
   std::string mrna_file_name;

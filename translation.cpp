@@ -231,8 +231,7 @@ void Simulations::Translation::getAlphas() {
   std::size_t global_index = 0;
 
   // add initiation if needed.
-  if (codons_vector[0]->isAvailable() && initiation_rate > 0)
-  {
+  if (initiation_rate && codons_vector[0]->isAvailable()) {
     // need to add initalization.
     for (global_index = 0; global_index < codons_vector[0]->alphas.size(); global_index++) {
       alphas[global_index] = codons_vector[0]->alphas[global_index];
@@ -321,36 +320,19 @@ void Simulations::Translation::run() {
       pre_filled_ribosomes++;
     }
   }
+  ribosome_positions_history.push_back(rib_positions.get_vector());
+  dt_history.push_back(0.0);
   finished_ribosomes -=
       pre_filled_ribosomes;  // we should ignore these ribosomes.
-  int moved_codon = -1, current_codon = -1;
+  std::size_t moved_codon = 0, current_codon = 0;
   bool initiation = false, termination = false, moved = true;
 
+  double cumsum = 0, a0 = 0;
+  std::size_t selected_alpha_vector_index = 0;
   while ((iteration_limit > 0 && i < iteration_limit) ||
          (time_limit > 0 && clock < time_limit) ||
          (finished_ribosomes_limit > 0 &&
           finished_ribosomes_limit > finished_ribosomes)) {
-    // get the vector with the positions of all ribosomes
-    if (i > 0 && moved) {
-      if (termination) {
-        // terminated. remove last position.
-        rib_positions.get();
-      } else if (initiation) {
-        // initiated.
-        rib_positions.put(0);
-      } else if (moved) {
-        rib_positions.replace(moved_codon - 1, moved_codon);
-      }
-    }
-    if (!moved) {
-      // no ribosome movement. just update dt_history.
-      dt_history.back() += tau;
-    } else {
-      // ribosome movement detected. create new entry in the history.
-      dt_history.push_back(tau);
-      ribosome_positions_history.push_back(rib_positions.get_vector());
-    }
-
     moved = false;
     initiation = false;
     termination = false;
@@ -365,8 +347,8 @@ void Simulations::Translation::run() {
       std::cout << "no available reactions. quitting.\n";
       break;
     }
-    double a0 = std::accumulate(alphas.begin(), alphas.begin() + global_size, 0.0);
-    int selected_alpha_vector_index = -1;
+    a0 = std::accumulate(alphas.begin(), alphas.begin() + global_size, 0.0);
+    selected_alpha_vector_index = 0;
     // The commented code below is the vectorized version of the reaction
     // selection. upper_bound stops when it finds the first position that is
     // greater than the last parameter. we do an additional operation to find
@@ -379,72 +361,75 @@ void Simulations::Translation::run() {
     //         std::upper_bound(cumsum.begin(), cumsum.end(), a0 * r2));
 
     // select next reaction to execute
-    double cumsum = 0;
-    do {
+    cumsum = alphas[selected_alpha_vector_index];
+    while (cumsum < a0 * r2) {
       selected_alpha_vector_index++;
-      cumsum += alphas[static_cast<std::size_t>(selected_alpha_vector_index)];
-    } while (cumsum < a0 * r2);
-    current_codon =
-        codon_index[static_cast<std::size_t>(selected_alpha_vector_index)];
+      cumsum += alphas[selected_alpha_vector_index];
+    };
+    current_codon = codon_index[selected_alpha_vector_index];
     // Apply reaction
-    codons_vector[static_cast<std::size_t>(current_codon)]->executeReaction(
-        reaction_index[static_cast<std::size_t>(selected_alpha_vector_index)]);
+    codons_vector[current_codon]->executeReaction(reaction_index[selected_alpha_vector_index]);
+    // Update time
+    tau = (1.0 / a0) * log(1.0 / r1);
 
-    if (codon_index[static_cast<std::size_t>(selected_alpha_vector_index)] ==
-            0 &&
-        codons_vector[0]->getState() == 23) {
+    if (current_codon == 0 && codons_vector[0]->getState() == 23) {
       // initiated.
       codons_vector[0]->setAvailable(false);
       codons_vector[0]->setOccupied(true);
       initiation = true;
       moved = true;
     }
-    moved_codon = current_codon + 1;
     // 2- Any codon with state == 31 means the ribosome already moved to the
     // next codon (or left the mRNA). update states.
-    if (codons_vector[static_cast<std::size_t>(current_codon)]->getState() ==
-        31) {
-      codons_vector[static_cast<std::size_t>(current_codon)]->setState(0);
-      codons_vector[static_cast<std::size_t>(current_codon)]->setAvailable(
-          false);
-      codons_vector[static_cast<std::size_t>(current_codon)]->setOccupied(
-          false);
+    if (codons_vector[current_codon]->getState() == 31) {
+      codons_vector[current_codon]->setState(0);
+      codons_vector[current_codon]->setAvailable(false);
+      codons_vector[current_codon]->setOccupied(false);
       moved = true;
       moved_codon = current_codon + 1;
-      if (static_cast<std::size_t>(moved_codon + 1) < codons_vector.size()) {
-        codons_vector[static_cast<std::size_t>(moved_codon)]->setOccupied(true);
-        codons_vector[static_cast<std::size_t>(moved_codon)]->setAvailable(
-            false);
+      if (moved_codon < codons_vector.size()) {
+        codons_vector[moved_codon]->setOccupied(true);
+        codons_vector[moved_codon]->setAvailable(false);
       }
       // update free codons due to the size of the ribosome.
-      if (static_cast<std::size_t>(moved_codon) > RIBOSOME_SIZE - 1) {
-        // we need to do some tidying up after the ribosome.
-        if (static_cast<std::size_t>(moved_codon) < codons_vector.size()) {
-          // update freed space left by the ribosome's movement.
-          codons_vector[static_cast<std::size_t>(moved_codon - RIBOSOME_SIZE)]
-              ->setAvailable(true);
-        } else if (static_cast<std::size_t>(moved_codon) ==
-                   codons_vector.size()) {
-          // ribosome terminated. free codons positions occupied by it.
-          termination = true;
-          for (std::size_t i = static_cast<std::size_t>(codons_vector.size() -
-                                                        RIBOSOME_SIZE),
-                           total = codons_vector.size();
-               i < total; ++i) {
-            codons_vector[i]->setAvailable(true);
-          }
-          finished_ribosomes++;
+      // we need to do some tidying up after the ribosome.
+      if ((moved_codon > RIBOSOME_SIZE - 1) && (moved_codon < codons_vector.size())) {
+        // update freed space left by the ribosome's movement.
+        codons_vector[moved_codon - RIBOSOME_SIZE]->setAvailable(true);
+      } else if (moved_codon == codons_vector.size()) {
+        // ribosome terminated. free codons positions occupied by it.
+        termination = true;
+        for (std::size_t i = codons_vector.size() - RIBOSOME_SIZE; i < codons_vector.size(); ++i) {
+          codons_vector[i]->setAvailable(true);
         }
+        finished_ribosomes++;
+        
       }
     }
-    // Update time
-    tau = (1.0 / a0) * log(1.0 / r1);
+
+    //update ribosome position.
+    //check if there was movement.
+    if (moved) {
+      if (termination) {
+        // terminated. remove last position.
+        rib_positions.get();
+      } else if (initiation) {
+        // initiated.
+        rib_positions.put(0);
+      } else {
+        rib_positions.replace(moved_codon - 1, moved_codon);
+      }
+      // ribosome movement detected. create new entry in the history.
+      dt_history.push_back(tau);
+      ribosome_positions_history.push_back(rib_positions.get_vector());
+    } else {
+      // no ribosome movement. just update dt_history.
+      dt_history.back() += tau;
+    }
     if (is_logging_codon_state) {
       // add state reaction to the codon's history
-      codons_vector[static_cast<std::size_t>(current_codon)]
-          ->addReactionToHistory(reaction_index[static_cast<std::size_t>(
-                                     selected_alpha_vector_index)],
-                                 tau);
+      codons_vector[current_codon]
+          ->addReactionToHistory(reaction_index[selected_alpha_vector_index], tau);
     }
     clock += tau;
     i++;  // update iteration number.
