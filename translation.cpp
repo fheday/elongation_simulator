@@ -1,16 +1,16 @@
 #include "translation.h"
 
-#include <float.h>
 #include <algorithm>
 #include <deque>
+#include <float.h>
 #include <numeric>
 
+#include "initiationterminationcodon.h"
+#include "mrna_reader.h"
 #include <fstream>
 #include <iostream>
 #include <list>
 #include <random>
-#include "initiationterminationcodon.h"
-#include "mrna_reader.h"
 
 #include "circularbuffer.h"
 
@@ -44,8 +44,10 @@ PYBIND11_MODULE(translation, mod) {
       .def("setPrepopulate", &Simulations::Translation::setPrepopulate)
       .def("getInitiationElongationTermination",
            &Simulations::Translation::getInitiationElongationTermination)
-      .def("getRibosomesPositions", &Simulations::Translation::getRibosomesPositions)
-      .def("setRibosomePositions", &Simulations::Translation::setRibosomePositions)
+      .def("getRibosomesPositions",
+           &Simulations::Translation::getRibosomesPositions)
+      .def("setRibosomePositions",
+           &Simulations::Translation::setRibosomePositions)
       .def("setLogCodonStates", &Simulations::Translation::setLogCodonStates)
       .def("getLogCodonStates", &Simulations::Translation::getLogCodonStates)
       .def("setPropensities", &Simulations::Translation::setPropensities)
@@ -80,7 +82,7 @@ PYBIND11_MODULE(translation, mod) {
 #endif
 
 void Simulations::Translation::loadConcentrations(
-    const std::string& file_name) {
+    const std::string &file_name) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -91,7 +93,7 @@ void Simulations::Translation::loadConcentrations(
   }
 }
 
-void Simulations::Translation::loadMRNA(const std::string& file_name) {
+void Simulations::Translation::loadMRNA(const std::string &file_name) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -161,7 +163,7 @@ void Simulations::Translation::setNoNonCognate(bool noNonCog) {
 std::vector<std::map<std::string, double>>
 Simulations::Translation::getPropensities() {
   auto result = std::vector<std::map<std::string, double>>();
-  result.push_back(std::map<std::string, double>());  // codon 0 will be empty.
+  result.push_back(std::map<std::string, double>()); // codon 0 will be empty.
   for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
     result.push_back(codons_vector[i]->getPropensities());
   }
@@ -233,36 +235,39 @@ void Simulations::Translation::getAlphas() {
   // add initiation if needed.
   if (initiation_rate && codons_vector[0]->isAvailable()) {
     // need to add initalization.
-    for (global_index = 0; global_index < codons_vector[0]->alphas.size(); global_index++) {
+    for (global_index = 0; global_index < codons_vector[0]->alphas.size();
+         global_index++) {
       alphas[global_index] = codons_vector[0]->alphas[global_index];
       codon_index[global_index] = 0;
       reaction_index[global_index] = codons_vector[0]->alphas[global_index];
     }
   }
-  for (auto ribosome_index:ribosome_positions_history.back()) {
-    for (std::size_t index = 0; index < codons_vector[ribosome_index]->alphas.size(); index++) {
+  for (auto ribosome_index : ribosome_positions_history.back()) {
+    for (std::size_t index = 0;
+         index < codons_vector[ribosome_index]->alphas.size(); index++) {
       alphas[global_index] = codons_vector[ribosome_index]->alphas[index];
       codon_index[global_index] = ribosome_index;
-      reaction_index[global_index] = codons_vector[ribosome_index]->reactions_index[index];
+      reaction_index[global_index] =
+          codons_vector[ribosome_index]->reactions_index[index];
       global_index++;
     }
   }
   global_size = global_index; // update global size.
 }
 
-void Simulations::Translation::insertRibosome(std::size_t position, bool set_neighborhood=false)
-{
+void Simulations::Translation::insertRibosome(std::size_t position,
+                                              bool set_neighborhood = false) {
   codons_vector[position]->setOccupied(true);
   codons_vector[position]->setAvailable(false);
   codons_vector[position]->setState(0);
-  if (position == 0)
-  {
+  if (position == 0) {
     codons_vector[position]->setState(23);
   }
   if (set_neighborhood) {
-    for (int i = 0; i < RIBOSOME_SIZE && static_cast<std::size_t>(i) <= position; i++)
-    {
-      codons_vector[position - static_cast<std::size_t>(i)]->setAvailable(false);
+    for (int i = 0;
+         i < RIBOSOME_SIZE && static_cast<std::size_t>(i) <= position; i++) {
+      codons_vector[position - static_cast<std::size_t>(i)]->setAvailable(
+          false);
     }
   }
 }
@@ -278,8 +283,8 @@ void Simulations::Translation::run() {
 
   // initialize the random generator
   std::random_device
-      rd;  // Will be used to obtain a seed for the random number engine
-  std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
+      rd; // Will be used to obtain a seed for the random number engine
+  std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
   std::uniform_real_distribution<> dis(DBL_MIN, 1);
 
   double r1 = 0, r2 = 0;
@@ -296,21 +301,50 @@ void Simulations::Translation::run() {
 
   // pre-fill codons based on the rates.
   if (pre_populate) {
-    double initiation_time = 1 / codons_vector[0]->alphas[0];  // propensity
-    std::size_t last_index = codons_vector.size() - 1;
+    std::size_t last_index = 0;
     double time_sum = 0;
-    double estimated_codon_time = 0.6315;
-
+    std::map<std::string, double> estimated_codon_time{
+        {"AUA", 0.629360139369964}, {"AUC", 0.721506834030151},
+        {"AUG", 0.223424538969994}, {"AUU", 0.112727925181389},
+        {"CAA", 0.086375549435616}, {"CAC", 0.176103606820106},
+        {"CAG", 0.820655703544617}, {"CAU", 0.953253030776978},
+        {"CCA", 0.274570554494858}, {"CCC", 2.00137615203857},
+        {"CCG", 0.814045131206512}, {"CCU", 0.841190457344055},
+        {"CGA", 0.892297625541687}, {"CGC", 0.809189140796661},
+        {"CGG", 1.16730070114136},  {"CGU", 0.0852445140481},
+        {"CUA", 0.473841965198517}, {"CUC", 1.00331914424896},
+        {"CUG", 1.51964175701141},  {"CUU", 1.32332634925842},
+        {"GAA", 0.064450852572918}, {"GAC", 0.103697247803211},
+        {"GAG", 0.717609882354736}, {"GAU", 0.839430928230285},
+        {"GCA", 0.544444143772125}, {"GCC", 0.876713514328003},
+        {"GCG", 0.904575228691101}, {"GCU", 0.316948801279068},
+        {"GGA", 0.276408851146698}, {"GGC", 0.054870706051588},
+        {"GGG", 0.662749826908112}, {"GGU", 0.762714862823486},
+        {"GUA", 0.659511029720306}, {"GUC", 0.897049844264984},
+        {"GUG", 0.753913283348084}, {"GUU", 0.139686241745949},
+        {"UAC", 0.175240993499756}, {"UAU", 0.953546106815338},
+        {"UCA", 0.623058080673218}, {"UCC", 0.881772577762603},
+        {"UCG", 0.836475849151611}, {"UCU", 0.131028860807419},
+        {"UGC", 0.170239016413689}, {"UGG", 0.174226880073547},
+        {"UGU", 0.944100022315979}, {"UUA", 0.187631607055664},
+        {"UUC", 0.131067156791687}, {"UUG", 0.287777960300446},
+        {"UUU", 0.882003247737884}
+    };
+    double time_10codons = 0;
+    for (std::size_t i = 0; i < 10; ++i) time_10codons += estimated_codon_time[codons_vector[i]->codon];
+    double initiation_time = std::max((1 / codons_vector[0]->alphas[0]), time_10codons); // propensity
+    
     insertRibosome(last_index, true);
-    for (std::size_t i = codons_vector.size() - RIBOSOME_SIZE - 1; i > 0; --i) {
-      if (last_index - i < RIBOSOME_SIZE) continue;
+    for (std::size_t i = RIBOSOME_SIZE; i < codons_vector.size(); ++i) {
+      if (i - last_index < RIBOSOME_SIZE)
+        continue;
 
-      time_sum += estimated_codon_time;
+      time_sum += estimated_codon_time[codons_vector[i]->codon];
       if (time_sum >= initiation_time) {
         // put a ribosome here.
         insertRibosome(i, true);
-        time_sum = 0;  // reset timer.
-        last_index = i;  // mark this as last inserted ribosome.
+        time_sum = 0;   // reset timer.
+        last_index = i; // mark this as last inserted ribosome.
       }
     }
   }
@@ -323,7 +357,7 @@ void Simulations::Translation::run() {
   ribosome_positions_history.push_back(rib_positions.get_vector());
   dt_history.push_back(0.0);
   finished_ribosomes -=
-      pre_filled_ribosomes;  // we should ignore these ribosomes.
+      pre_filled_ribosomes; // we should ignore these ribosomes.
   std::size_t moved_codon = 0, current_codon = 0;
   bool initiation = false, termination = false, moved = true;
 
@@ -368,7 +402,8 @@ void Simulations::Translation::run() {
     };
     current_codon = codon_index[selected_alpha_vector_index];
     // Apply reaction
-    codons_vector[current_codon]->executeReaction(reaction_index[selected_alpha_vector_index]);
+    codons_vector[current_codon]->executeReaction(
+        reaction_index[selected_alpha_vector_index]);
     // Update time
     tau = (1.0 / a0) * log(1.0 / r1);
 
@@ -393,22 +428,23 @@ void Simulations::Translation::run() {
       }
       // update free codons due to the size of the ribosome.
       // we need to do some tidying up after the ribosome.
-      if ((moved_codon > RIBOSOME_SIZE - 1) && (moved_codon < codons_vector.size())) {
+      if ((moved_codon > RIBOSOME_SIZE - 1) &&
+          (moved_codon < codons_vector.size())) {
         // update freed space left by the ribosome's movement.
         codons_vector[moved_codon - RIBOSOME_SIZE]->setAvailable(true);
       } else if (moved_codon == codons_vector.size()) {
         // ribosome terminated. free codons positions occupied by it.
         termination = true;
-        for (std::size_t i = codons_vector.size() - RIBOSOME_SIZE; i < codons_vector.size(); ++i) {
+        for (std::size_t i = codons_vector.size() - RIBOSOME_SIZE;
+             i < codons_vector.size(); ++i) {
           codons_vector[i]->setAvailable(true);
         }
         finished_ribosomes++;
-        
       }
     }
 
-    //update ribosome position.
-    //check if there was movement.
+    // update ribosome position.
+    // check if there was movement.
     if (moved) {
       if (termination) {
         // terminated. remove last position.
@@ -428,11 +464,11 @@ void Simulations::Translation::run() {
     }
     if (is_logging_codon_state) {
       // add state reaction to the codon's history
-      codons_vector[current_codon]
-          ->addReactionToHistory(reaction_index[selected_alpha_vector_index], tau);
+      codons_vector[current_codon]->addReactionToHistory(
+          reaction_index[selected_alpha_vector_index], tau);
     }
     clock += tau;
-    i++;  // update iteration number.
+    i++; // update iteration number.
   }
 }
 
@@ -458,7 +494,7 @@ void Simulations::Translation::getInitiationElongationTermination() {
   terminations_durations.clear();
   initiation_iteration.clear();
 
-  std::deque<int> indexes;  // array with the index number of the ribosomes
+  std::deque<int> indexes; // array with the index number of the ribosomes
   indexes.clear();
   std::list<int> initiations, elongations, terminations;
   std::size_t ribosomes_to_ignore = ribosome_positions_history[0].size();
@@ -472,7 +508,7 @@ void Simulations::Translation::getInitiationElongationTermination() {
     initiation_iteration.push_back(0);
   }
   for (std::size_t i = 1; i < ribosome_positions_history.size(); i++) {
-    std::vector<int>& rib_positions = ribosome_positions_history[i];
+    std::vector<int> &rib_positions = ribosome_positions_history[i];
     for (std::size_t j = 0; j < rib_positions.size(); j++) {
       std::size_t pos = static_cast<std::size_t>(rib_positions[j]);
       if (pos == 0) {
@@ -502,18 +538,18 @@ void Simulations::Translation::getInitiationElongationTermination() {
   }
   if (ribosomes_to_ignore > 0) {
     // remove pre-filled ribosomes.
-    initiations_durations.erase(
-        initiations_durations.begin(),
-        initiations_durations.begin() + static_cast<int>(ribosomes_to_ignore));
-    elongations_durations.erase(
-        elongations_durations.begin(),
-        elongations_durations.begin() + static_cast<int>(ribosomes_to_ignore));
-    terminations_durations.erase(
-        terminations_durations.begin(),
-        terminations_durations.begin() + static_cast<int>(ribosomes_to_ignore));
-    initiation_iteration.erase(
-        initiation_iteration.begin(),
-        initiation_iteration.begin() + static_cast<int>(ribosomes_to_ignore));
+    initiations_durations.erase(initiations_durations.begin(),
+                                initiations_durations.begin() +
+                                    static_cast<int>(ribosomes_to_ignore));
+    elongations_durations.erase(elongations_durations.begin(),
+                                elongations_durations.begin() +
+                                    static_cast<int>(ribosomes_to_ignore));
+    terminations_durations.erase(terminations_durations.begin(),
+                                 terminations_durations.begin() +
+                                     static_cast<int>(ribosomes_to_ignore));
+    initiation_iteration.erase(initiation_iteration.begin(),
+                               initiation_iteration.begin() +
+                                   static_cast<int>(ribosomes_to_ignore));
   }
   // maybe some of these ribosomes did not terminated. remove them from the
   // list.
@@ -535,13 +571,13 @@ void Simulations::Translation::getInitiationElongationTermination() {
 }
 
 /*
-* @brief Return the codon number of all ribosomes in the current simualtion state.
-*/
-std::vector<int> Simulations::Translation::getRibosomesPositions()
-{
+ * @brief Return the codon number of all ribosomes in the current simualtion
+ * state.
+ */
+std::vector<int> Simulations::Translation::getRibosomesPositions() {
   std::vector<int> result;
-  for (std::size_t i = 0; i < codons_vector.size(); i++){
-    if (codons_vector[i]->isOccupied()){
+  for (std::size_t i = 0; i < codons_vector.size(); i++) {
+    if (codons_vector[i]->isOccupied()) {
       result.emplace_back(i);
     }
   }
@@ -549,28 +585,31 @@ std::vector<int> Simulations::Translation::getRibosomesPositions()
 }
 
 /*
-* @brief set ribosome positions in the mRNA strip. Used before starting the simulation.
-*/
-void Simulations::Translation::setRibosomePositions(std::vector<int> positions) {
-  //validate: did the user passed ribosomes?
+ * @brief set ribosome positions in the mRNA strip. Used before starting the
+ * simulation.
+ */
+void Simulations::Translation::setRibosomePositions(
+    std::vector<int> positions) {
+  // validate: did the user passed ribosomes?
   if (positions.size() == 0) {
     throw std::out_of_range("No ribosomes in the vector...");
   }
   // validate: check if all ribosomes are inside mRNA
-  if (static_cast<std::size_t>(*std::max_element(positions.begin(), positions.end())) >= codons_vector.size()) {
+  if (static_cast<std::size_t>(*std::max_element(
+          positions.begin(), positions.end())) >= codons_vector.size()) {
     throw std::out_of_range("Ribosome positioned after the end of mRNA.");
   }
-  if (*min_element(positions.begin(), positions.end()) < 0 ) {
+  if (*min_element(positions.begin(), positions.end()) < 0) {
     throw std::out_of_range("Invalid (negative) position informed.");
   }
   std::sort(positions.begin(), positions.end()); // sort positions.
-  //validate: minimum distance between ribosomes = RIBOSOME_SIZE.
+  // validate: minimum distance between ribosomes = RIBOSOME_SIZE.
   insertRibosome(positions[0], true);
-  for (std::size_t i = 1; i < positions.size(); i++)
-  {
-    if (positions[i] - positions[i - 1] < RIBOSOME_SIZE)
-    {
-      throw std::out_of_range("Ribosome " + std::to_string(positions[i]) + " too close to ribosome " + std::to_string(positions[i]));
+  for (std::size_t i = 1; i < positions.size(); i++) {
+    if (positions[i] - positions[i - 1] < RIBOSOME_SIZE) {
+      throw std::out_of_range("Ribosome " + std::to_string(positions[i]) +
+                              " too close to ribosome " +
+                              std::to_string(positions[i]));
     } else {
       insertRibosome(positions[i], true);
     }
