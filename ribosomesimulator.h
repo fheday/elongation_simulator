@@ -16,6 +16,7 @@ class RibosomeSimulator {
   RibosomeSimulator();
   int getState();
   void setState(int);
+  void getAlphas(std::vector<double>&, std::vector<int>&, std::size_t&);
   void getAlphas(std::vector<double>&, std::vector<int>&);
   void getDecodingAlphas(std::vector<double>&, std::vector<int>&);
 
@@ -32,10 +33,20 @@ class RibosomeSimulator {
   std::vector<int> ribosome_state_history;
   std::string saccharomyces_cerevisiae_concentrations = 
        "concentrations/Saccharomyces_cerevisiae.csv";
+  void setLogStates(bool);
  private:
   void buildReactionsMap();
+  bool logStates = true;
+  std::vector<double> alphas;  
+  std::vector<int> next_state;
+
+  std::random_device rd; // Will be used to obtain a seed for the random number engine
+  std::mt19937_64 gen; // Standard mersenne_twister_engine seeded with rd()
+  std::uniform_real_distribution<> dis;
+
   std::string simulation_codon_3_letters = "";
   csv_utils::ConcentrationsReader concentrations_reader;
+  
   std::vector<std::vector<std::tuple<std::reference_wrapper<double>, int>>>
   createReactionsGraph(const csv_utils::concentration_entry&);
   std::map<
@@ -47,7 +58,7 @@ class RibosomeSimulator {
                         // state and the content is a vector of tuples
                         // containing the propensity and next state of each
                         // possible reaction.
-  int current_state = 0;
+  std::size_t current_state = 0;
 
   std::vector<std::string> stop_codons = {"UAG", "UAA", "UGA"};
   // constants for WCcognate interaction in 1/sec

@@ -1,13 +1,13 @@
 #include "ribosomesimulator.h"
-#include <float.h>
 #include <algorithm>
+#include <float.h>
 #ifndef _MSC_VER
-    #include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 #else
 #include <Eigen/Dense>
 #endif
-#include <numeric>
 #include "concentrationsreader.h"
+#include <numeric>
 
 #if defined(COMIPLE_PYTHON_MODULE) || defined(RIBOSOMESIMULATOR)
 
@@ -18,21 +18,21 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(ribosomesimulator, mod) {
   py::class_<Simulations::RibosomeSimulator>(mod, "ribosomesimulator")
-      .def(py::init<>())  // constructor
+      .def(py::init<>()) // constructor
       .def("loadConcentrations",
            &Simulations::RibosomeSimulator::loadConcentrations)
       .def("setCodonForSimulation",
            &Simulations::RibosomeSimulator::setCodonForSimulation)
       .def("setState", &Simulations::RibosomeSimulator::setState)
       .def("run_and_get_times",
-           [](Simulations::RibosomeSimulator& rs) {
+           [](Simulations::RibosomeSimulator &rs) {
              double d = 0.0;
              double t = 0.0;
              rs.run_and_get_times(d, t);
              return std::make_tuple(d, t);
            })
       .def("repeat_run_and_get_average_times",
-           [](Simulations::RibosomeSimulator& rs, int repeats) {
+           [](Simulations::RibosomeSimulator &rs, int repeats) {
              double d = 0.0;
              double t = 0.0;
              double tot_time = 0;
@@ -47,34 +47,40 @@ PYBIND11_MODULE(ribosomesimulator, mod) {
            })
       .def("setPropensities", &Simulations::RibosomeSimulator::setPropensities)
       .def("setNonCognate", &Simulations::RibosomeSimulator::setNonCognate)
+      .def("setLogStates", &Simulations::RibosomeSimulator::setLogStates)
       .def("getPropensities", &Simulations::RibosomeSimulator::getPropensities)
       .def("getPropensity", &Simulations::RibosomeSimulator::getPropensity)
       .def("setPropensity", &Simulations::RibosomeSimulator::setPropensity)
       .def_readonly("dt_history", &Simulations::RibosomeSimulator::dt_history)
       .def_readonly("ribosome_state_history",
                     &Simulations::RibosomeSimulator::ribosome_state_history)
-      .def_property_readonly("saccharomyces_cerevisiae_concentrations",
-                    [](py::object) {
-                      py::object conc_path = py::module::import("concentrations"); // load module
-                      std::string file_name = "/Saccharomyces_cerevisiae.csv"; // file name
-                      std::string conc_path_string;
-                      for (auto item: conc_path.attr("__path__")) { // iterate the path list
-                        //cast to string and concatenate with file to form proper path.
-                        conc_path_string = std::string(item.cast<py::str>());
-                        break;
-                      }
-                      return conc_path_string + file_name;
-                    });
+      .def_property_readonly(
+          "saccharomyces_cerevisiae_concentrations", [](py::object) {
+            py::object conc_path =
+                py::module::import("concentrations"); // load module
+            std::string file_name =
+                "/Saccharomyces_cerevisiae.csv"; // file name
+            std::string conc_path_string;
+            for (auto item :
+                 conc_path.attr("__path__")) { // iterate the path list
+              // cast to string and concatenate with file to form proper path.
+              conc_path_string = std::string(item.cast<py::str>());
+              break;
+            }
+            return conc_path_string + file_name;
+          });
 }
 #endif
 
-Simulations::RibosomeSimulator::RibosomeSimulator() {
+Simulations::RibosomeSimulator::RibosomeSimulator() : gen(rd()), dis(DBL_MIN, 1){
   // set initial state to 0
   current_state = 0;
+  alphas.resize(4);
+  next_state.resize(4);
 }
 
 void Simulations::RibosomeSimulator::loadConcentrations(
-    const std::string& file_name) {
+    const std::string &file_name) {
   concentrations_reader.loadConcentrations(file_name);
   buildReactionsMap();
 }
@@ -82,7 +88,7 @@ void Simulations::RibosomeSimulator::loadConcentrations(
 void Simulations::RibosomeSimulator::buildReactionsMap() {
   std::vector<csv_utils::concentration_entry> codons_concentrations;
   concentrations_reader.getContents(codons_concentrations);
-  reactions_map.clear();  // make sure the map is clear.
+  reactions_map.clear(); // make sure the map is clear.
   for (csv_utils::concentration_entry entry : codons_concentrations) {
     auto result =
         std::find(stop_codons.begin(), stop_codons.end(), entry.codon);
@@ -117,138 +123,138 @@ void Simulations::RibosomeSimulator::setPropensities(
   for (std::size_t i = 0; i < prop.size(); i++) {
     if (prop.at(i) >= 0) {
       switch (i) {
-        case 0:
-          WC1f[simulation_codon_3_letters] = prop.at(i);
-          break;
-        case 1:
-          WC1r = prop.at(i);
-          break;
-        case 2:
-          WC2f = prop.at(i);
-          break;
-        case 3:
-          WC2r = prop.at(i);
-          break;
-        case 4:
-          WC3f = prop.at(i);
-          break;
-        case 5:
-          WC4f = prop.at(i);
-          break;
-        case 6:
-          WC5f = prop.at(i);
-          break;
-        case 7:
-          WC6f = prop.at(i);
-          break;
-        case 8:
-          WCdiss = prop.at(i);
-          break;
-        case 9:
-          dec7f = prop.at(i);
-          break;
-        case 10:
-          near1f[simulation_codon_3_letters] = prop.at(i);
-          break;
-        case 11:
-          near1r = prop.at(i);
-          break;
-        case 12:
-          near2f = prop.at(i);
-          break;
-        case 13:
-          near2r = prop.at(i);
-          break;
-        case 14:
-          near3f = prop.at(i);
-          break;
-        case 15:
-          near4f = prop.at(i);
-          break;
-        case 16:
-          near5f = prop.at(i);
-          break;
-        case 17:
-          near6f = prop.at(i);
-          break;
-        case 18:
-          neardiss = prop.at(i);
-          break;
-        case 19:
-          non1f[simulation_codon_3_letters] = prop.at(i);
-          break;
-        case 20:
-          non1r = prop.at(i);
-          break;
-        case 21:
-          trans1f = prop.at(i);
-          break;
-        case 22:
-          trans1r = prop.at(i);
-          break;
-        case 23:
-          trans2 = prop.at(i);
-          break;
-        case 24:
-          trans3 = prop.at(i);
-          break;
-        case 25:
-          trans4 = prop.at(i);
-          break;
-        case 26:
-          trans5 = prop.at(i);
-          break;
-        case 27:
-          trans6 = prop.at(i);
-          break;
-        case 28:
-          trans7 = prop.at(i);
-          break;
-        case 29:
-          trans8 = prop.at(i);
-          break;
-        case 30:
-          trans9 = prop.at(i);
-          break;
-        case 31:
-          wobble1f[simulation_codon_3_letters] = prop.at(i);
-          break;
-        case 32:
-          wobble1r = prop.at(i);
-          break;
-        case 33:
-          wobble2f = prop.at(i);
-          break;
-        case 34:
-          wobble2r = prop.at(i);
-          break;
-        case 35:
-          wobble3f = prop.at(i);
-          break;
-        case 36:
-          wobble4f = prop.at(i);
-          break;
-        case 37:
-          wobble5f = prop.at(i);
-          break;
-        case 38:
-          wobble6f = prop.at(i);
-          break;
-        case 39:
-          wobblediss = prop.at(i);
-          break;
+      case 0:
+        WC1f[simulation_codon_3_letters] = prop.at(i);
+        break;
+      case 1:
+        WC1r = prop.at(i);
+        break;
+      case 2:
+        WC2f = prop.at(i);
+        break;
+      case 3:
+        WC2r = prop.at(i);
+        break;
+      case 4:
+        WC3f = prop.at(i);
+        break;
+      case 5:
+        WC4f = prop.at(i);
+        break;
+      case 6:
+        WC5f = prop.at(i);
+        break;
+      case 7:
+        WC6f = prop.at(i);
+        break;
+      case 8:
+        WCdiss = prop.at(i);
+        break;
+      case 9:
+        dec7f = prop.at(i);
+        break;
+      case 10:
+        near1f[simulation_codon_3_letters] = prop.at(i);
+        break;
+      case 11:
+        near1r = prop.at(i);
+        break;
+      case 12:
+        near2f = prop.at(i);
+        break;
+      case 13:
+        near2r = prop.at(i);
+        break;
+      case 14:
+        near3f = prop.at(i);
+        break;
+      case 15:
+        near4f = prop.at(i);
+        break;
+      case 16:
+        near5f = prop.at(i);
+        break;
+      case 17:
+        near6f = prop.at(i);
+        break;
+      case 18:
+        neardiss = prop.at(i);
+        break;
+      case 19:
+        non1f[simulation_codon_3_letters] = prop.at(i);
+        break;
+      case 20:
+        non1r = prop.at(i);
+        break;
+      case 21:
+        trans1f = prop.at(i);
+        break;
+      case 22:
+        trans1r = prop.at(i);
+        break;
+      case 23:
+        trans2 = prop.at(i);
+        break;
+      case 24:
+        trans3 = prop.at(i);
+        break;
+      case 25:
+        trans4 = prop.at(i);
+        break;
+      case 26:
+        trans5 = prop.at(i);
+        break;
+      case 27:
+        trans6 = prop.at(i);
+        break;
+      case 28:
+        trans7 = prop.at(i);
+        break;
+      case 29:
+        trans8 = prop.at(i);
+        break;
+      case 30:
+        trans9 = prop.at(i);
+        break;
+      case 31:
+        wobble1f[simulation_codon_3_letters] = prop.at(i);
+        break;
+      case 32:
+        wobble1r = prop.at(i);
+        break;
+      case 33:
+        wobble2f = prop.at(i);
+        break;
+      case 34:
+        wobble2r = prop.at(i);
+        break;
+      case 35:
+        wobble3f = prop.at(i);
+        break;
+      case 36:
+        wobble4f = prop.at(i);
+        break;
+      case 37:
+        wobble5f = prop.at(i);
+        break;
+      case 38:
+        wobble6f = prop.at(i);
+        break;
+      case 39:
+        wobblediss = prop.at(i);
+        break;
       }
     }
   }
 }
 
-void Simulations::RibosomeSimulator::setPropensity(std::string& reaction,
+void Simulations::RibosomeSimulator::setPropensity(std::string &reaction,
                                                    const double propensity) {
   *propensities_map.at(reaction) = propensity;
 }
 
 void Simulations::RibosomeSimulator::setNonCognate(double noNonCog) {
-    non1f[simulation_codon_3_letters] = noNonCog;
+  non1f[simulation_codon_3_letters] = noNonCog;
 }
 
 double Simulations::RibosomeSimulator::getPropensity(std::string reaction) {
@@ -316,7 +322,7 @@ Simulations::RibosomeSimulator::getPropensities() {
 }
 
 void Simulations::RibosomeSimulator::setCodonForSimulation(
-    const std::string& codon) {
+    const std::string &codon) {
   simulation_codon_3_letters = codon;
   reactions_graph = reactions_map.at(codon);
   // populate propensities map so we can change propensities later.
@@ -363,77 +369,87 @@ void Simulations::RibosomeSimulator::setCodonForSimulation(
   propensities_map.emplace("trans9", &trans9);
 }
 
+void Simulations::RibosomeSimulator::setLogStates(bool l) { logStates = l; }
+
 void Simulations::RibosomeSimulator::run_and_get_times(
-    double& decoding_time, double& translocation_time) {
-  dt_history.clear();
-  ribosome_state_history.clear();
+    double &decoding_time, double &translocation_time) {
+  if (logStates) {
+    dt_history.clear();
+    ribosome_state_history.clear();
+  }
   current_state = 0;
+  decoding_time = 0;
+  translocation_time = 0;
 
   // initialize the random generator
-  std::random_device
-      rd;  // Will be used to obtain a seed for the random number engine
-  std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
-  std::uniform_real_distribution<> dis(0, 1);
+
+  
 
   double r1 = 0, r2 = 0;
   double tau = 0, clock = 0.0;
-  std::vector<double> alphas;
-  std::vector<int> next_state;
+  double a0, cumsum;
+  std::size_t selected_alpha_vector_index, reactions_size = 0;
   while (true) {
-    // update history
-    dt_history.push_back(tau);
-    ribosome_state_history.push_back(getState());
+    if (logStates) {
+      // update history
+      dt_history.push_back(tau);
+      ribosome_state_history.push_back(getState());
+    }
     // randomly generate parameter for calculating dt
-    r1 = dis(gen) + DBL_MIN;  // adding minumum double value in order to avoid
-                              // division by zero and infinities.
+    r1 = dis(gen); 
     // randomly generate parameter for selecting reaction
-    r2 = dis(gen) + DBL_MIN;  // adding minumum double value in order to avoid
-                              // division by zero and infinities.
+    r2 = dis(gen); 
     // calculate an
-    getAlphas(alphas, next_state);
-    if (alphas.empty()) {
-      translocation_time = 0;
-      decoding_time = 0;
-      // no available reactions, get times and quit.
-      bool is_translocating = true;
-      for (int i = static_cast<int>(ribosome_state_history.size() - 1); i >= 0;
-           i--) {
-        if (is_translocating) {
-          translocation_time += dt_history[static_cast<std::size_t>(i)];
-          if (ribosome_state_history[static_cast<std::size_t>(i)] < 23) {
-            is_translocating = false;
-          }
-        } else {
-          decoding_time += dt_history[static_cast<std::size_t>(i)];
-        }
-      }
-      // however, if quitting because there is no more reactions, time is infinity
-      if (ribosome_state_history.size() == 0){
-          translocation_time = std::numeric_limits<double>::infinity();
-          decoding_time = std::numeric_limits<double>::infinity();
-      }
+    getAlphas(alphas, next_state, reactions_size);
+    if (reactions_size == 0) {
+      // translocation_time = 0;
+      // decoding_time = 0;
+      // // no available reactions, get times and quit.
+      // bool is_translocating = true;
+      // for (int i = static_cast<int>(ribosome_state_history.size() - 1); i >=
+      // 0;
+      //      i--) {
+      //   if (is_translocating) {
+      //     translocation_time += dt_history[static_cast<std::size_t>(i)];
+      //     if (ribosome_state_history[static_cast<std::size_t>(i)] < 23) {
+      //       is_translocating = false;
+      //     }
+      //   } else {
+      //     decoding_time += dt_history[static_cast<std::size_t>(i)];
+      //   }
+      // }
+      // // however, if quitting because there is no more reactions, time is
+      // infinity if (ribosome_state_history.size() == 0){
+      //     translocation_time = std::numeric_limits<double>::infinity();
+      //     decoding_time = std::numeric_limits<double>::infinity();
+      // }
       return;
     }
-    double a0 = std::accumulate(alphas.begin(), alphas.end(), 0.0);
+    a0 = std::accumulate(alphas.begin(), alphas.begin() + reactions_size, 0.0);
     // select next reaction to execute
-    double cumsum = 0;
-    int selected_alpha_vector_index = -1;
+    selected_alpha_vector_index = 0;
     // TODO(Heday): vectorization of this loop would increase performance
-    do {
-      selected_alpha_vector_index++;
-      cumsum += alphas[static_cast<std::size_t>(selected_alpha_vector_index)];
-    } while (cumsum < a0 * r2);
-    // Apply reaction
-    setState(next_state[static_cast<std::size_t>(selected_alpha_vector_index)]);
-    // Update time
+    cumsum = alphas[selected_alpha_vector_index];
+    while (cumsum < a0 * r2) {
+      cumsum += alphas[++selected_alpha_vector_index];
+    };
+    // calculate time
     tau = (1.0 / a0) * log(1.0 / r1);
+    if (current_state < 23) {
+      decoding_time += tau;
+    } else {
+      translocation_time += tau;
+    }
+    // Apply reaction
+    setState(next_state[selected_alpha_vector_index]);
+    // Update time
     clock += tau;
   }
 }
 
 std::vector<std::vector<std::tuple<std::reference_wrapper<double>, int>>>
 Simulations::RibosomeSimulator::createReactionsGraph(
-    const csv_utils::concentration_entry& codon) {
+    const csv_utils::concentration_entry &codon) {
   std::array<std::reference_wrapper<double>, 40> ks = {{non1f[codon.codon],
                                                         near1f[codon.codon],
                                                         wobble1f[codon.codon],
@@ -767,12 +783,12 @@ Simulations::RibosomeSimulator::createReactionsGraph(
   // make the ribosome state go to 16. This is purely for the sake of
   // optimization. the loop below populates reactions_graph automatically. It
   // assumes that each reaction is first-degree.
-  for (const Eigen::MatrixXi& m : reactionMatrix) {
+  for (const Eigen::MatrixXi &m : reactionMatrix) {
     if (ks.at(static_cast<std::size_t>(ii)) > 0) {
       // populate the local index.
       Eigen::Index maxRow, maxCol, minRow, minCol;
-      m.maxCoeff(&maxRow, &maxCol);  // 1
-      m.minCoeff(&minRow, &minCol);  // -1
+      m.maxCoeff(&maxRow, &maxCol); // 1
+      m.minCoeff(&minRow, &minCol); // -1
       if (ks.at(static_cast<std::size_t>(ii)) > 0) {
         r_g.at(static_cast<std::size_t>(minRow))
             .push_back({ks.at(static_cast<std::size_t>(ii)), maxRow});
@@ -787,13 +803,12 @@ int Simulations::RibosomeSimulator::getState() { return current_state; }
 void Simulations::RibosomeSimulator::setState(int s) { current_state = s; }
 
 void Simulations::RibosomeSimulator::getAlphas(
-    std::vector<double>& as, std::vector<int>& reactions_index) {
+    std::vector<double> &as, std::vector<int> &reactions_index) {
   as.clear();
   reactions_index.clear();
-  auto alphas_and_indexes = reactions_graph[static_cast<std::size_t>(
-      current_state)];  // go the possible
-                        // reactions of that
-                        // state.
+  auto alphas_and_indexes = reactions_graph[current_state]; // go the possible
+                                                            // reactions of that
+                                                            // state.
   double k;
   int index;
   for (auto element : alphas_and_indexes) {
@@ -803,14 +818,24 @@ void Simulations::RibosomeSimulator::getAlphas(
   }
 }
 
+void Simulations::RibosomeSimulator::getAlphas(
+    std::vector<double> &as, std::vector<int> &reactions_index,
+    std::size_t &reac_ind) {
+  reac_ind = 0;
+  for (auto element : reactions_graph[current_state]) {
+    std::tie(as[reac_ind], reactions_index[reac_ind]) = element;
+    reac_ind++;
+  }
+}
+
 void Simulations::RibosomeSimulator::getDecodingAlphas(
-    std::vector<double>& as, std::vector<int>& reactions_index) {
+    std::vector<double> &as, std::vector<int> &reactions_index) {
   as.clear();
   reactions_index.clear();
   auto alphas_and_indexes = reactions_graph[static_cast<std::size_t>(
-      current_state)];  // go the possible
-                        // reactions of that
-                        // state.
+      current_state)]; // go the possible
+                       // reactions of that
+                       // state.
   double k;
   int index;
   for (auto element : alphas_and_indexes) {

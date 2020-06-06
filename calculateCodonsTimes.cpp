@@ -72,6 +72,7 @@ std::map<std::string, double> calculate_codons_times(
     std::cout << "Starting codon: " << codon;
     for (int i = 0; i < iterations; i++) {
       ribosome.setState(0);
+      ribosome.setLogStates(false);
       ribosome.run_and_get_times(decoding, translocating);
      if (decoding * translocating <= std::numeric_limits<double>::epsilon()) {
        throw std::runtime_error("decoding nor translocation cannot be zero.");
