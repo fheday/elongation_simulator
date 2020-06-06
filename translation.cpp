@@ -284,7 +284,7 @@ void Simulations::Translation::run() {
   // initialize the random generator
   std::random_device
       rd; // Will be used to obtain a seed for the random number engine
-  std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+  std::mt19937_64 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
   std::uniform_real_distribution<> dis(DBL_MIN, 1);
 
   double r1 = 0, r2 = 0;
