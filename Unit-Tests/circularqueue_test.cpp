@@ -3,13 +3,20 @@
 #include "../circularbuffer.h"
 TEST(CircularQueue_int_tester, basic_tests) {
     utils::circular_buffer<int> queue(5);
-    queue.put(3);
-    queue.put(4);
-    ASSERT_EQ(queue.get(), 3);
-    ASSERT_EQ(queue.get(), 4);
-    // for (int i = 0; i < (int) queue.size(); i++) queue.push(i);
-    // for (int i = 0; i < (int) queue.size(); i++) ASSERT_EQ(queue.pull(), i);
-
+    for (int i = 0; i < (int) queue.size(); i++) queue.put(i);
+    for (int i = 0; i < (int) queue.size(); i++) ASSERT_EQ(queue.get(), i);
 }
 
-TEST(CircularQueue_int_tester, Initialize) { EXPECT_EQ(1, 1); }
+TEST(CircularQueue_vector_tester, basic_tests) {
+    utils::circular_buffer<std::vector<int>> queue(3);
+    std::vector<int> x0{1, 2, 3};
+    std::vector<int> x1{4, 5, 6};
+    queue.put(x0);
+    queue.put(x1);
+    int count = 1;
+    for (std::size_t i = 0; i < queue.size(); i++){
+        std::vector<int> elem = queue.get();
+        for (std::size_t j = 0; j < elem.size(); j++) ASSERT_EQ(elem[j], count++);
+    }
+}
+
