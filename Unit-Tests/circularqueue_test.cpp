@@ -27,3 +27,16 @@ TEST(CircularQueue_vector_tester, basic_test) {
     }
 }
 
+TEST(CircularQueue_vector_tester, queue_vect_to_vect_of_vect_of_int) {
+    utils::circular_buffer<std::vector<int>> queue(3);
+    std::vector<int> x0{1, 2, 3};
+    std::vector<int> x1{4, 5, 6};
+    queue.put(x1);
+    queue.put(x0);
+    int count = 1;
+    auto queue_vector = queue.get_vector();
+    for (std::size_t i = 0; i < queue.size(); i++){
+        std::vector<int> elem = queue_vector[i];
+        for (std::size_t j = 0; j < elem.size(); j++) ASSERT_EQ(elem[j], count++);
+    }
+}
