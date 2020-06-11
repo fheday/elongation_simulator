@@ -71,4 +71,4 @@ TEST(TranslatorTester, checkSpaceBetweenRibosomes)
   }
 }
 
-TEST(TranslatorTester, Initialize) { EXPECT_EQ(1, 1); }
+
