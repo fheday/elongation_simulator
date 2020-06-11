@@ -12,7 +12,6 @@
 #include <list>
 #include <random>
 
-#include "circularbuffer.h"
 
 #define RIBOSOME_SIZE 10
 
@@ -33,6 +32,7 @@ PYBIND11_MODULE(translation, mod) {
       .def("setTimeLimit", &Simulations::Translation::setTimeLimit)
       .def("setFinishedRibosomes",
            &Simulations::Translation::setFinishedRibosomes)
+      .def("setHistorySize", &Simulations::Translation::setHistorySize)
       .def("run", &Simulations::Translation::run,
            py::call_guard<py::gil_scoped_release>())
       .def("setInitiationRate", &Simulations::Translation::setInitiationRate)
@@ -190,6 +190,10 @@ void Simulations::Translation::setPrepopulate(bool prep) {
   pre_populate = prep;
 }
 
+void Simulations::Translation::setHistorySize(std::size_t size) {
+  history_size = size;
+}
+
 /**
  * @brief Set a iteration limit for the Gillespie simulation.
  *
@@ -229,7 +233,7 @@ void Simulations::Translation::setFinishedRibosomes(int n_ribosomes) {
   }
 }
 
-void Simulations::Translation::getAlphas() {
+void Simulations::Translation::getAlphas(utils::circular_buffer<std::vector<int>>& ribosome_positions_history_circ_buffer) {
   std::size_t global_index = 0;
 
   // add initiation if needed.
@@ -242,7 +246,7 @@ void Simulations::Translation::getAlphas() {
       reaction_index[global_index] = codons_vector[0]->alphas[global_index];
     }
   }
-  for (auto ribosome_index : ribosome_positions_history.back()) {
+  for (auto ribosome_index : ribosome_positions_history_circ_buffer.peek_back()) {
     for (std::size_t index = 0;
          index < codons_vector[ribosome_index]->alphas.size(); index++) {
       alphas[global_index] = codons_vector[ribosome_index]->alphas[index];
@@ -273,14 +277,8 @@ void Simulations::Translation::insertRibosome(std::size_t position,
 }
 
 void Simulations::Translation::run() {
-  dt_history = std::vector<double>(
-      iteration_limit > 0 ? static_cast<std::size_t>(iteration_limit) : 100000);
-  dt_history.clear();
-
-  ribosome_positions_history = std::vector<std::vector<int>>(
-      iteration_limit > 0 ? static_cast<std::size_t>(iteration_limit) : 100000);
-  ribosome_positions_history.clear();
-
+  utils::circular_buffer<double> dt_history_circ_buffer(history_size);
+  utils::circular_buffer<std::vector<int>> ribosome_positions_history_circ_buffer(history_size);
   // initialize the random generator
   std::random_device
       rd; // Will be used to obtain a seed for the random number engine
@@ -354,8 +352,8 @@ void Simulations::Translation::run() {
       pre_filled_ribosomes++;
     }
   }
-  ribosome_positions_history.push_back(rib_positions.get_vector());
-  dt_history.push_back(0.0);
+  ribosome_positions_history_circ_buffer.put(rib_positions.get_vector(true));
+  dt_history_circ_buffer.put(0.0);
   finished_ribosomes -=
       pre_filled_ribosomes; // we should ignore these ribosomes.
   std::size_t moved_codon = 0, current_codon = 0;
@@ -375,7 +373,7 @@ void Simulations::Translation::run() {
     // randomly generate parameter for selecting reaction
     r2 = dis(gen);
     // calculate an
-    getAlphas();
+    getAlphas(ribosome_positions_history_circ_buffer);
     if (global_size == 0) {
       // no available reactions, quit loop prematurely.
       std::cout << "no available reactions. quitting.\n";
@@ -456,11 +454,11 @@ void Simulations::Translation::run() {
         rib_positions.replace(moved_codon - 1, moved_codon);
       }
       // ribosome movement detected. create new entry in the history.
-      dt_history.push_back(tau);
-      ribosome_positions_history.push_back(rib_positions.get_vector());
+      dt_history_circ_buffer.put(tau);
+      ribosome_positions_history_circ_buffer.put(rib_positions.get_vector(true));
     } else {
       // no ribosome movement. just update dt_history.
-      dt_history.back() += tau;
+      dt_history_circ_buffer.peek_back() += tau;
     }
     if (is_logging_codon_state) {
       // add state reaction to the codon's history
@@ -470,6 +468,9 @@ void Simulations::Translation::run() {
     clock += tau;
     i++; // update iteration number.
   }
+  // copy log data to the object-wide log system.
+  dt_history = dt_history_circ_buffer.get_vector(false); 
+  ribosome_positions_history = ribosome_positions_history_circ_buffer.get_vector(false);
 }
 
 /**

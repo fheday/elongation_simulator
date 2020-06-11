@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include "circularbuffer.h"
 #include "elongation_codon.h"
 
 namespace Simulations {
@@ -21,7 +22,8 @@ class Translation {
 
   void setPrepopulate(bool);
 
-  void getAlphas();
+  void setHistorySize(std::size_t);
+
   void run();
 
   void calculateAverageTimes();
@@ -76,6 +78,8 @@ class Translation {
   bool is_logging_codon_state = false;
   bool is_initiation_set = false;
   bool is_termination_set = false;
+  std::size_t history_size = 100000;
+  void getAlphas(utils::circular_buffer<std::vector<int>>&);
 };
 }  // namespace Simulations
 #endif  // TRANSLATION_H
