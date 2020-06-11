@@ -41,6 +41,15 @@ namespace utils
       return val;
     }
 
+    T& peek_back() {
+      if (head_ == 0) {
+        return buf_[max_size_ - 1];
+      } else {
+        return buf_[head_ - 1];
+      }
+      
+    }
+
     void replace(T old_item, T new_item) {
       std::size_t index = tail_;
       for (size_t i = 0; i < size(); i++) {
@@ -52,11 +61,12 @@ namespace utils
       }
     }
 
-    std::vector<T> get_vector() {
+    std::vector<T> get_vector(const bool inverted) {
       std::size_t size_ = size();
       std::vector<T> result(size_);
       for (std::size_t i = 0; i < result.size(); i++) {
-        result[size_ - 1 - i] = buf_[fast_mod((tail_ + i) , max_size_)];
+        std::size_t ind = inverted ? size_ - 1 - i: i;
+        result[ind] = buf_[fast_mod((tail_ + i) , max_size_)];
       }
       return result;
     }
