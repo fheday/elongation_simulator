@@ -6,7 +6,6 @@ import os
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QLabel, QPushButton,\
     QFileDialog, QSpinBox, QDoubleSpinBox, QCheckBox, QListWidget, QTableWidget,\
     QHeaderView, QTableWidgetItem
-from PyQt5.QtCore import pyqtSlot
 from Bio import SeqIO
 
 class SimulationBuilder():
@@ -76,7 +75,7 @@ class SimulationBuilder():
         genes_listbox.setObjectName("genes_listbox")
         grid.addWidget(genes_listbox, 5, 3)
 
-        grid.addWidget(QLabel("Gene copy number: "), 5, 4)
+        grid.addWidget(QLabel("Transcript copy number: "), 5, 4)
         gene_copy_number_spinbox = QSpinBox()
         gene_copy_number_spinbox.setObjectName("gene_copy_number_spinbox")
         gene_copy_number_spinbox.setRange(1, 1000)
@@ -179,7 +178,7 @@ class SimulationBuilder():
         genes_list = [str(added_simulations_listbox.item(i, 1).text())
                       for i in range(added_simulations_listbox.rowCount())]
 
-        fasta_files_list_indexes = [i for i, x in enumerate(fasta_files_list) 
+        fasta_files_list_indexes = [i for i, x in enumerate(fasta_files_list)
                                     if x == selected_fasta_file]
         genes_list_indexes = [i for i, x in enumerate(genes_list) if x == selected_gene]
         index = set(fasta_files_list_indexes).intersection(genes_list_indexes)
