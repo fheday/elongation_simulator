@@ -77,6 +77,7 @@ class SimulationBuilder():
 
         grid.addWidget(QLabel("Transcript copy number: "), 5, 4)
         gene_copy_number_spinbox = QSpinBox()
+        genes_listbox.setSelectionMode(2)
         gene_copy_number_spinbox.setObjectName("gene_copy_number_spinbox")
         gene_copy_number_spinbox.setRange(1, 1000)
         gene_copy_number_spinbox.setSingleStep(1)
@@ -169,10 +170,10 @@ class SimulationBuilder():
         fasta_files_listbox = self.window.findChild(QListWidget, 'fasta_files_listbox')
         added_simulations_listbox = self.window.findChild(QTableWidget, 'added_simulations_listbox')
         gene_copy_number_spinbox = self.window.findChild(QSpinBox, 'gene_copy_number_spinbox')
-        if len(genes_listbox.selectedItems()) != 1 or len(fasta_files_listbox.selectedItems()) != 1:
+        if len(genes_listbox.selectedItems()) == 0 or len(fasta_files_listbox.selectedItems()) != 1:
             return
         selected_fasta_file = fasta_files_listbox.currentItem().text()
-        selected_gene = genes_listbox.currentItem().text()
+        selected_genes = [item.text() for item in genes_listbox.selectedItems()]
         fasta_files_list = [str(added_simulations_listbox.item(i, 0).text())
                             for i in range(added_simulations_listbox.rowCount())]
         genes_list = [str(added_simulations_listbox.item(i, 1).text())
@@ -180,24 +181,26 @@ class SimulationBuilder():
 
         fasta_files_list_indexes = [i for i, x in enumerate(fasta_files_list)
                                     if x == selected_fasta_file]
-        genes_list_indexes = [i for i, x in enumerate(genes_list) if x == selected_gene]
+        genes_list_indexes = [i for i, x in enumerate(genes_list) if x in selected_genes]
         index = set(fasta_files_list_indexes).intersection(genes_list_indexes)
 
         if len(index) > 0:
             # update gene copy number
-            added_simulations_listbox.setItem(list(index)[0],
-                                              2,
-                                              QTableWidgetItem(
-                                                  str(gene_copy_number_spinbox.value())))
+            for i in index:
+                added_simulations_listbox.setItem(i,
+                                                2,
+                                                QTableWidgetItem(
+                                                    str(gene_copy_number_spinbox.value())))
         else:
             # new entry
-            index = added_simulations_listbox.rowCount()
-            added_simulations_listbox.insertRow(index)
-            added_simulations_listbox.setItem(index, 0, QTableWidgetItem(selected_fasta_file))
-            added_simulations_listbox.setItem(index, 1, QTableWidgetItem(selected_gene))
-            added_simulations_listbox.setItem(index, 2,
-                                              QTableWidgetItem(
-                                                  str(gene_copy_number_spinbox.value())))
+            for selected_gene in selected_genes:
+                index = added_simulations_listbox.rowCount()
+                added_simulations_listbox.insertRow(index)
+                added_simulations_listbox.setItem(index, 0, QTableWidgetItem(selected_fasta_file))
+                added_simulations_listbox.setItem(index, 1, QTableWidgetItem(selected_gene))
+                added_simulations_listbox.setItem(index, 2,
+                                                  QTableWidgetItem(
+                                                      str(gene_copy_number_spinbox.value())))
         return
 
     def remove_simulation_entry(self):
