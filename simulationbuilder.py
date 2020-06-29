@@ -128,7 +128,7 @@ class SimulationBuilder():
         """
         fasta_file_chooser, _ = QFileDialog\
             .getOpenFileName(self.window, "Select file", os.getcwd(),
-                             "txt File (*.txt );;FASTA file (*.fasta)")
+                             "txt File (*.txt );;FASTA file (*.fasta);;FNA file (*.fna)")
         if fasta_file_chooser == '' or fasta_file_chooser in self.genes_dict.keys():
             return
         self.genes_dict[fasta_file_chooser] = \
