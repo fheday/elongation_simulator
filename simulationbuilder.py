@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QLabel, QPushBut
     QFileDialog, QSpinBox, QDoubleSpinBox, QCheckBox, QListWidget, QTableWidget,\
     QHeaderView, QTableWidgetItem, QGroupBox, QRadioButton
 from Bio import SeqIO
+import json
 
 class Gui():
     """
@@ -327,12 +328,57 @@ class SimulationBuilder:
         """
         Create fields with default values.
         """
-        self.concentration_file = ""
-        self.pre_populate = True
-        self.mRNA_entries = [] # will be a list of dictionaries
-        self.terminated_ribosomes = 10000
-        self.history_size = 10000
-        self.results = {} # dictionary of dictionaries with lists
+        self.data = {
+            "concentration_file":"",
+            "pre_populate":True,
+            "mRNA_entries":[],
+            "history_size":100000,
+            "results":{},
+        }
+
+    def setConcentrationFile(self, file_path):
+        self.data["concentration_file"] = file_path
+    
+    def setPrePopulate(self, pre_populate):
+        self.data["pre_populate"] = pre_populate
+
+    def setHistory_size(self, history_size):
+        if history_size > 0:
+            self.data["history_size"] = history_size
+    
+    def add_mRNA_entry(self, fasta_file, gene, initiation_rate, termination_rate, transcript_copy_number):
+        if initiation_rate < 0 or termination_rate < 0 or transcript_copy_number <= 0:
+            return
+        entry = {
+            "fasta_file":fasta_file,
+            "gene":gene,
+            "initiation_rate":initiation_rate,
+            "termination_rate":termination_rate,
+            "transcript_copy_number":transcript_copy_number
+        }
+        if entry not in self.data["mRNA_entries"]:
+            self.data["mRNA_entries"].append(entry)
+
+    def set_halt_condition(self, condition, value):
+        if value < 0:
+            return
+        if condition.lower() == "iteration":
+            self.data["iteration_limit"] = int(value)
+        elif condition.lower() == "time":
+            self.data["time_limit"] = value
+        elif condition.lower() == "ribosomes":
+            self.data["finished_ribosomes"] = int(value)
+    
+    def save_simulation(self, file_path):
+        # validation
+        if len(set(["iteration_limit", "time_limit", "finished_ribosomes"]).intersection(self.data.keys())) == 0:
+            return
+        if len(self.data["mRNA_entries"]) == 0:
+            return
+        # valid simulation. save.
+        with open(file_path, 'w') as outfile:
+            json.dump(self.data, outfile)
+
 
 if __name__ == "__main__":
     Gui()
