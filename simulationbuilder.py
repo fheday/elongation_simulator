@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QLabel, QPushBut
     QHeaderView, QTableWidgetItem, QGroupBox
 from Bio import SeqIO
 
-class SimulationBuilder():
+class Gui():
     """
     class to generate GUI.
     """
