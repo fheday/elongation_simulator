@@ -5,7 +5,7 @@ Gui module to build and save a simulation set
 import os
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QLabel, QPushButton,\
     QFileDialog, QSpinBox, QDoubleSpinBox, QCheckBox, QListWidget, QTableWidget,\
-    QHeaderView, QTableWidgetItem, QGroupBox
+    QHeaderView, QTableWidgetItem, QGroupBox, QRadioButton
 from Bio import SeqIO
 
 class Gui():
@@ -19,6 +19,7 @@ class Gui():
 
         self.app = QApplication([])
         self.window = QWidget()
+        self.window.resize(100, 800) #initial window size
         grid = QGridLayout()
         self.window.setLayout(grid)
 
@@ -106,6 +107,56 @@ class Gui():
         remove_entry_button = QPushButton("Remove entry")
         remove_entry_button.clicked.connect(self.remove_simulation_entry)
         grid.addWidget(remove_entry_button, 14, 5)
+
+        termination_condition_groupbox = QGroupBox()
+        termination_condition_groupbox.setTitle("Stop condition")
+        termination_condition_groupbox_grid = QGridLayout()
+        termination_condition_groupbox.setLayout(termination_condition_groupbox_grid)
+        grid.addWidget(termination_condition_groupbox, 15, 0, 2, 2)
+
+        iteration_limit_radiobutton = QRadioButton("Iteration limit:")
+        iteration_limit_radiobutton.setObjectName("iteration_limit_radiobutton")
+        termination_condition_groupbox_grid.addWidget(iteration_limit_radiobutton, 0, 0)
+        iteration_limit_spinbox = QSpinBox()
+        iteration_limit_spinbox.setObjectName("iteration_limit_spinbox")
+        iteration_limit_spinbox.setRange(0, int(10e10))
+        iteration_limit_spinbox.valueChanged.connect(self.changed_iteration_limit)
+        termination_condition_groupbox_grid.addWidget(iteration_limit_spinbox, 0, 1)
+
+        time_limit_radiobutton = QRadioButton("Time limit:")
+        time_limit_radiobutton.setObjectName("time_limit_radiobutton")
+        termination_condition_groupbox_grid.addWidget(time_limit_radiobutton, 1, 0)
+        time_limit_spinbox = QDoubleSpinBox()
+        time_limit_spinbox.setObjectName("time_limit_spinbox")
+        time_limit_spinbox.setRange(0, 10e10)
+        time_limit_spinbox.valueChanged.connect(self.changed_time_limit_entry)
+        termination_condition_groupbox_grid.addWidget(time_limit_spinbox, 1, 1)
+
+        finished_ribosomes_limit_radiobutton = QRadioButton("Finished Ribosomes:")
+        finished_ribosomes_limit_radiobutton.setObjectName("finished_ribosomes_limit_radiobutton")
+        termination_condition_groupbox_grid.addWidget(finished_ribosomes_limit_radiobutton, 2, 0)
+        finished_ribosomes_spinbox = QSpinBox()
+        finished_ribosomes_spinbox.setObjectName("finished_ribosomes_spinbox")
+        finished_ribosomes_spinbox.setRange(0, int(10e10))
+        finished_ribosomes_spinbox.valueChanged.connect(self.changed_finished_ribosomes)
+        termination_condition_groupbox_grid.addWidget(finished_ribosomes_spinbox, 2,1)
+
+        history_groupbox = QGroupBox()
+        history_groupbox.setFlat(True)
+        history_groupbox_grid = QGridLayout()
+        history_groupbox.setLayout(history_groupbox_grid)
+        grid.addWidget(history_groupbox, 15, 3, 2, 1)
+
+        history_groupbox_grid.addWidget(QLabel("Number of history entries: "), 0, 0)
+        history_size_spinbox = QSpinBox()
+        history_size_spinbox.setObjectName("history_size_spinbox")
+        history_size_spinbox.setRange(1, int(10e15))
+        history_size_spinbox.setValue(100000)
+        history_groupbox_grid.addWidget(history_size_spinbox, 0, 1)
+
+        generate_simulation_button = QPushButton("Generate Simulation file")
+        generate_simulation_button.clicked.connect(self.generate_simulation_file)
+        grid.addWidget(generate_simulation_button, 17, 1, 3, 4)
         self.show()
 
     def show(self):
@@ -239,6 +290,49 @@ class Gui():
         index = added_simulations_listbox.currentRow()
         added_simulations_listbox.removeRow(index)
 
+    def changed_iteration_limit(self):
+        """
+        select iteration limit as the user changed its value.
+        """
+        iteration_limit_radiobutton = self.window.findChild(QRadioButton, "iteration_limit_radiobutton")
+        iteration_limit_radiobutton.setChecked(True)
+    
+    def changed_time_limit_entry(self):
+        """
+        select time limit as the user changed its value.
+        """
+        time_limit_radiobutton = self.window.findChild(QRadioButton, "time_limit_radiobutton")
+        time_limit_radiobutton.setChecked(True)
+
+    def changed_finished_ribosomes(self):
+        """
+        select finished ribosomes as the user changed its value.
+        """
+        finished_ribosomes_limit_radiobutton = self.window.findChild(QRadioButton, "finished_ribosomes_limit_radiobutton")
+        finished_ribosomes_limit_radiobutton.setChecked(True)
+    
+    
+    def generate_simulation_file(self):
+        """
+        This method should assemble the json and ask the user for a place to save the file.
+        """
+        return
+
+
+class SimulationBuilder:
+    """
+    class to generate JSON config file
+    """
+    def __init__(self):
+        """
+        Create fields with default values.
+        """
+        self.concentration_file = ""
+        self.pre_populate = True
+        self.mRNA_entries = [] # will be a list of dictionaries
+        self.terminated_ribosomes = 10000
+        self.history_size = 10000
+        self.results = {} # dictionary of dictionaries with lists
 
 if __name__ == "__main__":
     Gui()
