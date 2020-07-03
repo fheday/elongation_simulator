@@ -6,7 +6,9 @@ import os
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QLabel, QPushButton,\
     QFileDialog, QSpinBox, QDoubleSpinBox, QCheckBox, QListWidget, QTableWidget,\
     QHeaderView, QTableWidgetItem, QGroupBox, QRadioButton
+from PyQt5 import QtCore
 from Bio import SeqIO
+import pandas as pd
 import json
 
 class Gui():
@@ -14,9 +16,8 @@ class Gui():
     class to generate GUI.
     """
     def __init__(self):
-        self.pre_populate = False
-        self.concentrations_file_path = None
         self.genes_dict = {}
+        self.stop_condition = ()
 
         self.app = QApplication([])
         self.window = QWidget()
@@ -43,11 +44,16 @@ class Gui():
         grid.addWidget(pre_populate_check_box, 1, 1)
 
         grid.addWidget(QLabel("Add FASTA file :"), 2, 0)
-        add_fasta_file_button = QPushButton("Add file")
+        add_fasta_file_button = QPushButton("Add FASTA file")
         add_fasta_file_button.setToolTip(\
             "Reads FASTA file and make its genes available for simulation")
         add_fasta_file_button.clicked.connect(self.open_fasta_file)
         grid.addWidget(add_fasta_file_button, 2, 1)
+
+        load_batch_file_button = QPushButton("Load batch CSV file")
+        load_batch_file_button.setToolTip("load a CSV file with a list of Genes, copy number, initiation and termination rates.")
+        load_batch_file_button.clicked.connect(self.load_batch_file)
+        grid.addWidget(load_batch_file_button, 2, 3)
 
         grid.addWidget(QLabel("Loaded FASTA files:"), 3, 0)
         fasta_files_listbox = QListWidget()
@@ -80,7 +86,7 @@ class Gui():
         rates_groupbox_grid.addWidget(term_rate_spinbox, 1, 1)
 
         rates_groupbox_grid.addWidget(QLabel("Transcript copy number: "), 2, 0)
-        gene_copy_number_spinbox = QSpinBox()
+        gene_copy_number_spinbox = QDoubleSpinBox()
         genes_listbox.setSelectionMode(2)
         gene_copy_number_spinbox.setObjectName("gene_copy_number_spinbox")
         gene_copy_number_spinbox.setRange(1, 1000)
@@ -126,10 +132,13 @@ class Gui():
 
         time_limit_radiobutton = QRadioButton("Time limit:")
         time_limit_radiobutton.setObjectName("time_limit_radiobutton")
+        time_limit_radiobutton.setChecked(True) # have a checked option for starters.
         termination_condition_groupbox_grid.addWidget(time_limit_radiobutton, 1, 0)
         time_limit_spinbox = QDoubleSpinBox()
         time_limit_spinbox.setObjectName("time_limit_spinbox")
         time_limit_spinbox.setRange(0, 10e10)
+        time_limit_spinbox.setValue(60) # set a default value
+        self.stop_condition = ("time", float(time_limit_spinbox.value()))
         time_limit_spinbox.valueChanged.connect(self.changed_time_limit_entry)
         termination_condition_groupbox_grid.addWidget(time_limit_spinbox, 1, 1)
 
@@ -186,7 +195,7 @@ class Gui():
         """
         fasta_file_chooser, _ = QFileDialog\
             .getOpenFileName(self.window, "Select file", os.getcwd(),
-                             "txt File (*.txt );;FASTA file (*.fasta);;FNA file (*.fna)")
+                             "All compatible files (*.txt *.fasta *.fna *.fa);;txt File (*.txt );;FASTA file (*.fasta);;FNA file (*.fna *.fa)")
         if fasta_file_chooser == '' or fasta_file_chooser in self.genes_dict.keys():
             return
         self.genes_dict[fasta_file_chooser] = \
@@ -203,6 +212,43 @@ class Gui():
             genes_listbox.clear()
         genes_listbox.addItems(self.genes_dict[fasta_file_chooser])
         genes_listbox.setCurrentRow(genes_listbox.count())
+    
+    def load_batch_file(self):
+        """
+        Open dialog to select CSV file with ORF, transcript copy number, initiation and termination rates.
+        """
+        batch_file_path, _ = QFileDialog.getOpenFileName(self.window, "Select file",
+                                                         os.getcwd(), "CSV File (*.csv )")
+        added_simulations_listbox = self.window.findChild(QTableWidget, 'added_simulations_listbox')
+        if batch_file_path == '':
+            return
+        df = pd.read_csv(batch_file_path)
+        if not all(elem in ['ORF', 'RNA_copies', 'Ini_rate', 'Term_rate']  for elem in df.columns):
+            return
+        for index, row in df.iterrows():
+            for key in self.genes_dict.keys():
+                index_to_update = added_simulations_listbox.rowCount()
+                if row.loc["ORF"] in self.genes_dict[key]:
+                    items = added_simulations_listbox.findItems(row.loc["ORF"], QtCore.Qt.MatchExactly)
+                    if items:
+                        index_to_update = items[0].row() # go to the row to edit entry.
+                    else:
+                        added_simulations_listbox.insertRow(index_to_update) # create new entry
+                added_simulations_listbox.setItem(index_to_update, 0,
+                                                QTableWidgetItem(key))
+                added_simulations_listbox.setItem(index_to_update, 1,
+                                                QTableWidgetItem(row.loc["ORF"]))
+                added_simulations_listbox.setItem(index_to_update, 2,
+                                                QTableWidgetItem(
+                                                    str(row.loc["Ini_rate"])))
+                added_simulations_listbox.setItem(index_to_update, 3,
+                                                QTableWidgetItem(
+                                                    str(row.loc["Term_rate"])))
+                added_simulations_listbox.setItem(index_to_update, 4,
+                                                QTableWidgetItem(
+                                                    str(row.loc["RNA_copies"])))
+
+
 
     def onselect_fasta_file(self):
         """
@@ -217,22 +263,8 @@ class Gui():
         genes_listbox.addItems(self.genes_dict[value])
         genes_listbox.setCurrentRow(genes_listbox.count())
 
-    def add_simulation_entry(self):
-        """
-        Use the selected fasta file, gene and gene copy number to add a new simulation entry.
-        If fasta file AND gene is already added, update that entry with new copy number.
-        """
-        # we need: a gene and copy number.
-        genes_listbox = self.window.findChild(QListWidget, 'genes_listbox')
-        fasta_files_listbox = self.window.findChild(QListWidget, 'fasta_files_listbox')
+    def get_entries_to_add_and_update(self, selected_fasta_file, selected_genes):
         added_simulations_listbox = self.window.findChild(QTableWidget, 'added_simulations_listbox')
-        gene_copy_number_spinbox = self.window.findChild(QSpinBox, 'gene_copy_number_spinbox')
-        initiation_rate_spinbox = self.window.findChild(QDoubleSpinBox, 'init_rate_spinbox')
-        termination_rate_spinbox = self.window.findChild(QDoubleSpinBox, 'term_rate_spinbox')
-        if len(genes_listbox.selectedItems()) == 0 or len(fasta_files_listbox.selectedItems()) != 1:
-            return
-        selected_fasta_file = fasta_files_listbox.currentItem().text()
-        selected_genes = [item.text() for item in genes_listbox.selectedItems()]
         fasta_files_list = [str(added_simulations_listbox.item(i, 0).text())
                             for i in range(added_simulations_listbox.rowCount())]
         genes_list = [str(added_simulations_listbox.item(i, 1).text())
@@ -246,6 +278,25 @@ class Gui():
                                   if x not in genes_list]
         indexes_to_update = set(
             fasta_files_list_indexes).intersection(genes_list_indexes_to_be_updated)
+        return genes_list_to_be_added, indexes_to_update
+
+    def add_simulation_entry(self):
+        """
+        Use the selected fasta file, gene and gene copy number to add a new simulation entry.
+        If fasta file AND gene is already added, update that entry with new copy number.
+        """
+        # we need: a gene and copy number.
+        genes_listbox = self.window.findChild(QListWidget, 'genes_listbox')
+        fasta_files_listbox = self.window.findChild(QListWidget, 'fasta_files_listbox')
+        added_simulations_listbox = self.window.findChild(QTableWidget, 'added_simulations_listbox')
+        gene_copy_number_spinbox = self.window.findChild(QDoubleSpinBox, 'gene_copy_number_spinbox')
+        initiation_rate_spinbox = self.window.findChild(QDoubleSpinBox, 'init_rate_spinbox')
+        termination_rate_spinbox = self.window.findChild(QDoubleSpinBox, 'term_rate_spinbox')
+        if len(genes_listbox.selectedItems()) == 0 or len(fasta_files_listbox.selectedItems()) != 1:
+            return
+        selected_fasta_file = fasta_files_listbox.currentItem().text()
+        selected_genes = [item.text() for item in genes_listbox.selectedItems()]
+        genes_list_to_be_added, indexes_to_update = self.get_entries_to_add_and_update(selected_fasta_file, selected_genes)
 
         if len(indexes_to_update) > 0:
             # update gene copy number, initiation rate and termination rate
@@ -296,27 +347,57 @@ class Gui():
         select iteration limit as the user changed its value.
         """
         iteration_limit_radiobutton = self.window.findChild(QRadioButton, "iteration_limit_radiobutton")
+        iteration_limit_spinbox = self.window.findChild(QSpinBox, "iteration_limit_spinbox")
         iteration_limit_radiobutton.setChecked(True)
+        self.stop_condition = ("iteration", int(iteration_limit_spinbox.value()))
     
     def changed_time_limit_entry(self):
         """
         select time limit as the user changed its value.
         """
         time_limit_radiobutton = self.window.findChild(QRadioButton, "time_limit_radiobutton")
+        time_limit_spinbox = self.window.findChild(QDoubleSpinBox, "time_limit_spinbox")
         time_limit_radiobutton.setChecked(True)
+        self.stop_condition = ("time", float(time_limit_spinbox.value()))
 
     def changed_finished_ribosomes(self):
         """
         select finished ribosomes as the user changed its value.
         """
         finished_ribosomes_limit_radiobutton = self.window.findChild(QRadioButton, "finished_ribosomes_limit_radiobutton")
+        finished_ribosomes_spinbox = self.window.findChild(QSpinBox, "finished_ribosomes_spinbox")
         finished_ribosomes_limit_radiobutton.setChecked(True)
+        self.stop_condition = ("ribosomes", int(finished_ribosomes_spinbox.value()))
     
     
     def generate_simulation_file(self):
         """
         This method should assemble the json and ask the user for a place to save the file.
         """
+        file_name = QFileDialog.getSaveFileName(self.window, 'Save simulation configuration', os.getcwd(), filter='*.json')
+        if file_name == "":
+            return
+        file_name = file_name[0] + '.' + file_name[1].split('.')[1]
+        selected_concentration_label = self.window.findChild(QLabel, "selected_concentration_label")
+        pre_populate_check_box = self.window.findChild(QCheckBox, "pre_populate_check_box")
+        history_size_spinbox = self.window.findChild(QSpinBox, "history_size_spinbox")
+        added_simulations_table = self.window.findChild(QTableWidget, 'added_simulations_listbox')
+        
+        sb = SimulationBuilder()
+        sb.set_concentration_file(selected_concentration_label.text())
+        sb.set_pre_populate(pre_populate_check_box.checkState())
+        sb.set_history_size(int(history_size_spinbox.value()))
+        sb.set_halt_condition(*self.stop_condition)
+        for index in range(added_simulations_table.rowCount()):
+            fasta_file = added_simulations_table.item(index, 0).text()
+            gene = added_simulations_table.item(index, 1).text()
+            initiation_rate = float(added_simulations_table.item(index, 2).text())
+            termination_rate = float(added_simulations_table.item(index, 3).text())
+            transcript_copy_number = float(added_simulations_table.item(index, 4).text())
+            sb.add_mRNA_entry(fasta_file, gene, initiation_rate, termination_rate, transcript_copy_number)
+        print(file_name)
+        sb.save_simulation(file_name)
+
         return
 
 
@@ -336,13 +417,13 @@ class SimulationBuilder:
             "results":{},
         }
 
-    def setConcentrationFile(self, file_path):
+    def set_concentration_file(self, file_path):
         self.data["concentration_file"] = file_path
     
-    def setPrePopulate(self, pre_populate):
+    def set_pre_populate(self, pre_populate):
         self.data["pre_populate"] = pre_populate
 
-    def setHistory_size(self, history_size):
+    def set_history_size(self, history_size):
         if history_size > 0:
             self.data["history_size"] = history_size
     
