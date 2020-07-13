@@ -8,10 +8,10 @@
 namespace Elongation_manager {
     enum stop_condition_enum {ITERATION, TIME, RIBOSOMES};
     class SimulationManager{
+        public:
         SimulationManager() = delete; // no default constructor
         SimulationManager(std::string); //constructor with configuration file name.
         private:
-        
         std::string configuration_file_path;
         std::string concentration_file_path;
         bool pre_populate = false;

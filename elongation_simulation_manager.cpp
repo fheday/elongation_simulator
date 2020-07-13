@@ -1,6 +1,6 @@
 #include "elongation_simulation_manager.h"
 #include <fstream>
-#include "jsoncpp/jsoncpp.cpp"
+#include "jsoncpp.cpp"
 
 Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
     configuration_file_path = cfp;
