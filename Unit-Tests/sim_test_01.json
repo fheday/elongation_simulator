@@ -1,0 +1,8 @@
+{
+"concentration_file": "/home/heday/Projects/RSim/data/codons.csv", 
+"pre_populate": 0, 
+"mRNA_entries": [], 
+"history_size": 130000, 
+"results": {}, 
+"time_limit": 60.0
+}
