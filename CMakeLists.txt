@@ -29,6 +29,7 @@ target_link_libraries(run_translation PRIVATE elongation_simulator_lib gflags)
 find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories("eigen-3.3.7/")
+include_directories("jsoncpp/")
 
 find_package(pybind11 REQUIRED)
 add_library(translation EXCLUDE_FROM_ALL MODULE translation.cpp mrna_reader.cpp initiationterminationcodon.cpp
