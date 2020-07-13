@@ -11,7 +11,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC")
 
 set(common_sources concentrationsreader.cpp mrna_reader.cpp)
 set(ribosome_simulator_sources ribosomesimulator.cpp ${common_sources})
-set(elongation_simulator_sources elongationsimulator.cpp  elongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.cpp ${ribosome_simulator_sources})
+set(elongation_simulator_sources elongationsimulator.cpp  elongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.cpp elongation_simulation_manager.cpp ${ribosome_simulator_sources})
 
 add_library(util_lib STATIC ${common_sources})
 add_library(ribosome_simulator_lib STATIC ${ribosome_simulator_sources})
