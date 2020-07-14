@@ -33,10 +33,7 @@ Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
         stop_condition_value = root.get("finished_ribosomes", "-1").asFloat();
     }
     history_size = root.get("history_size", 10000).asUInt();
-    //     config_doc.close();
-    //     std::cout<<config;
-    //     return config;
-
+    config_doc.close(); // close file
 };
 
 std::string Elongation_manager::SimulationManager::get_concentration_file_path() {
