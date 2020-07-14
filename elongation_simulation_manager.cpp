@@ -14,11 +14,11 @@ Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
     std::string gene_string;
     float init_rate = 0, term_rate = 0, gene_copy_number = 0;
     for(unsigned int i = 0; i < root["mRNA_entries"].size(); ++i) {
-        fasta_file_path = root["mRNA_files"][i]["fasta_file"].asString();
-        gene_string = root["mRNA_files"][i]["gene"].asString();
-        init_rate = root["mRNA_files"][i]["initiation_rate"].asFloat();
-        term_rate = root["mRNA_files"][i]["termination_rate"].asFloat();
-        gene_copy_number = root["mRNA_files"][i]["transcript_copy_number"].asFloat();
+        fasta_file_path = root["mRNA_entries"][i]["fasta_file"].asString();
+        gene_string = root["mRNA_entries"][i]["gene"].asString();
+        init_rate = root["mRNA_entries"][i]["initiation_rate"].asFloat();
+        term_rate = root["mRNA_entries"][i]["termination_rate"].asFloat();
+        gene_copy_number = root["mRNA_entries"][i]["transcript_copy_number"].asFloat();
         simulations_configurations.push_back(std::tuple(fasta_file_path, gene_string, init_rate, term_rate, gene_copy_number));
     }
 
@@ -38,3 +38,31 @@ Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
     //     return config;
 
 };
+
+std::string Elongation_manager::SimulationManager::get_concentration_file_path() {
+    return concentration_file_path;
+}
+
+std::string Elongation_manager::SimulationManager::get_configuration_file_path() {
+    return configuration_file_path;
+}
+
+bool Elongation_manager::SimulationManager::get_pre_populate() {
+    return pre_populate;
+}
+
+std::vector<std::tuple<std::string, std::string, float, float, float>>& Elongation_manager::SimulationManager::get_simulations_configurations() {
+    return simulations_configurations;
+}
+
+Elongation_manager::stop_condition_enum Elongation_manager::SimulationManager::get_stop_condition_type() {
+    return stop_condition_type;
+}
+
+float Elongation_manager::SimulationManager::get_stop_condition_value() {
+    return stop_condition_value;
+}
+
+std::size_t Elongation_manager::SimulationManager::get_history_size() {
+    return history_size;
+}
