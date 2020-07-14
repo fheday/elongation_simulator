@@ -27,7 +27,8 @@ namespace Elongation_manager {
         stop_condition_enum stop_condition_type;
         float stop_condition_value;
         std::size_t history_size;
-        
+
+        bool is_simulation_valid();  
     };
 }
 #endif  // ELONGATION_MANAGER_ELONGATIONSIMULATIONMANAGER_H
