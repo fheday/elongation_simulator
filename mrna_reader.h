@@ -2,6 +2,7 @@
 #define MRNA_UTILS_MRNA_READER_H
 
 #include <string>
+#include <vector>
 
 namespace mRNA_utils {
 
@@ -9,8 +10,6 @@ class mRNAReader {
  public:
   mRNAReader();
   void loadmRNAFile(const std::string&);
-  void setInitiationRate(double);
-  void setTerminationRate(double);
   std::string getCodon(int);
   int sizeInCodons();
 

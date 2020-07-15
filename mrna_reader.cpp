@@ -31,21 +31,6 @@ void mRNA_utils::mRNAReader::loadmRNAFile(const std::string& mRNA_file_name) {
   }
 }
 
-void mRNA_utils::mRNAReader::setInitiationRate(double val) {
-  if (val > 0) {
-    initiation_rate = val;
-  } else {
-    throw std::runtime_error("invalid initiation rate.");
-  }
-}
-
-void mRNA_utils::mRNAReader::setTerminationRate(double val) {
-  if (val > 0) {
-    termination_rate = val;
-  } else {
-    throw std::runtime_error("invalid termination rate.");
-  }
-}
 
 std::string mRNA_utils::mRNAReader::getCodon(int codon_number) {
   return mRNA_sequence.substr(static_cast<std::size_t>(codon_number * 3), 3);
