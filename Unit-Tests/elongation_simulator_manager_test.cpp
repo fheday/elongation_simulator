@@ -2,7 +2,7 @@
 #include "../elongation_simulation_manager.h"
 TEST(ElongationSimulatorTester, openjsonconfig_file01)
 {
-    std::string conf_file_path = "Unit-Tests/sim_test_01.json";
+    std::string conf_file_path = "data/configurations/sim_test_01.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
     ASSERT_EQ(sim_man.get_configuration_file_path(), conf_file_path);
     ASSERT_EQ(sim_man.get_concentration_file_path(), "/home/heday/Projects/RSim/data/codons.csv");
@@ -15,7 +15,7 @@ TEST(ElongationSimulatorTester, openjsonconfig_file01)
 
 TEST(ElongationSimulatorTester, openjsonconfig_file02)
 {
-    std::string conf_file_path = "Unit-Tests/sim_test_02.json";
+    std::string conf_file_path = "data/configurations/sim_test_02.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
     ASSERT_EQ(sim_man.get_configuration_file_path(), conf_file_path);
     ASSERT_EQ(sim_man.get_concentration_file_path(), "/home/heday/Projects/RSim/data/codons.csv");
