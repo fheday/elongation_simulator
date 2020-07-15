@@ -7,22 +7,30 @@ mRNA_utils::mRNAReader::mRNAReader() {
 }
 
 void mRNA_utils::mRNAReader::loadmRNAFile(const std::string& mRNA_file_name) {
+  
   std::ifstream ist{mRNA_file_name};
-
   if (!ist) {
     throw std::runtime_error("can't open input file: " + mRNA_file_name);
   }
   mRNA_sequence.clear();
   std::string line;
+  bool found_first_gene = false;
   while (ist.good()) {
     std::getline(ist, line);
     // some file formats start with a '>' symbol on the first line.
     // we need to skip that line.
     if (line[0] == '>') {
-      continue;
+      if (!found_first_gene){
+        found_first_gene = true;
+        continue;
+      } else {
+        //we are entering a new gene. No need.
+        break;
+      }
     }
     mRNA_sequence.append(line);
   }
+  ist.close(); // close file.
   // replace all T's for U's.
   std::size_t found = mRNA_sequence.find('T');
   while (found != std::string::npos) {
@@ -31,6 +39,40 @@ void mRNA_utils::mRNAReader::loadmRNAFile(const std::string& mRNA_file_name) {
   }
 }
 
+void mRNA_utils::mRNAReader::loadGene(const std::string& mRNA_file_name, const std::string& gene_name) {
+  std::ifstream ist{mRNA_file_name};
+  if (!ist) {
+    throw std::runtime_error("can't open input file: " + mRNA_file_name);
+  }
+  mRNA_sequence.clear();
+  std::string line;
+  bool found_gene = false;
+  while (ist.good()) {
+    std::getline(ist, line);
+    // some file formats start with a '>' symbol on the first line.
+    // we need to skip that line.
+    if (!found_gene && line[0] == '>' && line.find(gene_name) !=  std::string::npos)  {
+      found_gene = true;
+      continue;
+    }
+    if (found_gene){
+      if (line[0] != '>'){
+        mRNA_sequence.append(line);
+      } else {
+        // we reached a new gene. no need to progress further.
+        break;
+      }
+      
+    }
+  }
+  ist.close(); // close file.
+  // replace all T's for U's.
+  std::size_t found = mRNA_sequence.find('T');
+  while (found != std::string::npos) {
+    mRNA_sequence[found] = 'U';
+    found = mRNA_sequence.find('T', found + 1);
+  }
+}
 
 std::string mRNA_utils::mRNAReader::getCodon(int codon_number) {
   return mRNA_sequence.substr(static_cast<std::size_t>(codon_number * 3), 3);

@@ -9,7 +9,8 @@ namespace mRNA_utils {
 class mRNAReader {
  public:
   mRNAReader();
-  void loadmRNAFile(const std::string&);
+  void loadmRNAFile(const std::string&); // load a file containing only one gene.
+  void loadGene(const std::string&, const std::string&); // load a gene inside a file.
   std::string getCodon(int);
   int sizeInCodons();
 
