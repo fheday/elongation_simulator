@@ -29,16 +29,24 @@ TEST(mRNAReaderTester, open_fasta_file_one_gene_with_header) {
 TEST(mRNAReaderTester, open_fasta_file_many_genes_with_header) {
     //Test to read file with only one DNA sequence with header.
     mRNA_utils::mRNAReader reader;
-    reader.loadGene("data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa", "YHR055C");
+    const std::string fasta_file = "data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa";
+    reader.loadGene(fasta_file, "YHR055C");
     ASSERT_EQ(reader.getCodon(0), "AUG");
     ASSERT_EQ(reader.getCodon(1), "UUC");
     ASSERT_EQ(reader.getCodon(2), "AGC");
-    reader.loadGene("data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa", "YPR161C");
+    reader.loadGene(fasta_file, "YPR161C");
     ASSERT_EQ(reader.getCodon(0), "AUG");
     ASSERT_EQ(reader.getCodon(1), "AGU");
     ASSERT_EQ(reader.getCodon(2), "GAU");
-    reader.loadGene("data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa", "YKL202W");
+    reader.loadGene(fasta_file, "YKL202W");
     ASSERT_EQ(reader.getCodon(0), "AUG");
     ASSERT_EQ(reader.getCodon(1), "CAG");
     ASSERT_EQ(reader.getCodon(3), "UAU");
+    auto genes = reader.get_names_in_file(fasta_file);
+    ASSERT_EQ(genes.size(), 6713);
+    ASSERT_EQ(genes[0], "YHR055C");
+    ASSERT_EQ(genes[2], "YOL138C");
+    ASSERT_EQ(genes[3], "YDR395W");
+    ASSERT_EQ(genes[6712], "YAR061W");
+    ASSERT_EQ(genes[6711], "YIL168W");
 }

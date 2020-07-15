@@ -1,5 +1,6 @@
 #include "mrna_reader.h"
 #include <fstream>
+#include <regex>
 
 mRNA_utils::mRNAReader::mRNAReader() {
   termination_rate = 0;
@@ -72,6 +73,30 @@ void mRNA_utils::mRNAReader::loadGene(const std::string& mRNA_file_name, const s
     mRNA_sequence[found] = 'U';
     found = mRNA_sequence.find('T', found + 1);
   }
+}
+
+std::vector<std::string> mRNA_utils::mRNAReader::get_names_in_file(const std::string& mRNA_file_name) {
+  std::ifstream ist{mRNA_file_name};
+  if (!ist) {
+    throw std::runtime_error("can't open input file: " + mRNA_file_name);
+  }
+  std::string line;
+  std::vector<std::string> result;
+  std::regex word_regex("(\\w+)");
+  
+  while (ist.good()) {
+    std::getline(ist, line);
+    // some file formats start with a '>' symbol on the first line.
+    // we need to skip that line.
+    auto words_first = std::sregex_iterator(line.begin(), line.end(), word_regex);
+
+    if (line[0] == '>')  {
+      result.push_back(words_first->str());
+      continue;
+    }
+  }
+  ist.close(); // close file.
+  return result;
 }
 
 std::string mRNA_utils::mRNAReader::getCodon(int codon_number) {

@@ -11,6 +11,7 @@ class mRNAReader {
   mRNAReader();
   void loadmRNAFile(const std::string&); // load a file containing only one gene.
   void loadGene(const std::string&, const std::string&); // load a gene inside a file.
+  std::vector<std::string> get_names_in_file(const std::string&); // get all gene names in passed file.
   std::string getCodon(int);
   int sizeInCodons();
 
