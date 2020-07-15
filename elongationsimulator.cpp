@@ -80,8 +80,6 @@ void Simulations::EnlogationSimulator::intializeMRNAReader() {
     // we can proceed with the mRNAReader object.
     //    mrna_reader.loadRateCalculatorFile(average_times_file_name);
     mrna_reader.loadmRNAFile(mRNA_file_name);
-    mrna_reader.setInitiationRate(initiation_rate);
-    mrna_reader.setTerminationRate(termination_rate);
   }
 }
 
