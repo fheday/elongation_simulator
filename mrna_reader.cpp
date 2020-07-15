@@ -86,11 +86,8 @@ std::vector<std::string> mRNA_utils::mRNAReader::get_names_in_file(const std::st
   
   while (ist.good()) {
     std::getline(ist, line);
-    // some file formats start with a '>' symbol on the first line.
-    // we need to skip that line.
-    auto words_first = std::sregex_iterator(line.begin(), line.end(), word_regex);
-
     if (line[0] == '>')  {
+      auto words_first = std::sregex_iterator(line.begin(), line.end(), word_regex);
       result.push_back(words_first->str());
       continue;
     }
