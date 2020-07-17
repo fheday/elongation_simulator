@@ -104,12 +104,29 @@ void Simulations::Translation::loadMRNA(const std::string &file_name) {
   }
 }
 
+void Simulations::Translation::loadMRNA(const std::string &file_name, const std::string &g_n) {
+  std::ifstream ist{file_name};
+
+  if (!ist) {
+    throw std::runtime_error("can't open input file: " + file_name);
+  } else {
+    mrna_file_name = file_name;
+    gene_name = g_n;
+    initializeMRNAReader();
+  }
+}
+
+
 void Simulations::Translation::initializeMRNAReader() {
   if (!concentrations_file_name.empty() && !mrna_file_name.empty() &&
       is_initiation_set && is_termination_set) {
     // we have the concentrations and mrna file names. we can proceed.
     mRNA_utils::mRNAReader mrr;
-    mrr.loadmRNAFile(mrna_file_name);
+    if (gene_name.empty()){ 
+      mrr.loadmRNAFile(mrna_file_name);
+    } else {
+      mrr.loadGene(mrna_file_name, gene_name);
+    }
     // fill codon vector.
     int n_codons = mrr.sizeInCodons();
     std::unique_ptr<Simulations::InitiationTerminationCodon> initiation_codon(

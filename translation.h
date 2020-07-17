@@ -11,6 +11,7 @@ namespace Simulations {
 class Translation {
  public:
   void loadMRNA(const std::string&);
+  void loadMRNA(const std::string&, const std::string&);
   void loadConcentrations(const std::string&);
 
   void setInitiationRate(double);
@@ -55,6 +56,7 @@ class Translation {
   std::size_t global_size = 0; // written size of alphas, codon_index, reaction_index.
   std::vector<std::unique_ptr<Simulations::mRNAElement>> codons_vector;
   std::string mrna_file_name;
+  std::string gene_name;
   std::string concentrations_file_name;
 
   std::vector<double> dt_history;
