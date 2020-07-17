@@ -5,7 +5,7 @@ TEST(ElongationSimulatorTester, openjsonconfig_file01)
     std::string conf_file_path = "data/configurations/sim_test_01.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
     ASSERT_EQ(sim_man.get_configuration_file_path(), conf_file_path);
-    ASSERT_EQ(sim_man.get_concentration_file_path(), "/home/heday/Projects/RSim/data/codons.csv");
+    ASSERT_EQ(sim_man.get_concentration_file_path(), "/home/heday/Projects/RSim/data/concentrations.csv");
     ASSERT_EQ(sim_man.get_pre_populate(), false);
     ASSERT_EQ(sim_man.get_stop_condition_type(), Elongation_manager::stop_condition_enum::TIME);
     ASSERT_EQ(sim_man.get_stop_condition_value(), 60.0);
@@ -18,7 +18,7 @@ TEST(ElongationSimulatorTester, openjsonconfig_file02)
     std::string conf_file_path = "data/configurations/sim_test_02.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
     ASSERT_EQ(sim_man.get_configuration_file_path(), conf_file_path);
-    ASSERT_EQ(sim_man.get_concentration_file_path(), "/home/heday/Projects/RSim/data/codons.csv");
+    ASSERT_EQ(sim_man.get_concentration_file_path(), "/home/heday/Projects/RSim/data/concentrations.csv");
     ASSERT_EQ(sim_man.get_pre_populate(), false);
     ASSERT_EQ(sim_man.get_stop_condition_type(), Elongation_manager::stop_condition_enum::TIME);
     ASSERT_EQ(sim_man.get_stop_condition_value(), 60.0);
@@ -98,4 +98,10 @@ TEST(ElongationSimulatorTester, openjsonconfig_file02)
         ASSERT_EQ(gene_copy_number, copy_numbers[i]);
         i++;
     }
+}
+TEST(ElongationSimulatorTester, parallel_simulation_file02) {
+    std::string conf_file_path = "data/configurations/sim_test_02.json";
+    Elongation_manager::SimulationManager sim_man(conf_file_path);
+    sim_man.start();
+    sim_man.save_results();
 }
