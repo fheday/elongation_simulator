@@ -117,18 +117,13 @@ bool Elongation_manager::SimulationManager::start() {
     ts.loadConcentrations(concentration_file_path);
     ts.loadMRNA(fasta_file, gene);
     ts.setInitiationRate(init_rate);
-    std::cout << "init rate = " << init_rate << "\n";
     ts.setTerminationRate(term_rate);
-    std::cout << "term rate = " << term_rate << "\n";
     if (stop_condition == ITERATION) {
       ts.setIterationLimit(stop_value);
-      std::cout << "ITERATION\n";
     } else if (stop_condition == TIME) {
       ts.setTimeLimit(stop_value);
-      std::cout << "TIME\n";
     } else if (stop_condition == RIBOSOMES) {
       ts.setFinishedRibosomes(stop_value);
-      std::cout << "RIBOSOMES\n";
     }
     ts.setPrepopulate(pre_populate); // simulations pre-populate the mRNA
                                      // by default. This can be changed in
