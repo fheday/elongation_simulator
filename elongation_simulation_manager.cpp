@@ -167,18 +167,18 @@ void Elongation_manager::SimulationManager::save_results() {
     // std::partial_sum(item.dt_history.begin(), item.dt_history.end(),
     //                  clock.begin(), std::plus<float>());
     Json::Value ribosome_positions_array;
-    Json::Value clock_array;
+    Json::Value dt_array;
     for (std::size_t i = 0; i < ribosome_positions.size(); i++) {
       Json::Value ribosome_entry;
       for (auto ribosome : ribosome_positions[i])
         ribosome_entry.append(ribosome);
       ribosome_positions_array.append(ribosome_entry);
-      clock_array.append(item.dt_history[i]);
+      dt_array.append(item.dt_history[i]);
     }
 
     root["results"][item.gene_name]["ribosome_positions"] =
         ribosome_positions_array;
-    root["results"][item.gene_name]["dt"] = clock_array;
+    root["results"][item.gene_name]["dt"] = dt_array;
   }
   // write in a nice readible way
   Json::StreamWriterBuilder builder;
