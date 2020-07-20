@@ -33,6 +33,8 @@ void init_simulation_manager(py::module &mod) {
       .def("getStopConditionValue", &Elongation_manager::SimulationManager::get_stop_condition_value)
       // .def_readonly("results", &Elongation_manager::SimulationManager::results)
       .def("getResults", [](Elongation_manager::SimulationManager& sm) {
+        // Getting the results is done by copying data. Depending on how big is the log,
+        // this operation can become slow.
         py::dict results;
         for (auto item:sm.results) {
           py::dict result_item;
