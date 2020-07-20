@@ -17,14 +17,15 @@
 
 #if defined(COMIPLE_PYTHON_MODULE) || defined(TRANSLATIONSIMULATOR)
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include "pybind11/pybind11.h"
+#include "pybind11/stl.h"
 namespace py = pybind11;
 
 PYBIND11_MODULE(translation, mod) {
   py::class_<Simulations::Translation>(mod, "translation")
       .def(py::init<>()) // constructor
-      .def("loadMRNA", &Simulations::Translation::loadMRNA)
+      .def("loadMRNA", (void (Simulations::Translation::*) (const std::string &)) &Simulations::Translation::loadMRNA)
+      .def("loadMRNA", (void (Simulations::Translation::*) (const std::string &, const std::string &)) &Simulations::Translation::loadMRNA)
       .def("loadConcentrations", &Simulations::Translation::loadConcentrations)
       .def("setInitiationRate", &Simulations::Translation::setInitiationRate)
       .def("setTerminationRate", &Simulations::Translation::setTerminationRate)
