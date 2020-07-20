@@ -24,7 +24,7 @@ public:
   bool start();
   void save_results();
 
-  std::vector<Simulations::Translation> results;
+  std::map<std::string, std::tuple<std::vector<double>, std::vector<std::vector<int>>>> results;
 
 private:
   std::string configuration_file_path;

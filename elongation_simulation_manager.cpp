@@ -1,7 +1,58 @@
 #include "elongation_simulation_manager.h"
-#include "jsoncpp.cpp"
-#include <fstream>
 #include <thread>
+
+#if defined(COMIPLE_PYTHON_MODULE)
+
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+namespace py = pybind11;
+
+void init_simulation_manager(py::module &mod) {
+  py::class_<Elongation_manager::SimulationManager>(mod, "SimulationManager")
+      .def(py::init<std::string>()) // constructor
+      .def("getConcentrationFilePath", &Elongation_manager::SimulationManager::get_concentration_file_path)
+      .def("getConfigurationFilePath", &Elongation_manager::SimulationManager::get_configuration_file_path)
+      .def("getPrePopulate", &Elongation_manager::SimulationManager::get_pre_populate)
+      // .def("getSimulationsConfigurations", &Elongation_manager::SimulationManager::get_simulations_configurations)
+      .def("getStopConditionType", [](Elongation_manager::SimulationManager& sm){
+        std::string result;
+        switch (sm.get_stop_condition_type())
+        {
+        case Elongation_manager::ITERATION:
+          result = "ITERATION";
+          break;
+        case Elongation_manager::TIME:
+          result = "TIME";
+          break;
+        case Elongation_manager::RIBOSOMES:
+          result = "RIBOSOMES";
+          break;
+        }
+        return result;
+        })
+      .def("getStopConditionValue", &Elongation_manager::SimulationManager::get_stop_condition_value)
+      // .def_readonly("results", &Elongation_manager::SimulationManager::results)
+      .def("getResults", [](Elongation_manager::SimulationManager& sm) {
+        py::dict results;
+        for (auto item:sm.results) {
+          py::dict result_item;
+          result_item["ribosome_positions_history"] = std::get<1>(item.second);
+          result_item["dt_history"] = std::get<0>(item.second);
+          results[std::string(item.first).c_str()] = result_item;
+        }
+        return results;
+      })
+      .def("getHistorySize", &Elongation_manager::SimulationManager::get_history_size)
+      .def("start", &Elongation_manager::SimulationManager::start)
+      .def("saveResults", &Elongation_manager::SimulationManager::save_results);
+
+}
+
+#endif
+
+#include <fstream>
+#include "jsoncpp.cpp"
+
 
 Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
   configuration_file_path = cfp;
@@ -22,8 +73,8 @@ Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
     term_rate = root["mRNA_entries"][i]["termination_rate"].asFloat();
     gene_copy_number =
         root["mRNA_entries"][i]["transcript_copy_number"].asFloat();
-    simulations_configurations.push_back(std::tuple(
-        fasta_file_path, gene_string, init_rate, term_rate, gene_copy_number));
+    simulations_configurations.push_back({
+      fasta_file_path, gene_string, init_rate, term_rate, gene_copy_number});
   }
 
   if (root.isMember("iteration_limit")) {
@@ -60,9 +111,11 @@ bool Elongation_manager::SimulationManager::is_simulation_valid() {
     return false;
   if (stop_condition_value <= 0 || history_size <= 0)
     return false;
-  // if (simulations_configurations.empty()) return false;
-  for (auto [fasta_file_path, gene_name, initiation_rate, termination_rate,
-             gene_copy_number] : simulations_configurations) {
+  std::string fasta_file_path, gene_name;
+  float initiation_rate, termination_rate, gene_copy_number;
+  for (auto const& tup : simulations_configurations) {
+    std::tie(fasta_file_path, gene_name, initiation_rate, termination_rate,
+             gene_copy_number) = tup;
     if (!file_exists(fasta_file_path))
       return false;
     if (gene_name.empty())
@@ -144,9 +197,11 @@ bool Elongation_manager::SimulationManager::start() {
                                      600, history_size));
   }
 
-  for (auto &item : simulations) {
-    results.push_back(item.get());
+  for (auto &sim_item : simulations) {
+    auto sim = sim_item.get();
+    results[sim.gene_name] = std::tuple<std::vector<double>, std::vector<std::vector<int>>>(sim.dt_history, sim.ribosome_positions_history);
   }
+
   return true;
 }
 
@@ -156,11 +211,9 @@ void Elongation_manager::SimulationManager::save_results() {
   config_doc_read >> root;
   config_doc_read.close();
 
-  for (auto &item : results) {
-    auto ribosome_positions = item.ribosome_positions_history;
-    // std::vector<float> clock(item.dt_history.size());
-    // std::partial_sum(item.dt_history.begin(), item.dt_history.end(),
-    //                  clock.begin(), std::plus<float>());
+  for (auto const& item : results) {
+    auto ribosome_positions = std::get<1>(item.second);
+    auto dts = std::get<0>(item.second);
     Json::Value ribosome_positions_array;
     Json::Value dt_array;
     for (std::size_t i = 0; i < ribosome_positions.size(); i++) {
@@ -168,12 +221,12 @@ void Elongation_manager::SimulationManager::save_results() {
       for (auto ribosome : ribosome_positions[i])
         ribosome_entry.append(ribosome);
       ribosome_positions_array.append(ribosome_entry);
-      dt_array.append(item.dt_history[i]);
+      dt_array.append(dts[i]);
     }
 
-    root["results"][item.gene_name]["ribosome_positions"] =
+    root["results"][item.first]["ribosome_positions"] =
         ribosome_positions_array;
-    root["results"][item.gene_name]["dt"] = dt_array;
+    root["results"][item.first]["dt"] = dt_array;
   }
   // write in a nice readible way
   Json::StreamWriterBuilder builder;

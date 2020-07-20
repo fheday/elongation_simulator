@@ -22,17 +22,14 @@ target_link_libraries(calculateCodonsTimes PRIVATE ribosome_simulator_lib gflags
 add_executable(run_translation run_translation.cpp)
 target_link_libraries(run_translation PRIVATE elongation_simulator_lib gflags)
 
-
-#set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/experiments)
 ##python interface
-
 find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories("eigen-3.3.7/")
 include_directories("jsoncpp/")
 add_subdirectory("pybind11/")
 
-add_library(translation EXCLUDE_FROM_ALL MODULE translation.cpp mrna_reader.cpp initiationterminationcodon.cpp
+add_library(translation EXCLUDE_FROM_ALL MODULE elongation_simulation_manager.cpp translation.cpp mrna_reader.cpp initiationterminationcodon.cpp
 concentrationsreader.cpp ribosomesimulator.cpp mrnaelement.cpp elongation_codon.cpp)
 target_compile_definitions(translation PRIVATE -DCOMIPLE_PYTHON_MODULE) # enable python pathway in code.
 target_link_libraries(translation PRIVATE pybind11::module ${PYTHON_LIBRARIES})
