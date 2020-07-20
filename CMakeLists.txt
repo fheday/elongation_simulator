@@ -32,7 +32,7 @@ add_subdirectory("pybind11/")
 add_library(translation EXCLUDE_FROM_ALL MODULE elongation_simulation_manager.cpp translation.cpp mrna_reader.cpp initiationterminationcodon.cpp
 concentrationsreader.cpp ribosomesimulator.cpp mrnaelement.cpp elongation_codon.cpp)
 target_compile_definitions(translation PRIVATE -DCOMIPLE_PYTHON_MODULE) # enable python pathway in code.
-target_link_libraries(translation PRIVATE pybind11::module ${PYTHON_LIBRARIES})
+target_link_libraries(translation PRIVATE pybind11::module ${PYTHON_LIBRARIES} jsoncpp)
 set_target_properties(translation PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                           SUFFIX "${PYTHON_MODULE_EXTENSION}")
 

@@ -1,5 +1,6 @@
 #include "elongation_simulation_manager.h"
 #include <thread>
+#include <iostream>
 
 #if defined(COMIPLE_PYTHON_MODULE)
 
@@ -45,7 +46,7 @@ void init_simulation_manager(py::module &mod) {
         return results;
       })
       .def("getHistorySize", &Elongation_manager::SimulationManager::get_history_size)
-      .def("start", &Elongation_manager::SimulationManager::start)
+      .def("start", &Elongation_manager::SimulationManager::start, py::call_guard<py::gil_scoped_release>())
       .def("saveResults", &Elongation_manager::SimulationManager::save_results);
 
 }
@@ -53,7 +54,7 @@ void init_simulation_manager(py::module &mod) {
 #endif
 
 #include <fstream>
-#include "jsoncpp.cpp"
+#include "json/json.h"
 
 
 Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
