@@ -27,6 +27,8 @@ requirements:
     - numpy >=1.1
     - libgcc-ng #[not win]
     - libstdcxx-ng #[not win]
+    - pyqt
+    - biopython
 ##    - vs2015_runtime
 
 
