@@ -22,7 +22,9 @@
     <ClCompile Include="..\concentrationsreader.cpp" />
     <ClCompile Include="..\elongationsimulator.cpp" />
     <ClCompile Include="..\elongation_codon.cpp" />
+    <ClCompile Include="..\elongation_simulation_manager.cpp" />
     <ClCompile Include="..\initiationterminationcodon.cpp" />
+    <ClCompile Include="..\jsoncpp\jsoncpp.cpp" />
     <ClCompile Include="..\mrnaelement.cpp" />
     <ClCompile Include="..\mrna_reader.cpp" />
     <ClCompile Include="..\ribosomesimulator.cpp" />
@@ -32,6 +34,7 @@
     <ClInclude Include="..\concentrationsreader.h" />
     <ClInclude Include="..\elongationsimulator.h" />
     <ClInclude Include="..\elongation_codon.h" />
+    <ClInclude Include="..\elongation_simulation_manager.h" />
     <ClInclude Include="..\initiationterminationcodon.h" />
     <ClInclude Include="..\mrnaelement.h" />
     <ClInclude Include="..\mrna_reader.h" />
@@ -102,7 +105,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.pyd</TargetExt>
-    <IncludePath>C:\Users\Heday\Anaconda3\include;C:\Users\Heday\Anaconda3\Library\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>C:\Users\Heday\Anaconda3\include;C:\Users\Heday\Anaconda3\Library\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);Z:\Projects\Gillespie_Cpp\jsoncpp</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -164,7 +167,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Heday\Anaconda3\include;C:\Users\Heday\Anaconda3\Library\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Heday\Anaconda3\include;C:\Users\Heday\Anaconda3\Library\include;Z:\Projects\Gillespie_Cpp\jsoncpp</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -177,7 +180,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>C:\Users\Heday\Anaconda3\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Heday\Anaconda3\libs;Z:\Projects\Gillespie_Cpp\jsoncpp;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
