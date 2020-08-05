@@ -2,7 +2,7 @@
 #include <thread>
 #include <iostream>
 
-#if defined(COMIPLE_PYTHON_MODULE)
+#if defined(COMIPLE_PYTHON_MODULE) || defined(TRANSLATIONSIMULATOR)
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
