@@ -313,7 +313,7 @@ void Simulations::Translation::run() {
 
   int finished_ribosomes = 0, pre_filled_ribosomes = 0;
   // pre-allocate space for some vectors.
-  int max_ribosomes = (codons_vector.size() / RIBOSOME_SIZE) + 1;
+  std::size_t max_ribosomes = (codons_vector.size() / RIBOSOME_SIZE) + 1;
   utils::circular_buffer<int> rib_positions(max_ribosomes);
   alphas.resize(4 * max_ribosomes);
   codon_index.resize(4 * max_ribosomes);
