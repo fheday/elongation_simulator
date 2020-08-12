@@ -124,11 +124,10 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python',
     ],
-
-    packages=find_packages(),
+   packages=["concentrations", "elongation"],
     ext_modules=[
                 CMakeExtension('ribosomesimulator'),
-                CMakeExtension('translation')
+                CMakeExtension('translation'),
     ],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
