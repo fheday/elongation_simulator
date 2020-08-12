@@ -223,7 +223,7 @@ class Gui():
         if batch_file_path == '':
             return
         df = pd.read_csv(batch_file_path)
-        if not all(elem in ['ORF', 'RNA_copies', 'Ini_rate', 'Term_rate']  for elem in df.columns):
+        if not set(['ORF', 'RNA_copies', 'Ini_rate', 'Term_rate']).issubset(df.columns):
             return
         for index, row in df.iterrows():
             for key in self.genes_dict.keys():
