@@ -1,6 +1,7 @@
 #include "elongation_simulation_manager.h"
 #include <thread>
 #include <iostream>
+#include "thread_pool.h"
 
 #if defined(COMIPLE_PYTHON_MODULE) || defined(TRANSLATIONSIMULATOR)
 
@@ -188,16 +189,18 @@ bool Elongation_manager::SimulationManager::start() {
     ts.run();
     return ts;
   };
+  // create thread pool of threads
+  ThreadPool pool(std::thread::hardware_concurrency());
 
   for (std::size_t i = 0; i < number_of_simulations; i++) {
     std::string fasta_path, gene_name;
     float init_rate, term_rate, copy_number;
     std::tie(fasta_path, gene_name, init_rate, term_rate, copy_number) =
         simulations_configurations[i];
-    simulations.push_back(std::async(do_simulation, concentration_file_path,
+    simulations.push_back(pool.enqueue(do_simulation, concentration_file_path,
                                      pre_populate, fasta_path, gene_name,
                                      init_rate, term_rate, stop_condition_type,
-                                     600, history_size));
+                                     stop_condition_value, history_size));
   }
 
   for (auto &sim_item : simulations) {

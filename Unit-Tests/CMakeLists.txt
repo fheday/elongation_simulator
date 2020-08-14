@@ -8,7 +8,7 @@ find_package(Threads REQUIRED)
 
 add_executable(translatortester_test  translatortester_test.cpp)
 add_executable(circularqueue_test circularqueue_test.cpp)
-add_executable(elongation_simulator_manager_test elongation_simulator_manager_test.cpp)
+add_executable(elongation_simulator_manager_test thread_pool.h elongation_simulator_manager_test.cpp)
 add_executable(mrna_reader_test mrna_reader_test.cpp)
 target_link_libraries(translatortester_test ${GTEST_BOTH_LIBRARIES} util_lib ribosome_simulator_lib elongation_simulator_lib)
 target_link_libraries(circularqueue_test ${GTEST_BOTH_LIBRARIES})
