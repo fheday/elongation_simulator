@@ -456,6 +456,11 @@ class SimulationBuilder:
             return
         if len(self.data["mRNA_entries"]) == 0:
             return
+        # convert absolute paths to relative path
+        base_path = os.path.split(file_path)[0] + os.sep
+        self.data["concentration_file"] = os.path.relpath(self.data["concentration_file"], start=base_path)
+        for mRNA_entry in self.data["mRNA_entries"]:
+            mRNA_entry["fasta_file"] = os.path.relpath(mRNA_entry["fasta_file"], start=base_path)
         # valid simulation. save.
         with open(file_path, 'w') as outfile:
             json.dump(self.data, outfile)
