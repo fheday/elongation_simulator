@@ -60,10 +60,18 @@ void init_simulation_manager(py::module &mod) {
 
 Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
   configuration_file_path = cfp;
+  // calculate directory of configuration file.
+  std::string directory;
+  const size_t last_slash_idx = cfp.rfind('/');
+  if (std::string::npos != last_slash_idx)
+  {
+      directory = cfp.substr(0, last_slash_idx) + '/';
+  }
+  
   std::ifstream config_doc(cfp, std::ifstream::binary);
   Json::Value root; // the json document.
   config_doc >> root;
-  concentration_file_path =
+  concentration_file_path = directory +
       root.get("concentration_file", "missing").asString();
   pre_populate = root.get("pre_populate", false).asBool();
 
@@ -71,7 +79,7 @@ Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
   std::string gene_string;
   float init_rate = 0, term_rate = 0, gene_copy_number = 0;
   for (unsigned int i = 0; i < root["mRNA_entries"].size(); ++i) {
-    fasta_file_path = root["mRNA_entries"][i]["fasta_file"].asString();
+    fasta_file_path = directory + root["mRNA_entries"][i]["fasta_file"].asString();
     gene_string = root["mRNA_entries"][i]["gene"].asString();
     init_rate = root["mRNA_entries"][i]["initiation_rate"].asFloat();
     term_rate = root["mRNA_entries"][i]["termination_rate"].asFloat();
