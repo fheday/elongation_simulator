@@ -26,7 +26,8 @@
 }
 
 void execute_translation(const std::string &concentrations_file,
-                         const std::string &mrna_file, double initiation_rate,
+                         const std::string &mrna_file, 
+                         const std::string &gene_name, double initiation_rate,
                          double termination_rate, int time_limit,
                          int number_iterations, int number_ribosomes,
                          bool pre_fill_mRNA, bool save_ribosomes_positions,
@@ -44,7 +45,11 @@ void execute_translation(const std::string &concentrations_file,
   // prepare and run the simulation.
   Simulations::Translation ts;
   ts.loadConcentrations(concentrations_file);
-  ts.loadMRNA(mrna_file);
+  if (gene_name.empty()){
+    ts.loadMRNA(mrna_file);
+  } else {
+    ts.loadMRNA(mrna_file, gene_name);
+  }
   ts.setInitiationRate(initiation_rate);
   ts.setTerminationRate(termination_rate);
   if (time_limit > 0) {
@@ -65,16 +70,14 @@ void execute_translation(const std::string &concentrations_file,
     std::tie(elongation_duration, iteration_initiation) =
         ts.getEnlogationDuration();
     // save elongation data into csv file.
-    std::vector<double> clock, clock_at_initiation;
-    double c = 0;
-    for (auto dt : ts.dt_history) {
-      c += dt;
-      clock.push_back(c);
-    }
+
+    std::vector<double> clock(ts.dt_history.size()), clock_at_initiation(iteration_initiation.size());
+
+    std::partial_sum(ts.dt_history.begin(), ts.dt_history.end(), clock.begin(), std::plus<double>());
+
     // get the clock at the initiation of each terminating ribosome.
-    for (int iteration : iteration_initiation) {
-      clock_at_initiation.push_back(clock[static_cast<std::size_t>(iteration)]);
-    }
+    std::transform(iteration_initiation.begin(), iteration_initiation.end(), clock_at_initiation.begin(), [&] (auto iteration){return clock[static_cast<std::size_t>(iteration)];});
+
     // now we save the clock_at_initiation and elongation_duration.
     std::ofstream clock_and_elongation_csv_file;
     clock_and_elongation_csv_file.open(output_file_name);
@@ -141,16 +144,16 @@ void printHelp() {
 
 int main(int argc, char **argv) {
   signal(SIGSEGV, handler); // install our handler
-  const char *const short_opts = "c:m:i:t:y:r:l:peo:h";
+  const char *const short_opts = "c:m:g:i:t:y:r:l:peo:h";
   const option long_opts[] = {
-      {"concentration", 1, nullptr, 'c'}, {"mrna", 1, nullptr, 'm'},
+      {"concentration", 1, nullptr, 'c'}, {"mrna", 1, nullptr, 'm'}, {"gene", 1, nullptr, 'g'},
       {"initiation", 1, nullptr, 'i'},    {"termination", 1, nullptr, 't'},
       {"yeasttime", 1, nullptr, 'y'},     {"ribosomes", 1, nullptr, 'r'},
       {"iterations", 1, nullptr, 'l'},    {"positions", 0, nullptr, 'p'},
       {"init_empty", 0, nullptr, 'e'},    {"output", 1, nullptr, 'o'},
       {"help", 0, nullptr, 'h'},          {nullptr, 0, nullptr, 0}};
 
-  std::string concentration_file, mrna_file, output_file;
+  std::string concentration_file, mrna_file, gene_name, output_file;
   double initiation = 0.0, termination = 0.0;
   int yeast_time, ribosomes, iterations;
   bool stop_condition_passed = false, pre_fill_mRNA = true,
@@ -170,14 +173,15 @@ int main(int argc, char **argv) {
     if (opt != -1) {
       // Option argument
       switch (opt) {
-      case 'c': {
+      case 'c': 
         concentration_file = std::string(optarg);
         break;
-      }
-      case 'm': {
+      case 'm': 
         mrna_file = std::string(optarg);
         break;
-      }
+      case 'g': 
+        gene_name = std::string(optarg);
+        break;
       case 'i':
         initiation = std::stod(optarg);
         break;
@@ -237,7 +241,7 @@ int main(int argc, char **argv) {
     printHelp();
     return 0;
   }
-  execute_translation(concentration_file, mrna_file, initiation, termination,
+  execute_translation(concentration_file, mrna_file, gene_name, initiation, termination,
                       yeast_time, iterations, ribosomes, pre_fill_mRNA,
                       ribosomes_positions, output_file);
   return 0;
