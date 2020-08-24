@@ -463,7 +463,7 @@ class SimulationBuilder:
             mRNA_entry["fasta_file"] = os.path.relpath(mRNA_entry["fasta_file"], start=base_path)
         # valid simulation. save.
         with open(file_path, 'w') as outfile:
-            json.dump(self.data, outfile)
+            json.dump(self.data, outfile, indent=4)
 
 
 if __name__ == "__main__":
