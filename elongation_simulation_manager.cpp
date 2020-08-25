@@ -1,7 +1,6 @@
 #include "elongation_simulation_manager.h"
 #include <thread>
 #include <iostream>
-#include "thread_pool.h"
 
 #if defined(COMIPLE_PYTHON_MODULE) || defined(TRANSLATIONSIMULATOR)
 
@@ -67,7 +66,7 @@ Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
   {
       directory = cfp.substr(0, last_slash_idx) + '/';
   }
-  
+
   std::ifstream config_doc(cfp, std::ifstream::binary);
   Json::Value root; // the json document.
   config_doc >> root;
@@ -172,7 +171,7 @@ std::size_t Elongation_manager::SimulationManager::get_history_size() {
 
 bool Elongation_manager::SimulationManager::start() {
   auto number_of_simulations = simulations_configurations.size();
-  auto do_simulation = [](std::string concentration_file_path,
+  auto do_simulation = [&](std::string concentration_file_path,
                           bool pre_populate, std::string fasta_file,
                           std::string gene, float init_rate, float term_rate,
                           stop_condition_enum stop_condition, float stop_value,
@@ -198,22 +197,45 @@ bool Elongation_manager::SimulationManager::start() {
     return ts;
   };
   // create thread pool of threads
-  ThreadPool pool(std::thread::hardware_concurrency());
-
+  auto n_threads = std::thread::hardware_concurrency();
+  std::vector<std::future<Simulations::Translation>> sims;
+  bool has_finished_tasks = false;
+  std::size_t finished_index = 0;
   for (std::size_t i = 0; i < number_of_simulations; i++) {
     std::string fasta_path, gene_name;
     float init_rate, term_rate, copy_number;
     std::tie(fasta_path, gene_name, init_rate, term_rate, copy_number) =
         simulations_configurations[i];
-    simulations.push_back(pool.enqueue(do_simulation, concentration_file_path,
+    sims.push_back(std::async(do_simulation, concentration_file_path,
                                      pre_populate, fasta_path, gene_name,
                                      init_rate, term_rate, stop_condition_type,
                                      stop_condition_value, history_size));
-  }
 
-  for (auto &sim_item : simulations) {
-    auto sim = sim_item.get();
+    if (sims.size() % n_threads == 0){
+      do {
+        has_finished_tasks = false;
+        for (std::size_t sim_index = 0; sim_index < sims.size(); sim_index++) {
+          if (sims[sim_index].wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+            has_finished_tasks = true;
+            finished_index = sim_index;
+            break;
+          }
+        }
+      } while(has_finished_tasks == false);
+      if (has_finished_tasks) {
+          sims[finished_index].wait();
+          auto sim = sims[finished_index].get();
+          results[sim.gene_name] = std::tuple<std::vector<double>, std::vector<std::vector<int>>>(sim.dt_history, sim.ribosome_positions_history);
+          sims.erase(sims.begin() + finished_index);
+      }
+    }
+  }
+  int j = 1;
+  for (auto sim_item  = sims.begin(); sim_item != sims.end();) {
+    auto sim = sim_item->get();
     results[sim.gene_name] = std::tuple<std::vector<double>, std::vector<std::vector<int>>>(sim.dt_history, sim.ribosome_positions_history);
+    sims.erase(sim_item);
+    j++;
   }
 
   return true;
