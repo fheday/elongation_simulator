@@ -1,6 +1,8 @@
 #include "elongation_simulation_manager.h"
 #include <thread>
 #include <iostream>
+#include <fstream>
+#include "json/json.h"
 
 #if defined(COMIPLE_PYTHON_MODULE) || defined(TRANSLATIONSIMULATOR)
 
@@ -32,35 +34,17 @@ void init_simulation_manager(py::module &mod) {
         return result;
         })
       .def("getStopConditionValue", &Elongation_manager::SimulationManager::get_stop_condition_value)
-      // .def_readonly("results", &Elongation_manager::SimulationManager::results)
-      .def("getResults", [](Elongation_manager::SimulationManager& sm) {
-        // Getting the results is done by copying data. Depending on how big is the log,
-        // this operation can become slow.
-        py::dict results;
-        for (auto item:sm.results) {
-          py::dict result_item;
-          result_item["ribosome_positions_history"] = std::get<1>(item.second);
-          result_item["dt_history"] = std::get<0>(item.second);
-          results[std::string(item.first).c_str()] = result_item;
-        }
-        return results;
-      })
       .def("getHistorySize", &Elongation_manager::SimulationManager::get_history_size)
-      .def("start", &Elongation_manager::SimulationManager::start, py::call_guard<py::gil_scoped_release>())
-      .def("saveResults", &Elongation_manager::SimulationManager::save_results);
+      .def("start", &Elongation_manager::SimulationManager::start, py::call_guard<py::gil_scoped_release>());
 
 }
 
 #endif
 
-#include <fstream>
-#include "json/json.h"
-
 
 Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
   configuration_file_path = cfp;
   // calculate directory of configuration file.
-  std::string directory;
   const size_t last_slash_idx = cfp.rfind('/');
   if (std::string::npos != last_slash_idx)
   {
@@ -104,18 +88,19 @@ Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
     std::cout << "Error in configuration\n";
 };
 
-bool Elongation_manager::SimulationManager::is_simulation_valid() {
-  auto file_exists = [](std::string file_path) {
+bool file_exists(std::string file_path) {
     // check if files exist and if numerical values are valid.
     std::ifstream conf_file_path{file_path};
 
     if (!conf_file_path) {
-      throw std::runtime_error("can't open input file: " + file_path);
       return false;
     }
 
     return true;
   };
+
+
+bool Elongation_manager::SimulationManager::is_simulation_valid() {
   if (!file_exists(configuration_file_path))
     return false;
   if (!file_exists(concentration_file_path))
@@ -206,6 +191,7 @@ bool Elongation_manager::SimulationManager::start() {
     float init_rate, term_rate, copy_number;
     std::tie(fasta_path, gene_name, init_rate, term_rate, copy_number) =
         simulations_configurations[i];
+    if (file_exists(directory + gene_name + ".json")) continue; // don't simulate again.
     sims.push_back(std::async(do_simulation, concentration_file_path,
                                      pre_populate, fasta_path, gene_name,
                                      init_rate, term_rate, stop_condition_type,
@@ -225,7 +211,7 @@ bool Elongation_manager::SimulationManager::start() {
       if (has_finished_tasks) {
           sims[finished_index].wait();
           auto sim = sims[finished_index].get();
-          results[sim.gene_name] = std::tuple<std::vector<double>, std::vector<std::vector<int>>>(sim.dt_history, sim.ribosome_positions_history);
+          save_sim(sim);
           sims.erase(sims.begin() + finished_index);
       }
     }
@@ -233,7 +219,7 @@ bool Elongation_manager::SimulationManager::start() {
   int j = 1;
   for (auto sim_item  = sims.begin(); sim_item != sims.end();) {
     auto sim = sim_item->get();
-    results[sim.gene_name] = std::tuple<std::vector<double>, std::vector<std::vector<int>>>(sim.dt_history, sim.ribosome_positions_history);
+    save_sim(sim);
     sims.erase(sim_item);
     j++;
   }
@@ -241,35 +227,30 @@ bool Elongation_manager::SimulationManager::start() {
   return true;
 }
 
-void Elongation_manager::SimulationManager::save_results() {
-  std::ifstream config_doc_read(configuration_file_path, std::ifstream::binary);
-  Json::Value root; // the json document.
-  config_doc_read >> root;
-  config_doc_read.close();
-
-  for (auto const& item : results) {
-    auto ribosome_positions = std::get<1>(item.second);
-    auto dts = std::get<0>(item.second);
-    Json::Value ribosome_positions_array;
-    Json::Value dt_array;
-    for (std::size_t i = 0; i < ribosome_positions.size(); i++) {
-      Json::Value ribosome_entry;
-      for (auto ribosome : ribosome_positions[i])
-        ribosome_entry.append(ribosome);
-      ribosome_positions_array.append(ribosome_entry);
-      dt_array.append(dts[i]);
-    }
-
-    root["results"][item.first]["ribosome_positions"] =
-        ribosome_positions_array;
-    root["results"][item.first]["dt"] = dt_array;
+bool Elongation_manager::SimulationManager::save_sim(Simulations::Translation& sim) {
+  Json::Value newjson;
+  newjson["fasta_file"] = sim.mrna_file_name;
+  newjson["initiation_rate"] = sim.initiation_rate;
+  newjson["termination_rate"] = sim.termination_rate;
+  std::vector<double> clock(sim.dt_history.size());
+  std::partial_sum(sim.dt_history.begin(), sim.dt_history.end(), clock.begin(), std::plus<double>());
+  for (auto time:clock) newjson["clock"].append(time);
+  Json::Value ribosomes_history;
+  for (auto entry:sim.ribosome_positions_history){
+    Json::Value entry_vector;
+    for (auto ribosome:entry) entry_vector.append(ribosome);
+    ribosomes_history.append(entry_vector);
   }
+  newjson["elongating_ribosomes"] = ribosomes_history;
+  
+  std::ifstream file_stream(configuration_file_path, std::ifstream::binary);
   // write in a nice readible way
   Json::StreamWriterBuilder builder;
   // builder["commentStyle"] = "None"; // no comments.
-  // builder["indentation"] = "   ";   // four spaces identation
+  builder["indentation"] = "   ";   // four spaces identation
   std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-  std::ofstream config_doc_writer(configuration_file_path,
+  std::ofstream config_doc_writer(directory + sim.gene_name+".json",
                                   std::ifstream::binary);
-  writer->write(root, &config_doc_writer);
+  writer->write(newjson, &config_doc_writer);
+  return true;
 }

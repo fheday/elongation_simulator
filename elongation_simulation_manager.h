@@ -22,13 +22,11 @@ public:
   float get_stop_condition_value();
   std::size_t get_history_size();
   bool start();
-  void save_results();
-
-  std::map<std::string, std::tuple<std::vector<double>, std::vector<std::vector<int>>>> results;
 
 private:
   std::string configuration_file_path;
   std::string concentration_file_path;
+  std::string directory;
   bool pre_populate = false;
   std::vector<std::tuple<std::string, std::string, float, float, float>>
       simulations_configurations;
@@ -38,6 +36,7 @@ private:
   std::vector<std::future<Simulations::Translation>> simulations;
 
   bool is_simulation_valid();
+  bool save_sim(Simulations::Translation&);
 };
 } // namespace Elongation_manager
 #endif // ELONGATION_MANAGER_ELONGATIONSIMULATIONMANAGER_H
