@@ -35,6 +35,7 @@ PYBIND11_MODULE(translation, mod) {
       .def("setTimeLimit", &Simulations::Translation::setTimeLimit)
       .def("setFinishedRibosomes",
            &Simulations::Translation::setFinishedRibosomes)
+      .def("setSimulateToSteadyState", &Simulations::Translation::setSimulateToSteadyState)
       .def("setHistorySize", &Simulations::Translation::setHistorySize)
       .def("run", &Simulations::Translation::run,
            py::call_guard<py::gil_scoped_release>())
@@ -255,6 +256,10 @@ void Simulations::Translation::setFinishedRibosomes(int n_ribosomes) {
   }
 }
 
+void Simulations::Translation::setSimulateToSteadyState(bool ss) {
+  simulate_to_steady_state = ss;
+};
+
 void Simulations::Translation::getAlphas(utils::circular_buffer<std::vector<int>>& ribosome_positions_history_circ_buffer) {
   std::size_t global_index = 0;
 
@@ -383,10 +388,15 @@ void Simulations::Translation::run() {
 
   double cumsum = 0, a0 = 0;
   std::size_t selected_alpha_vector_index = 0;
+  bool steady_state = false;
+  float initiations = 0, terminations = 0;
+  int n_initiations = 0, n_terminations = 0;
+  float last_initiation = -1, last_termination = -1;
   while ((iteration_limit > 0 && i < iteration_limit) ||
          (time_limit > 0 && clock < time_limit) ||
          (finished_ribosomes_limit > 0 &&
-          finished_ribosomes_limit > finished_ribosomes)) {
+          finished_ribosomes_limit > finished_ribosomes) ||
+          (simulate_to_steady_state && !steady_state)) {
     moved = false;
     initiation = false;
     termination = false;
@@ -488,6 +498,28 @@ void Simulations::Translation::run() {
           reaction_index[selected_alpha_vector_index], tau);
     }
     clock += tau;
+    if ( simulate_to_steady_state ) {
+      if ( initiation ) {
+        if ( last_initiation > 0 ) {
+          initiations +=1 / (clock - last_initiation);
+          n_initiations++;
+        }
+        last_initiation = clock;
+      } else if ( termination ) {
+        if ( last_termination > 0 ) {
+          terminations += 1/(clock - last_termination);
+          n_terminations++;
+        }
+        last_termination = clock;
+      }
+      //check if termination condition is met.
+      if (n_terminations > 2 && n_initiations >2) { // start checking from the 3rd initiation and termination onwards.
+        float rate = (initiations/n_initiations)/(terminations/n_terminations);
+        if (rate >=0.9 && rate <=1.1) { //average initiation rate =+- 90% termination rate.
+          steady_state = true; // terminate
+        }
+      }
+    }
     i++; // update iteration number.
   }
   // copy log data to the object-wide log system.

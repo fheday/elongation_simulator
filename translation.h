@@ -20,6 +20,7 @@ class Translation {
   void setIterationLimit(int);
   void setTimeLimit(double);
   void setFinishedRibosomes(int);
+  void setSimulateToSteadyState(bool);
 
   void setPrepopulate(bool);
 
@@ -81,6 +82,7 @@ class Translation {
   bool is_initiation_set = false;
   bool is_termination_set = false;
   std::size_t history_size = 100000;
+  bool simulate_to_steady_state = false;
   void getAlphas(utils::circular_buffer<std::vector<int>>&);
 };
 }  // namespace Simulations
