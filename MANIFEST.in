@@ -10,4 +10,4 @@ graft pybind11/
 graft eigen-3.3.7/
 graft jsoncpp/
 include concentrations/*.csv
-include simulationbuilder.py
+include elongation/simulationbuilder.py
