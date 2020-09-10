@@ -18,7 +18,7 @@ void Simulations::ElongationCodon::loadConcentrations(
 }
 
 void Simulations::ElongationCodon::setPropensities(
-    std::array<double, 40> prop) {
+    std::map<std::string, double> prop) {
   ribosome.setPropensities(prop);
   updateAlphas();
 }

@@ -19,7 +19,7 @@ class RibosomeSimulator {
   void getAlphas(std::vector<double>&, std::vector<int>&);
   void getDecodingAlphas(std::vector<double>&, std::vector<int>&);
 
-  void setPropensities(std::array<double, 40> prop);
+  void setPropensities(std::map<std::string, double> prop);
   void setPropensity(std::string&, const double);
   double getPropensity(std::string);
   void setNonCognate(double noNonCog);
@@ -28,6 +28,7 @@ class RibosomeSimulator {
   void loadConcentrations(const std::string&);
   void setCodonForSimulation(const std::string&);
   void run_and_get_times(double&, double&);
+  double run_repeatedly_get_average_time(int);
   std::vector<double> dt_history;
   std::vector<int> ribosome_state_history;
   std::string saccharomyces_cerevisiae_concentrations = 

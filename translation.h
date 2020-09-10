@@ -65,7 +65,7 @@ class Translation {
   std::vector<double> dt_history;
   std::vector<std::vector<int>> ribosome_positions_history;
 
-  void setPropensities(std::array<double, 40> prop);
+  void setPropensities(std::vector<std::map<std::string, double>> prop);
   void setNoNonCognate(bool noNonCog);
   std::vector<std::map<std::string, double>> getPropensities();
 

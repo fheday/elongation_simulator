@@ -27,7 +27,7 @@ class mRNAElement {
   void addReactionToHistory(int state, double dt);
   std::pair<std::vector<int>, std::vector<double>> getHistory();
 
-  virtual void setPropensities(std::array<double, 40>) {}
+  virtual void setPropensities(std::map<std::string, double>) {}
   virtual void setNoNonCognate(bool) {}
 
   virtual std::map<std::string, double> getPropensities() {
