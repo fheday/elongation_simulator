@@ -8,6 +8,7 @@
 #ifndef CIRCULARQUEUE_H_
 #define CIRCULARQUEUE_H_
 
+#include <memory>
 namespace utils
 {
 
