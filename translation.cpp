@@ -36,6 +36,8 @@ PYBIND11_MODULE(translation, mod) {
       .def("setFinishedRibosomes",
            &Simulations::Translation::setFinishedRibosomes)
       .def("setSimulateToSteadyState", &Simulations::Translation::setSimulateToSteadyState)
+      .def("setSteadyStateTime", &Simulations::Translation::setSteadyStateTime)
+      .def("setSteadyStateTerminations", &Simulations::Translation::setSteadyStateTerminations)
       .def("setHistorySize", &Simulations::Translation::setHistorySize)
       .def("run", &Simulations::Translation::run,
            py::call_guard<py::gil_scoped_release>())
@@ -260,6 +262,14 @@ void Simulations::Translation::setSimulateToSteadyState(bool ss) {
   simulate_to_steady_state = ss;
 };
 
+void Simulations::Translation::setSteadyStateTime(float t) {
+  if (t >= 0) steady_state_time = t;
+}
+
+void Simulations::Translation::setSteadyStateTerminations(int t) {
+  if (t >= 0) steady_state_terminations = t;
+}
+
 void Simulations::Translation::getAlphas(utils::circular_buffer<std::vector<int>>& ribosome_positions_history_circ_buffer) {
   std::size_t global_index = 0;
 
@@ -389,14 +399,17 @@ void Simulations::Translation::run() {
   double cumsum = 0, a0 = 0;
   std::size_t selected_alpha_vector_index = 0;
   bool steady_state = false;
+  bool steady_state_stop_condition_met = false;
   float initiations = 0, terminations = 0;
-  int n_initiations = 0, n_terminations = 0;
+  int n_total_initiations = 0, n_total_terminations = 0;
+  int steady_state_performed_terminations = 0;
+  float steady_state_elapsed_time = 0;
   float last_initiation = -1, last_termination = -1;
   while ((iteration_limit > 0 && i < iteration_limit) ||
          (time_limit > 0 && clock < time_limit) ||
          (finished_ribosomes_limit > 0 &&
           finished_ribosomes_limit > finished_ribosomes) ||
-          (simulate_to_steady_state && !steady_state)) {
+          (simulate_to_steady_state && !steady_state_stop_condition_met)) {
     moved = false;
     initiation = false;
     termination = false;
@@ -498,25 +511,44 @@ void Simulations::Translation::run() {
           reaction_index[selected_alpha_vector_index], tau);
     }
     clock += tau;
+    
     if ( simulate_to_steady_state ) {
+      if (steady_state) steady_state_elapsed_time += tau; // if steady state enabled, add to stady state time.
       if ( initiation ) {
         if ( last_initiation > 0 ) {
           initiations +=1 / (clock - last_initiation);
-          n_initiations++;
+          n_total_initiations++;
         }
         last_initiation = clock;
       } else if ( termination ) {
         if ( last_termination > 0 ) {
-          terminations += 1/(clock - last_termination);
-          n_terminations++;
+          if (!steady_state) {
+            terminations += 1/(clock - last_termination); // update termination rate
+          } else {
+            //add terminations in steady state.
+            steady_state_performed_terminations++;
+          }
+          n_total_terminations++;
         }
         last_termination = clock;
       }
       //check if termination condition is met.
-      if (n_terminations > 2 && n_initiations >2) { // start checking from the 3rd initiation and termination onwards.
-        float rate = (initiations/n_initiations)/(terminations/n_terminations);
-        if (rate >=0.9 && rate <=1.1) { //average initiation rate =+- 90% termination rate.
-          steady_state = true; // terminate
+      if (n_total_terminations > 2 && n_total_initiations >2) { // start checking from the 3rd initiation and termination onwards.
+        if (!steady_state) {
+          float rate = (initiations/n_total_initiations)/(terminations/n_total_terminations);
+          if (rate >=0.9 && rate <=1.1) { //average initiation rate =+- 90% termination rate.
+            steady_state = true; // steady state achieved.
+            if (steady_state_terminations < 0 && steady_state_time < 0) {
+              // there is no additional stop conditions. done.
+              steady_state_stop_condition_met = true;
+            }
+          }
+        } else {
+          // steady state already achieved. check next condition
+          if (steady_state_terminations == steady_state_performed_terminations || (steady_state_time > 0 && 
+              (steady_state_elapsed_time > steady_state_time))) {
+            steady_state_stop_condition_met = true;
+          }
         }
       }
     }
