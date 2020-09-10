@@ -263,11 +263,13 @@ void Simulations::Translation::setSimulateToSteadyState(bool ss) {
 };
 
 void Simulations::Translation::setSteadyStateTime(float t) {
-  if (t >= 0) steady_state_time = t;
+  // only add this condition if terminations is not set.
+  if (t >= 0 && steady_state_terminations < 0) steady_state_time = t;
 }
 
 void Simulations::Translation::setSteadyStateTerminations(int t) {
-  if (t >= 0) steady_state_terminations = t;
+  // only add this condition if time is not set.
+  if (t >= 0 && steady_state_time < 0) steady_state_terminations = t;
 }
 
 void Simulations::Translation::getAlphas(utils::circular_buffer<std::vector<int>>& ribosome_positions_history_circ_buffer) {
