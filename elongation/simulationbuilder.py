@@ -122,34 +122,41 @@ class Gui():
         grid.addWidget(termination_condition_groupbox, 15, 0, 2, 2)
 
         iteration_limit_radiobutton = QRadioButton("Iteration limit:")
+
+        steady_state_checkbox = QCheckBox("After steady state: ")
+        steady_state_checkbox.setObjectName("steady_state_checkbox")
+        termination_condition_groupbox_grid.addWidget(steady_state_checkbox, 0, 0)
+        steady_state_checkbox.clicked.connect(self.changed_steady_state_checkbox)
+        # termination_condition_groupbox_grid.addWidget(steady_state_checkbox, 0, 1)
+
         iteration_limit_radiobutton.setObjectName("iteration_limit_radiobutton")
-        termination_condition_groupbox_grid.addWidget(iteration_limit_radiobutton, 0, 0)
+        termination_condition_groupbox_grid.addWidget(iteration_limit_radiobutton, 1, 0)
         iteration_limit_spinbox = QSpinBox()
         iteration_limit_spinbox.setObjectName("iteration_limit_spinbox")
         iteration_limit_spinbox.setRange(0, int(10e10))
         iteration_limit_spinbox.valueChanged.connect(self.changed_iteration_limit)
-        termination_condition_groupbox_grid.addWidget(iteration_limit_spinbox, 0, 1)
+        termination_condition_groupbox_grid.addWidget(iteration_limit_spinbox, 1, 1)
 
         time_limit_radiobutton = QRadioButton("Time limit:")
         time_limit_radiobutton.setObjectName("time_limit_radiobutton")
         time_limit_radiobutton.setChecked(True) # have a checked option for starters.
-        termination_condition_groupbox_grid.addWidget(time_limit_radiobutton, 1, 0)
+        termination_condition_groupbox_grid.addWidget(time_limit_radiobutton, 2, 0)
         time_limit_spinbox = QDoubleSpinBox()
         time_limit_spinbox.setObjectName("time_limit_spinbox")
         time_limit_spinbox.setRange(0, 10e10)
         time_limit_spinbox.setValue(60) # set a default value
         self.stop_condition = ("time", float(time_limit_spinbox.value()))
         time_limit_spinbox.valueChanged.connect(self.changed_time_limit_entry)
-        termination_condition_groupbox_grid.addWidget(time_limit_spinbox, 1, 1)
+        termination_condition_groupbox_grid.addWidget(time_limit_spinbox, 2, 1)
 
-        finished_ribosomes_limit_radiobutton = QRadioButton("Finished Ribosomes:")
+        finished_ribosomes_limit_radiobutton = QRadioButton("Terminated Ribosomes:")
         finished_ribosomes_limit_radiobutton.setObjectName("finished_ribosomes_limit_radiobutton")
-        termination_condition_groupbox_grid.addWidget(finished_ribosomes_limit_radiobutton, 2, 0)
+        termination_condition_groupbox_grid.addWidget(finished_ribosomes_limit_radiobutton, 3, 0)
         finished_ribosomes_spinbox = QSpinBox()
         finished_ribosomes_spinbox.setObjectName("finished_ribosomes_spinbox")
         finished_ribosomes_spinbox.setRange(0, int(10e10))
         finished_ribosomes_spinbox.valueChanged.connect(self.changed_finished_ribosomes)
-        termination_condition_groupbox_grid.addWidget(finished_ribosomes_spinbox, 2,1)
+        termination_condition_groupbox_grid.addWidget(finished_ribosomes_spinbox, 3,1)
 
         history_groupbox = QGroupBox()
         history_groupbox.setFlat(True)
@@ -187,6 +194,18 @@ class Gui():
         selected_concentration_label = self.window.findChild(QLabel, "selected_concentration_label")
         selected_concentration_label.setText(concentrations_file)
 
+    def changed_steady_state_checkbox(self, state):
+        steady_state_checkbox = self.window.findChild(QCheckBox, 'steady_state_checkbox')
+        iteration_limit_radiobutton = self.window.findChild(QRadioButton, "iteration_limit_radiobutton")
+        iteration_limit_spinbox = self.window.findChild(QSpinBox, "iteration_limit_spinbox")
+        time_limit_radiobutton = self.window.findChild(QRadioButton, "time_limit_radiobutton")
+        if iteration_limit_radiobutton.isChecked():
+            time_limit_radiobutton.setChecked(True)
+        iteration_limit_radiobutton.setChecked(False)
+        iteration_limit_radiobutton.setEnabled(not steady_state_checkbox.checkState())
+        iteration_limit_spinbox.setEnabled(not steady_state_checkbox.checkState())
+
+        return
 
     def open_fasta_file(self):
         """
