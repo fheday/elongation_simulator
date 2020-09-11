@@ -70,18 +70,23 @@ std::map<std::string, double> calculate_codons_times(
     ribosome.setNonCognate(0.0);
     average_times_file << "\"" << codon << "\"";
     std::cout << "Starting codon: " << codon;
-    for (int i = 0; i < iterations; i++) {
-      ribosome.setState(0);
-      ribosome.run_and_get_times(decoding, translocating);
-     if (decoding * translocating <= std::numeric_limits<double>::epsilon()) {
-       throw std::runtime_error("decoding nor translocation cannot be zero.");
-     }
-      codon_total_decoding += decoding;
-      codon_total_translocating += translocating;
-      n++;
-      // save vector.
-      vector[static_cast<std::size_t>(i)] = decoding;
-      vector[static_cast<std::size_t>(iterations + i)] = translocating;
+    if (!translocating_times) {
+      codon_total_decoding = ribosome.run_repeatedly_get_average_time(iterations) * iterations;
+      codon_total_translocating = 0;
+    } else {
+      for (int i = 0; i < iterations; i++) {
+        ribosome.setState(0);
+        ribosome.run_and_get_times(decoding, translocating);
+      if (decoding * translocating <= std::numeric_limits<double>::epsilon()) {
+        throw std::runtime_error("decoding nor translocation cannot be zero.");
+      }
+        codon_total_decoding += decoding;
+        codon_total_translocating += translocating;
+        n++;
+        // save vector.
+        vector[static_cast<std::size_t>(i)] = decoding;
+        vector[static_cast<std::size_t>(iterations + i)] = translocating;
+      }
     }
     total_translocating += codon_total_translocating;
     // write times and vector to files.
@@ -100,12 +105,12 @@ std::map<std::string, double> calculate_codons_times(
                       << vector[static_cast<std::size_t>((2 * iterations)) - 1]
                       << "\n";
     codons_times[codon] = decoding;
-    std::cout << ". Finished. Average time: ";
+    std::cout << ". Finished. Average time: " ;
     if (translocating_times) {
-      std::cout << (codon_total_decoding / iterations);
+      std::cout << codon_total_decoding / iterations;
     } else {
-      std::cout << ((codon_total_decoding + codon_total_translocating) /
-                    iterations);
+      std::cout << (codon_total_decoding + codon_total_translocating) /
+                    iterations;
     }
     std::cout << "\n";
   }
