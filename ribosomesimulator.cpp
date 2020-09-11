@@ -32,21 +32,7 @@ PYBIND11_MODULE(ribosomesimulator, mod)
              rs.run_and_get_times(d, t);
              return std::make_tuple(d, t);
            })
-      .def("repeat_run_and_get_average_times",
-           [](Simulations::RibosomeSimulator &rs, int repeats) {
-             double d = 0.0;
-             double t = 0.0;
-             double tot_time = 0;
-             for (int i = 0; i < repeats; i++)
-             {
-               d = 0.0;
-               t = 0.0;
-               rs.setState(0);
-               rs.run_and_get_times(d, t);
-               tot_time += d + t;
-             }
-             return tot_time / repeats;
-           })
+      .def("run_repeatedly_get_average_time",&Simulations::RibosomeSimulator::run_repeatedly_get_average_time)
       .def("setPropensities", &Simulations::RibosomeSimulator::setPropensities)
       .def("setNonCognate", &Simulations::RibosomeSimulator::setNonCognate)
       .def("getPropensities", &Simulations::RibosomeSimulator::getPropensities)
@@ -71,10 +57,16 @@ PYBIND11_MODULE(ribosomesimulator, mod)
 }
 #endif
 
-Simulations::RibosomeSimulator::RibosomeSimulator()
+Simulations::RibosomeSimulator::RibosomeSimulator() : gen(rd()), dis(0, 1)
 {
   // set initial state to 0
   current_state = 0;
+  // initialize the random generator
+  // std::random_device
+  //     rd;                 // Will be used to obtain a seed for the random number engine
+  // std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+  // std::uniform_real_distribution<> dis(0, 1);
+
 }
 
 void Simulations::RibosomeSimulator::loadConcentrations(
@@ -367,25 +359,21 @@ void Simulations::RibosomeSimulator::run_and_get_times(
   }
 }
 
-double Simulations::RibosomeSimulator::run_repeatedly_get_average_time(int repetitions)
+double Simulations::RibosomeSimulator::run_repeatedly_get_average_time(const int repetitions)
 {
-  // initialize the random generator
-  std::random_device
-      rd;                 // Will be used to obtain a seed for the random number engine
-  std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-  std::uniform_real_distribution<> dis(0, 1);
 
-  double r1 = 0, r2 = 0, a0 = 0, cumsum = 0;
-  double tau = 0, clock = 0.0;
-  int selected_alpha_vector_index = -1;
+  double r1 = 0.0, r2 = 0.0, a0 = 0.0;
+  double cumsum = 0.0;
+  double tau = 0.0, clock = 0.0;
+  std::size_t selected_alpha_vector_index = 0;
   std::array<double, 4> alphas;
   std::array<std::size_t, 4> next_state;
   double k;      // get alphas
   int index, ii; //get alphas
-  for (std::size_t i = 0; i < repetitions; i++)
+  for (std::size_t i = 0; i < static_cast<std::size_t>(repetitions); i++)
   {
     current_state = 0;
-    while (true)
+    while (current_state < 32)
     {
       // randomly generate parameter for calculating dt
       r1 = dis(gen) + DBL_MIN; // adding minumum double value in order to avoid
@@ -394,7 +382,7 @@ double Simulations::RibosomeSimulator::run_repeatedly_get_average_time(int repet
       r2 = dis(gen) + DBL_MIN; // adding minumum double value in order to avoid
                                // division by zero and infinities.
       // calculate an
-      auto alphas_and_indexes = reactions_graph[static_cast<std::size_t>(
+      auto &alphas_and_indexes = reactions_graph[static_cast<std::size_t>(
           current_state)]; // go the possible
                            // reactions of that
                            // state.
@@ -417,11 +405,11 @@ double Simulations::RibosomeSimulator::run_repeatedly_get_average_time(int repet
       // TODO(Heday): vectorization of this loop would increase performance
       do
       {
-        selected_alpha_vector_index++;
-        cumsum += alphas[selected_alpha_vector_index];
+        // selected_alpha_vector_index++;
+        cumsum += alphas[selected_alpha_vector_index++];
       } while (cumsum < a0 * r2);
       // Apply reaction
-      setState(next_state[static_cast<std::size_t>(selected_alpha_vector_index)]);
+      setState(next_state[selected_alpha_vector_index - 1]);
       // Update time
       tau = (1.0 / a0) * log(1.0 / r1);
       clock += tau;

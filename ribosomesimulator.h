@@ -28,12 +28,15 @@ class RibosomeSimulator {
   void loadConcentrations(const std::string&);
   void setCodonForSimulation(const std::string&);
   void run_and_get_times(double&, double&);
-  double run_repeatedly_get_average_time(int);
+  double run_repeatedly_get_average_time(const int);
   std::vector<double> dt_history;
   std::vector<int> ribosome_state_history;
   std::string saccharomyces_cerevisiae_concentrations = 
        "concentrations/Saccharomyces_cerevisiae.csv";
  private:
+  std::random_device rd;
+  std::mt19937 gen;
+  std::uniform_real_distribution<> dis;
   void buildReactionsMap();
   std::string simulation_codon_3_letters = "";
   csv_utils::ConcentrationsReader concentrations_reader;
