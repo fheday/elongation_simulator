@@ -204,7 +204,15 @@ class Gui():
         iteration_limit_radiobutton.setChecked(False)
         iteration_limit_radiobutton.setEnabled(not steady_state_checkbox.checkState())
         iteration_limit_spinbox.setEnabled(not steady_state_checkbox.checkState())
-
+        # update termination condition
+        finished_ribosomes_limit_radiobutton = self.window.findChild(QRadioButton, "finished_ribosomes_limit_radiobutton")
+        if iteration_limit_radiobutton.isChecked():
+            self.changed_iteration_limit()
+        elif time_limit_radiobutton.isChecked():
+            self.changed_time_limit_entry()
+        else:
+            self.changed_finished_ribosomes()
+            
         return
 
     def open_fasta_file(self):
@@ -376,8 +384,12 @@ class Gui():
         """
         time_limit_radiobutton = self.window.findChild(QRadioButton, "time_limit_radiobutton")
         time_limit_spinbox = self.window.findChild(QDoubleSpinBox, "time_limit_spinbox")
+        steady_state_checkbox = self.window.findChild(QCheckBox, 'steady_state_checkbox')
         time_limit_radiobutton.setChecked(True)
-        self.stop_condition = ("time", float(time_limit_spinbox.value()))
+        if steady_state_checkbox.checkState():
+            self.stop_condition = ("steady_state_time", float(time_limit_spinbox.value()))
+        else:
+            self.stop_condition = ("time", float(time_limit_spinbox.value()))
 
     def changed_finished_ribosomes(self):
         """
@@ -385,8 +397,12 @@ class Gui():
         """
         finished_ribosomes_limit_radiobutton = self.window.findChild(QRadioButton, "finished_ribosomes_limit_radiobutton")
         finished_ribosomes_spinbox = self.window.findChild(QSpinBox, "finished_ribosomes_spinbox")
+        steady_state_checkbox = self.window.findChild(QCheckBox, 'steady_state_checkbox')
         finished_ribosomes_limit_radiobutton.setChecked(True)
-        self.stop_condition = ("ribosomes", int(finished_ribosomes_spinbox.value()))
+        if steady_state_checkbox.checkState():
+            self.stop_condition = ("steady_state_ribosomes", int(finished_ribosomes_spinbox.value()))
+        else:
+            self.stop_condition = ("ribosomes", int(finished_ribosomes_spinbox.value()))
     
     
     def generate_simulation_file(self):
@@ -396,7 +412,10 @@ class Gui():
         file_name = QFileDialog.getSaveFileName(self.window, 'Save simulation configuration', os.getcwd(), filter='*.json')
         if file_name == "":
             return
-        file_name = file_name[0] + '.' + file_name[1].split('.')[1]
+        if file_name[0] and file_name[1].split('.')[1] in file_name[0].split(".")[-1]:
+            file_name = file_name[0] # file name already has extension.
+        else:
+            file_name = file_name[0] + '.' + file_name[1].split('.')[1]
         selected_concentration_label = self.window.findChild(QLabel, "selected_concentration_label")
         pre_populate_check_box = self.window.findChild(QCheckBox, "pre_populate_check_box")
         history_size_spinbox = self.window.findChild(QSpinBox, "history_size_spinbox")
@@ -414,7 +433,6 @@ class Gui():
             termination_rate = float(added_simulations_table.item(index, 3).text())
             transcript_copy_number = float(added_simulations_table.item(index, 4).text())
             sb.add_mRNA_entry(fasta_file, gene, initiation_rate, termination_rate, transcript_copy_number)
-        print(file_name)
         sb.save_simulation(file_name)
 
         return
@@ -433,7 +451,6 @@ class SimulationBuilder:
             "pre_populate":True,
             "mRNA_entries":[],
             "history_size":100000,
-            "results":{},
         }
 
     def set_concentration_file(self, file_path):
@@ -468,10 +485,14 @@ class SimulationBuilder:
             self.data["time_limit"] = value
         elif condition.lower() == "ribosomes":
             self.data["finished_ribosomes"] = int(value)
+        elif condition.lower() == "steady_state_time":
+            self.data["steady_state_time"] = value
+        elif condition.lower() == "steady_state_ribosomes":
+            self.data["steady_state_ribosomes"] = value
     
     def save_simulation(self, file_path):
         # validation
-        if len(set(["iteration_limit", "time_limit", "finished_ribosomes"]).intersection(self.data.keys())) == 0:
+        if len(set(["iteration_limit", "time_limit", "finished_ribosomes", "steady_state_time", "steady_state_ribosomes"]).intersection(self.data.keys())) == 0:
             return
         if len(self.data["mRNA_entries"]) == 0:
             return
