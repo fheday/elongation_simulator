@@ -238,3 +238,31 @@ bool Elongation_manager::SimulationManager::start() {
 
   return true;
 }
+
+bool Elongation_manager::SimulationManager::save_sim(Simulations::Translation& sim) {
+  Json::Value newjson;
+  newjson["fasta_file"] = sim.mrna_file_name;
+  newjson["initiation_rate"] = sim.initiation_rate;
+  newjson["termination_rate"] = sim.termination_rate;
+  std::vector<double> clock(sim.dt_history.size());
+  std::partial_sum(sim.dt_history.begin(), sim.dt_history.end(), clock.begin(), std::plus<double>());
+  for (auto time:clock) newjson["clock"].append(time);
+  Json::Value ribosomes_history;
+  for (auto entry:sim.ribosome_positions_history){
+    Json::Value entry_vector;
+    for (auto ribosome:entry) entry_vector.append(ribosome);
+    ribosomes_history.append(entry_vector);
+  }
+  newjson["elongating_ribosomes"] = ribosomes_history;
+  
+  std::ifstream file_stream(configuration_file_path, std::ifstream::binary);
+  // write in a nice readible way
+  Json::StreamWriterBuilder builder;
+  // builder["commentStyle"] = "None"; // no comments.
+  builder["indentation"] = "   ";   // four spaces identation
+  std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+  std::ofstream config_doc_writer(directory + sim.gene_name+".json",
+                                  std::ifstream::binary);
+  writer->write(newjson, &config_doc_writer);
+  return true;
+}
