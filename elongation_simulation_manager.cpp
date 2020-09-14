@@ -30,6 +30,12 @@ void init_simulation_manager(py::module &mod) {
         case Elongation_manager::RIBOSOMES:
           result = "RIBOSOMES";
           break;
+        case Elongation_manager::STEADY_STATE_TIME:
+          result = "TIME AFTER STEADY STATE";
+          break;
+        case Elongation_manager::STEADY_STATE_RIBOSOMES:
+          result = "TERMINATED RIBOSOMES AFTER STEADY STATE";
+          break;
         }
         return result;
         })
@@ -88,6 +94,15 @@ Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
     stop_condition_type = STEADY_STATE_RIBOSOMES;
     stop_condition_value = root.get("steady_state_ribosomes", "-1").asFloat();
   }
+  // check for propensities modifiers
+  if (root.isMember("propensity_modifiers")){
+    //there are modifiers.
+    auto propensities_json_list = root["propensity_modifiers"].getMemberNames();
+
+    for (auto reaction_name : propensities_json_list)
+      reactions_modifiers[reaction_name] = root["propensity_modifiers"][reaction_name].asFloat();
+  }
+
   history_size = root.get("history_size", 10000).asUInt();
   config_doc.close(); // close file
   if (!is_simulation_valid())
@@ -107,23 +122,36 @@ bool file_exists(std::string file_path) {
 
 
 bool Elongation_manager::SimulationManager::is_simulation_valid() {
-  if (!file_exists(configuration_file_path))
+  if (!file_exists(configuration_file_path)) {
+    std::cout<<"Can't open configuration file.\n";
     return false;
-  if (!file_exists(concentration_file_path))
+  }
+    
+  if (!file_exists(concentration_file_path)) {
+    std::cout<<"Can't open concentration file.\n";
     return false;
-  if (stop_condition_value <= 0 || history_size <= 0)
+  }
+  if (stop_condition_value <= 0 || history_size <= 0) {
+    std::cout<< "Invalid stop condition or history size.\n";
     return false;
+  }
   std::string fasta_file_path, gene_name;
   float initiation_rate, termination_rate, gene_copy_number;
   for (auto const& tup : simulations_configurations) {
     std::tie(fasta_file_path, gene_name, initiation_rate, termination_rate,
              gene_copy_number) = tup;
-    if (!file_exists(fasta_file_path))
+    if (!file_exists(fasta_file_path)) {
+      std::cout<<"Can't open fasta file: "<< fasta_file_path<<"\n";
       return false;
-    if (gene_name.empty())
+    }
+    if (gene_name.empty()) {
+      std::cout<<"Empty gene name.\n";
       return false;
-    if (initiation_rate < 0 || termination_rate < 0 || gene_copy_number <= 0)
+    }
+    if (initiation_rate < 0 || termination_rate < 0 || gene_copy_number <= 0) {
+      std::cout<<"Invalid initiation, termination rate or gene copy number.\n";
       return false;
+    }
   }
   return true;
 }
@@ -189,7 +217,49 @@ bool Elongation_manager::SimulationManager::start() {
     ts.setPrepopulate(pre_populate); // simulations pre-populate the mRNA
                                      // by default. This can be changed in
                                      // the future.
+    
+    if (!reactions_modifiers.empty()) {
+      //modify reactions
+      //get reactions
+      auto original_reactions = ts.getPropensities();
+      std::vector<std::map<std::string, double>> changed_propensities_vector;
+      for (auto codon : original_reactions){
+        std::map<std::string, double> new_propensities;
+        for (auto item : reactions_modifiers){
+          if ( codon.find(item.first) == codon.end() ) {
+            continue; //not found. skip.
+          } else {
+            new_propensities[item.first] = codon[item.first] * item.second; //update reaction to desired value.
+          }
+        }
+        changed_propensities_vector.push_back(new_propensities);
+      }
+      // int i = 0;
+      // for (auto codon: changed_propensities_vector) {
+      //   std::cout<<"CODON NUMBER: "<<i++<<"-----------------\n";
+      //   for (auto item: codon){
+      //     std::cout<<"codon[" << item.first<<"] = "<< item.second<<"\n";
+      //   }
+      // }
+
+      //update reactions.
+      ts.setPropensities(changed_propensities_vector);
+
+      // auto new_propensities_vector = ts.getPropensities();
+      // i = 0;
+      // for (auto codon:new_propensities_vector) {
+      //   for (auto item: codon) {
+      //     std::cout<<"old value:"<<original_reactions[i][item.first]<<"...     ";
+      //     std::cout<<"new value: "<<item.first << " = "<<item.second<< "ratio : "<<item.second/ original_reactions[i][item.first]<<"\n";
+      //   }
+      //   i++;
+      // }
+
+    
     ts.setHistorySize(log_size);
+
+    }
+    //execute simulation.
     ts.run();
     return ts;
   };

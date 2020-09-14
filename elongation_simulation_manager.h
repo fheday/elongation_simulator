@@ -34,6 +34,15 @@ private:
   float stop_condition_value;
   std::size_t history_size;
   std::vector<std::future<Simulations::Translation>> simulations;
+  std::map<std::string, float> reactions_modifiers;
+    std::array<std::string, 44> reactions_identifiers = {
+      {"non1f",    "near1f",     "wobble1f", "WC1f",     "non1r",    "near1r",
+       "near2f",   "near2r",     "near3f",   "near4f",   "near5f",   "neardiss",
+       "near6f",   "wobble1r",   "wobble2f", "wobble2r", "wobble3f", "wobble4f",
+       "wobble5f", "wobblediss", "wobble6f", "WC1r",     "WC2f",     "WC2r",
+       "WC3f",     "WC4f",       "WC5f",     "WCdiss",   "WC6f",     "dec7f",
+       "trans1f",  "trans1r",    "trans2",   "trans3",   "trans4",   "trans5",
+       "trans6",   "trans7",     "trans8",   "trans9"}};
 
   bool is_simulation_valid();
   bool save_sim(Simulations::Translation&);
