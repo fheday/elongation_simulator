@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace Elongation_manager {
-enum stop_condition_enum { ITERATION, TIME, RIBOSOMES };
+enum stop_condition_enum { ITERATION, TIME, RIBOSOMES, STEADY_STATE_TIME, STEADY_STATE_RIBOSOMES };
 class SimulationManager {
 public:
   SimulationManager() = delete;   // no default constructor

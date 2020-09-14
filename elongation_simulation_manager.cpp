@@ -81,6 +81,12 @@ Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
   } else if (root.isMember("finished_ribosomes")) {
     stop_condition_type = RIBOSOMES;
     stop_condition_value = root.get("finished_ribosomes", "-1").asFloat();
+  } else if (root.isMember("steady_state_time")) {
+    stop_condition_type = STEADY_STATE_TIME;
+    stop_condition_value = root.get("steady_state_time", "-1").asFloat();
+  } else if (root.isMember("steady_state_ribosomes")) {
+    stop_condition_type = STEADY_STATE_RIBOSOMES;
+    stop_condition_value = root.get("steady_state_ribosomes", "-1").asFloat();
   }
   history_size = root.get("history_size", 10000).asUInt();
   config_doc.close(); // close file
@@ -173,6 +179,12 @@ bool Elongation_manager::SimulationManager::start() {
       ts.setTimeLimit(stop_value);
     } else if (stop_condition == RIBOSOMES) {
       ts.setFinishedRibosomes(stop_value);
+    } else if (stop_condition == STEADY_STATE_TIME) {
+      ts.setSimulateToSteadyState(true);
+      ts.setSteadyStateTime(stop_value);
+    } else if (stop_condition == STEADY_STATE_RIBOSOMES) {
+      ts.setSimulateToSteadyState(true);
+      ts.setSteadyStateTerminations(stop_value);
     }
     ts.setPrepopulate(pre_populate); // simulations pre-populate the mRNA
                                      // by default. This can be changed in
@@ -224,33 +236,5 @@ bool Elongation_manager::SimulationManager::start() {
     j++;
   }
 
-  return true;
-}
-
-bool Elongation_manager::SimulationManager::save_sim(Simulations::Translation& sim) {
-  Json::Value newjson;
-  newjson["fasta_file"] = sim.mrna_file_name;
-  newjson["initiation_rate"] = sim.initiation_rate;
-  newjson["termination_rate"] = sim.termination_rate;
-  std::vector<double> clock(sim.dt_history.size());
-  std::partial_sum(sim.dt_history.begin(), sim.dt_history.end(), clock.begin(), std::plus<double>());
-  for (auto time:clock) newjson["clock"].append(time);
-  Json::Value ribosomes_history;
-  for (auto entry:sim.ribosome_positions_history){
-    Json::Value entry_vector;
-    for (auto ribosome:entry) entry_vector.append(ribosome);
-    ribosomes_history.append(entry_vector);
-  }
-  newjson["elongating_ribosomes"] = ribosomes_history;
-  
-  std::ifstream file_stream(configuration_file_path, std::ifstream::binary);
-  // write in a nice readible way
-  Json::StreamWriterBuilder builder;
-  // builder["commentStyle"] = "None"; // no comments.
-  builder["indentation"] = "   ";   // four spaces identation
-  std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-  std::ofstream config_doc_writer(directory + sim.gene_name+".json",
-                                  std::ifstream::binary);
-  writer->write(newjson, &config_doc_writer);
   return true;
 }
