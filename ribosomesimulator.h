@@ -33,6 +33,16 @@ class RibosomeSimulator {
   std::vector<int> ribosome_state_history;
   std::string saccharomyces_cerevisiae_concentrations = 
        "concentrations/Saccharomyces_cerevisiae.csv";
+  // propensity identifyers
+  std::array<std::string, 44> reactions_identifiers = {
+      {"non1f",    "near1f",     "wobble1f", "WC1f",     "non1r",    "near1r",
+       "near2f",   "near2r",     "near3f",   "near4f",   "near5f",   "neardiss",
+       "near6f",   "wobble1r",   "wobble2f", "wobble2r", "wobble3f", "wobble4f",
+       "wobble5f", "wobblediss", "wobble6f", "WC1r",     "WC2f",     "WC2r",
+       "WC3f",     "WC4f",       "WC5f",     "WCdiss",   "WC6f",     "dec7f",
+       "trans1f",  "trans1r",    "trans2",   "trans3",   "trans4",   "trans5",
+       "trans6",   "trans7",     "trans8",   "trans9"}};
+
  private:
   std::random_device rd;
   std::mt19937 gen;
@@ -111,15 +121,6 @@ class RibosomeSimulator {
   double trans7 = 1000;
   double trans8 = 1000;
   double trans9 = 1000;
-
-  std::array<std::string, 44> reactions_identifiers = {
-      {"non1f",    "near1f",     "wobble1f", "WC1f",     "non1r",    "near1r",
-       "near2f",   "near2r",     "near3f",   "near4f",   "near5f",   "neardiss",
-       "near6f",   "wobble1r",   "wobble2f", "wobble2r", "wobble3f", "wobble4f",
-       "wobble5f", "wobblediss", "wobble6f", "WC1r",     "WC2f",     "WC2r",
-       "WC3f",     "WC4f",       "WC5f",     "WCdiss",   "WC6f",     "dec7f",
-       "trans1f",  "trans1r",    "trans2",   "trans3",   "trans4",   "trans5",
-       "trans6",   "trans7",     "trans8",   "trans9"}};
 
   // TEMPORARY SOLUTION: in order to provide a mechanism easily change only one
   // propensity I've created a map of references to the propensities variables,
