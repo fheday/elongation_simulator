@@ -15,6 +15,7 @@ namespace Simulations {
         void calculateRibosomeCollisions();
         std::vector<std::vector<int>>& getCollidingRibosomes();
         std::vector<std::vector<int>>& getStalledRibosomes();
+        void packData();
         void save();
 
         private:

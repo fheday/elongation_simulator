@@ -18,6 +18,7 @@ void init_simulation_processor(py::module &mod) {
       .def("calculateRibosomeCollisions", &Simulations::SimulationProcessor::calculateRibosomeCollisions)
       .def("getCollidingRibosomes", &Simulations::SimulationProcessor::getCollidingRibosomes)
       .def("getStalledRibosomes", &Simulations::SimulationProcessor::getStalledRibosomes)
+      .def("packData", &Simulations::SimulationProcessor::packData)
       .def("save", &Simulations::SimulationProcessor::save);
 }
 #endif
@@ -54,6 +55,26 @@ Simulations::SimulationProcessor::SimulationProcessor(std::string file_name) {
         }
     }
 
+
+    if (root.isMember("colliding_ribosomes")) {
+        for (unsigned int i = 0; i < root["colliding_ribosomes"].size(); ++i) {
+            std::vector<int> entry(root["colliding_ribosomes"][i].size());
+            for (unsigned int j = 0; j < root["colliding_ribosomes"][i].size(); ++j) {
+                entry[j] = root["colliding_ribosomes"][i][j].asInt();
+            }
+            colliding_ribosomes.emplace_back(entry);
+        }
+    }
+
+    if (root.isMember("stalling_ribosomes")) {
+        for (unsigned int i = 0; i < root["stalling_ribosomes"].size(); ++i) {
+            std::vector<int> entry(root["stalling_ribosomes"][i].size());
+            for (unsigned int j = 0; j < root["stalling_ribosomes"][i].size(); ++j) {
+                entry[j] = root["stalling_ribosomes"][i][j].asInt();
+            }
+            stalled_ribosomes.emplace_back(entry);
+        }
+    }
 }
 
 std::vector<float>& Simulations::SimulationProcessor::getClock() {
@@ -90,6 +111,49 @@ void Simulations::SimulationProcessor::calculateRibosomeCollisions() {
         }
         colliding_ribosomes.emplace_back(collision_entry);
         stalled_ribosomes.emplace_back(stall_entry);
+    }
+}
+
+void Simulations::SimulationProcessor::packData() {
+    //if we don't have ribosome position data,
+    //then we can only keep entries where there is change
+    //in collision.
+    if (elongating_ribosomes.empty()) {
+        std::vector<float> new_clock;
+        std::vector<std::vector<int>> new_stalled;
+        std::vector<std::vector<int>> new_collisions;
+        // 1st entry is always added.
+        new_clock.emplace_back(clock.front());
+        new_stalled.emplace_back(stalled_ribosomes.front());
+        new_collisions.emplace_back(colliding_ribosomes.front());
+        for (std::size_t i = 1; i < stalled_ribosomes.size(); i++) {
+            //compare with the back of new lists.
+            bool equals = true;
+            auto &last_stalled_ribosomes = new_stalled.back();
+            if (stalled_ribosomes[i].size() == last_stalled_ribosomes.size()) {
+                //check deeper.
+                for (std::size_t j = 0; j < stalled_ribosomes[i].size(); j++) {
+                    if (stalled_ribosomes[i][j] != last_stalled_ribosomes[j]) {
+                        equals = false;
+                        break;
+                    }
+                }
+                // std::cout<<"\n";
+            } else {
+                equals = false;
+            }
+            if (!equals) {
+                // its a new entry. record.
+                new_clock.emplace_back(clock[i]);
+                new_stalled.emplace_back(stalled_ribosomes[i]);
+                new_collisions.emplace_back(colliding_ribosomes[i]);
+            }
+
+        }
+        //replace lists.
+        clock = new_clock;
+        stalled_ribosomes = new_stalled;
+        colliding_ribosomes = new_collisions;
     }
 }
 
