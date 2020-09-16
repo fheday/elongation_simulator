@@ -325,7 +325,7 @@ bool Elongation_manager::SimulationManager::save_sim(Simulations::Translation& s
   }
   newjson["elongating_ribosomes"] = ribosomes_history;
   
-  std::ifstream file_stream(configuration_file_path, std::ifstream::binary);
+  // std::ifstream file_stream(configuration_file_path, std::ifstream::binary);
   // write in a nice readible way
   Json::StreamWriterBuilder builder;
   // builder["commentStyle"] = "None"; // no comments.
