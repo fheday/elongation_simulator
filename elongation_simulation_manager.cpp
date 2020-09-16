@@ -334,19 +334,10 @@ bool Elongation_manager::SimulationManager::save_sim(Simulations::Translation& s
   }
   newjson["elongating_ribosomes"] = ribosomes_history;
   
-  // write in a nice readible way
-  Json::StreamWriterBuilder builder;
-  // builder["commentStyle"] = "None"; // no comments.
-  builder["indentation"] = "   ";   // four spaces identation
-  std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-  std::string json_file_name = directory + sim.gene_name+".json";
-  std::ofstream config_doc_writer(json_file_name,
-                                  std::ifstream::binary);
-  writer->write(newjson, &config_doc_writer);
-
   // now post-processing.
+  std::string json_file_name = directory + sim.gene_name+".json";
   if (save_collisions || remove_ribosome_positions) {
-    Simulations::SimulationProcessor processor = Simulations::SimulationProcessor(json_file_name);
+    Simulations::SimulationProcessor processor = Simulations::SimulationProcessor(newjson, json_file_name);
     if (save_collisions) {
       processor.calculateRibosomeCollisions();
     }
@@ -357,7 +348,17 @@ bool Elongation_manager::SimulationManager::save_sim(Simulations::Translation& s
       // we can save space.
       processor.packData();
     }
-    processor.save(); // update simualtion file with changes.
+    processor.save(); // save simualtion file with changes.
+  } else {
+    // no need for post processing. save file here.
+    // write in a nice readible way
+    Json::StreamWriterBuilder builder;
+    builder["indentation"] = "   ";   // four spaces identation
+    std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+    std::ofstream config_doc_writer(json_file_name,
+                                    std::ifstream::binary);
+    writer->write(newjson, &config_doc_writer);
+    
   }
 
   return true;

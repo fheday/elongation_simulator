@@ -3,12 +3,14 @@
 
 #include <string>
 #include <vector>
+#include "json/json.h"
 
 namespace Simulations {
     class SimulationProcessor {
         public:
         SimulationProcessor() = delete;
         SimulationProcessor(std::string);
+        SimulationProcessor(Json::Value, std::string);
         std::vector<float>& getClock();
         std::vector<std::vector<int>>& getRibosomes();
         void removeRibosomePositions();
@@ -27,6 +29,7 @@ namespace Simulations {
         std::vector<std::vector<int>> elongating_ribosomes;
         std::vector<std::vector<int>> colliding_ribosomes;
         std::vector<std::vector<int>> stalled_ribosomes;
+        void parseJson(Json::Value&);
     };
 }
 #endif

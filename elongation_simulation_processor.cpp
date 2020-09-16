@@ -1,7 +1,6 @@
 #include "elongation_simulation_processor.h"
 #include <fstream>
 #include <iostream>
-#include "json/json.h"
 
 #if defined(COMIPLE_PYTHON_MODULE) || defined(TRANSLATIONSIMULATOR)
 
@@ -29,6 +28,15 @@ Simulations::SimulationProcessor::SimulationProcessor(std::string file_name) {
     std::ifstream config_doc(file_name, std::ifstream::binary);
     Json::Value root; // the json document.
     config_doc >> root;
+    parseJson(root);
+}
+
+Simulations::SimulationProcessor::SimulationProcessor(Json::Value root, std::string file_name) {
+    configuration_file_name = file_name;    
+    parseJson(root);
+}
+
+void Simulations::SimulationProcessor::parseJson(Json::Value& root) {
     if (root.isMember("fasta_file")) fasta_file = root.get("fasta_file", "").asString();
     if (root.isMember("initiation_rate")) initiation_rate = root.get("initiation_rate", -1).asFloat();
     if (root.isMember("termination_rate")) termination_rate = root.get("termination_rate", -1).asFloat();
@@ -75,6 +83,7 @@ Simulations::SimulationProcessor::SimulationProcessor(std::string file_name) {
             stalled_ribosomes.emplace_back(entry);
         }
     }
+
 }
 
 std::vector<float>& Simulations::SimulationProcessor::getClock() {
