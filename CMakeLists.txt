@@ -11,8 +11,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC")
 
 set(common_sources concentrationsreader.cpp mrna_reader.cpp)
 set(ribosome_simulator_sources ribosomesimulator.cpp ${common_sources})
-set(elongation_simulator_sources elongationsimulator.cpp  elongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.cpp elongation_simulation_manager.cpp ${ribosome_simulator_sources})
-
+set(elongation_simulator_sources elongationsimulator.cpp  elongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.cpp ${ribosome_simulator_sources})
 add_library(util_lib STATIC ${common_sources})
 add_library(ribosome_simulator_lib STATIC ${ribosome_simulator_sources})
 add_library(elongation_simulator_lib STATIC  ${elongation_simulator_sources})
@@ -29,7 +28,7 @@ include_directories("eigen-3.3.7/")
 include_directories("jsoncpp/")
 add_subdirectory("pybind11/")
 
-add_library(translation EXCLUDE_FROM_ALL MODULE elongation_simulation_manager.cpp translation.cpp mrna_reader.cpp initiationterminationcodon.cpp
+add_library(translation EXCLUDE_FROM_ALL MODULE translation.cpp elongation_simulation_manager.cpp elongation_simulation_processor.cpp mrna_reader.cpp initiationterminationcodon.cpp
 concentrationsreader.cpp ribosomesimulator.cpp mrnaelement.cpp elongation_codon.cpp)
 target_compile_definitions(translation PRIVATE -DCOMIPLE_PYTHON_MODULE) # enable python pathway in code.
 target_link_libraries(translation PRIVATE pybind11::module ${PYTHON_LIBRARIES} jsoncpp)

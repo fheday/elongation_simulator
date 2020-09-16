@@ -21,7 +21,8 @@
 #include "pybind11/stl.h"
 namespace py = pybind11;
 
-void init_simulation_manager(py::module &);
+void init_simulation_manager(py::module &); // declare simulation manager
+void init_simulation_processor(py::module &); //declare simulation processor
 
 PYBIND11_MODULE(translation, mod) {
   py::class_<Simulations::Translation>(mod, "translation")
@@ -84,7 +85,8 @@ PYBIND11_MODULE(translation, mod) {
       .def_readonly("average_times",
                     &Simulations::Translation::codons_average_occupation_time);
 
-    init_simulation_manager(mod);
+    init_simulation_manager(mod); //include simulation manager to package
+    init_simulation_processor(mod); //include simulation processor to package
 }
 
 #endif
