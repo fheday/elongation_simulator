@@ -22,12 +22,16 @@ public:
   float get_stop_condition_value();
   std::size_t get_history_size();
   bool start();
+  void set_save_collisions(bool);
+  void set_remove_ribosome_positions(bool);
 
 private:
   std::string configuration_file_path;
   std::string concentration_file_path;
   std::string directory;
   bool pre_populate = false;
+  bool save_collisions = false;
+  bool remove_ribosome_positions;
   std::vector<std::tuple<std::string, std::string, float, float, float>>
       simulations_configurations;
   stop_condition_enum stop_condition_type;

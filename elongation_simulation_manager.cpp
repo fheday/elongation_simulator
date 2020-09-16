@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include "json/json.h"
+#include "elongation_simulation_processor.h"
 
 #if defined(COMIPLE_PYTHON_MODULE) || defined(TRANSLATIONSIMULATOR)
 
@@ -16,7 +17,6 @@ void init_simulation_manager(py::module &mod) {
       .def("getConcentrationFilePath", &Elongation_manager::SimulationManager::get_concentration_file_path)
       .def("getConfigurationFilePath", &Elongation_manager::SimulationManager::get_configuration_file_path)
       .def("getPrePopulate", &Elongation_manager::SimulationManager::get_pre_populate)
-      // .def("getSimulationsConfigurations", &Elongation_manager::SimulationManager::get_simulations_configurations)
       .def("getStopConditionType", [](Elongation_manager::SimulationManager& sm){
         std::string result;
         switch (sm.get_stop_condition_type())
@@ -41,8 +41,9 @@ void init_simulation_manager(py::module &mod) {
         })
       .def("getStopConditionValue", &Elongation_manager::SimulationManager::get_stop_condition_value)
       .def("getHistorySize", &Elongation_manager::SimulationManager::get_history_size)
-      .def("start", &Elongation_manager::SimulationManager::start, py::call_guard<py::gil_scoped_release>());
-
+      .def("start", &Elongation_manager::SimulationManager::start, py::call_guard<py::gil_scoped_release>())
+      .def("set_save_collisions", &Elongation_manager::SimulationManager::set_save_collisions)
+      .def("set_remove_ribosome_positions", &Elongation_manager::SimulationManager::set_remove_ribosome_positions);
 }
 
 #endif
@@ -188,6 +189,14 @@ std::size_t Elongation_manager::SimulationManager::get_history_size() {
   return history_size;
 }
 
+void Elongation_manager::SimulationManager::set_save_collisions(bool col) {
+  save_collisions = col;
+}
+
+void Elongation_manager::SimulationManager::set_remove_ribosome_positions(bool rib_pos) {
+  remove_ribosome_positions = rib_pos;
+}
+
 bool Elongation_manager::SimulationManager::start() {
   auto number_of_simulations = simulations_configurations.size();
   auto do_simulation = [&](std::string concentration_file_path,
@@ -325,14 +334,31 @@ bool Elongation_manager::SimulationManager::save_sim(Simulations::Translation& s
   }
   newjson["elongating_ribosomes"] = ribosomes_history;
   
-  // std::ifstream file_stream(configuration_file_path, std::ifstream::binary);
   // write in a nice readible way
   Json::StreamWriterBuilder builder;
   // builder["commentStyle"] = "None"; // no comments.
   builder["indentation"] = "   ";   // four spaces identation
   std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-  std::ofstream config_doc_writer(directory + sim.gene_name+".json",
+  std::string json_file_name = directory + sim.gene_name+".json";
+  std::ofstream config_doc_writer(json_file_name,
                                   std::ifstream::binary);
   writer->write(newjson, &config_doc_writer);
+
+  // now post-processing.
+  if (save_collisions || remove_ribosome_positions) {
+    Simulations::SimulationProcessor processor = Simulations::SimulationProcessor(json_file_name);
+    if (save_collisions) {
+      processor.calculateRibosomeCollisions();
+    }
+    if (remove_ribosome_positions) {
+      processor.removeRibosomePositions();
+    }
+    if (save_collisions && remove_ribosome_positions) {
+      // we can save space.
+      processor.packData();
+    }
+    processor.save(); // update simualtion file with changes.
+  }
+
   return true;
 }
