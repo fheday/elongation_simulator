@@ -21,7 +21,7 @@ public:
   stop_condition_enum get_stop_condition_type();
   float get_stop_condition_value();
   std::size_t get_history_size();
-  bool start();
+  bool start(bool, unsigned int);
   void set_save_collisions(bool);
   void set_remove_ribosome_positions(bool);
 

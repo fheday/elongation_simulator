@@ -197,13 +197,14 @@ void Elongation_manager::SimulationManager::set_remove_ribosome_positions(bool r
   remove_ribosome_positions = rib_pos;
 }
 
-bool Elongation_manager::SimulationManager::start() {
+bool Elongation_manager::SimulationManager::start(bool verbose=false, unsigned int n_threads = std::thread::hardware_concurrency()) {
   auto number_of_simulations = simulations_configurations.size();
   auto do_simulation = [&](std::string concentration_file_path,
                           bool pre_populate, std::string fasta_file,
                           std::string gene, float init_rate, float term_rate,
                           stop_condition_enum stop_condition, float stop_value,
                           std::size_t log_size) {
+    if (verbose) std::cout<<" Simulating file: "<<fasta_file<<", gene = "<<gene<<"\n";
     // prepare and run the simulation.
     Simulations::Translation ts;
     ts.loadConcentrations(concentration_file_path);
@@ -273,7 +274,6 @@ bool Elongation_manager::SimulationManager::start() {
     return ts;
   };
   // create thread pool of threads
-  auto n_threads = std::thread::hardware_concurrency();
   std::vector<std::future<Simulations::Translation>> sims;
   bool has_finished_tasks = false;
   std::size_t finished_index = 0;
