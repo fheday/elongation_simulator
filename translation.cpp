@@ -175,6 +175,7 @@ void Simulations::Translation::initializeMRNAReader() {
 }
 
 void Simulations::Translation::setPropensities(std::vector<std::map<std::string, double>> prop) {
+  changed_propensities = true;
   for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
     codons_vector[i]->setPropensities(prop[i]);
   }
@@ -341,7 +342,8 @@ void Simulations::Translation::run() {
   reaction_index.resize(4 * max_ribosomes);
 
   // pre-fill codons based on the rates.
-  if (pre_populate) {
+  // do not pre-fill if ribosome propensities have been changed.
+  if (pre_populate && !changed_propensities) {
     std::size_t last_index = 0;
     double time_sum = 0;
     std::map<std::string, double> estimated_codon_time{
@@ -399,6 +401,7 @@ void Simulations::Translation::run() {
   dt_history_circ_buffer.put(0.0);
   finished_ribosomes -=
       pre_filled_ribosomes; // we should ignore these ribosomes.
+      
   std::size_t moved_codon = 0, current_codon = 0;
   bool initiation = false, termination = false, moved = true;
 
