@@ -341,6 +341,12 @@ void Simulations::Translation::run() {
   codon_index.resize(4 * max_ribosomes);
   reaction_index.resize(4 * max_ribosomes);
 
+  //check if the mRNA is greater than 2 ribosomes. if not, print error. do not simulate.
+  if (codons_vector.size() < 2 * RIBOSOME_SIZE) {
+    std::cout<<"mRNA too short. not simulating.\n";
+    return;
+  }
+
   // pre-fill codons based on the rates.
   // do not pre-fill if ribosome propensities have been changed.
   if (pre_populate && !changed_propensities) {
