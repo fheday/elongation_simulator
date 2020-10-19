@@ -137,6 +137,8 @@ void Simulations::Translation::initializeMRNAReader() {
     } else {
       mrr.loadGene(mrna_file_name, gene_name);
     }
+    std::vector<std::string> stop_codons = {"UAG", "UAA",
+                                          "UGA"};  // list of stop codons.
     // fill codon vector.
     int n_codons = mrr.sizeInCodons();
     std::unique_ptr<Simulations::InitiationTerminationCodon> initiation_codon(
@@ -146,6 +148,13 @@ void Simulations::Translation::initializeMRNAReader() {
     initiation_codon->setState(0);
     codons_vector.push_back(std::move(initiation_codon));
     for (int i = 1; i < n_codons - 1; i++) {
+      //check if codon is a stop codon.
+      if(std::find(stop_codons.begin(), stop_codons.end(), mrr.getCodon(i)) != stop_codons.end()) {
+        //stop codon found. we shouldn't have it here.
+        std::cout<<"Stop codon found before the end of gene. Not simulating.\n";
+        is_mRNA_valid =false;
+        break;
+      }
       std::unique_ptr<Simulations::ElongationCodon> c(
           new Simulations::ElongationCodon());
       c->loadConcentrations(concentrations_file_name);
@@ -344,6 +353,11 @@ void Simulations::Translation::run() {
   //check if the mRNA is greater than 2 ribosomes. if not, print error. do not simulate.
   if (codons_vector.size() < 2 * RIBOSOME_SIZE) {
     std::cout<<"mRNA too short. not simulating.\n";
+    return;
+  }
+  //check if mRNA is valid
+  if (is_mRNA_valid == false) {
+    std::cout<<"Can't elongate invalid mRNA. Quitting.\n";
     return;
   }
 

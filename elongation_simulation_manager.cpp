@@ -4,6 +4,7 @@
 #include <fstream>
 #include "json/json.h"
 #include "elongation_simulation_processor.h"
+#include "threadPool.h"
 
 #if defined(COMIPLE_PYTHON_MODULE) || defined(TRANSLATIONSIMULATOR)
 
@@ -274,7 +275,8 @@ bool Elongation_manager::SimulationManager::start(bool verbose=false, unsigned i
     return ts;
   };
   // create thread pool of threads
-  std::vector<std::future<Simulations::Translation>> sims;
+  ThreadPool thread_pool(n_threads);
+  std::vector<std::future<bool>> sims;
   bool has_finished_tasks = false;
   std::size_t finished_index = 0;
   for (std::size_t i = 0; i < number_of_simulations; i++) {
@@ -283,37 +285,27 @@ bool Elongation_manager::SimulationManager::start(bool verbose=false, unsigned i
     std::tie(fasta_path, gene_name, init_rate, term_rate, copy_number) =
         simulations_configurations[i];
     if (file_exists(directory + gene_name + ".json")) continue; // don't simulate again.
-    sims.push_back(std::async(do_simulation, concentration_file_path,
+    sims.emplace_back(thread_pool.enqueue([=]{auto result = do_simulation(concentration_file_path,
                                      pre_populate, fasta_path, gene_name,
                                      init_rate, term_rate, stop_condition_type,
-                                     stop_condition_value, history_size));
+                                     stop_condition_value, history_size);
+                                     save_sim(result);
+                                     return true;}));
 
-    if (sims.size() % n_threads == 0){
-      do {
-        has_finished_tasks = false;
-        for (std::size_t sim_index = 0; sim_index < sims.size(); sim_index++) {
-          if (sims[sim_index].wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-            has_finished_tasks = true;
-            finished_index = sim_index;
-            break;
-          }
-        }
-      } while(has_finished_tasks == false);
-      if (has_finished_tasks) {
-          sims[finished_index].wait();
-          auto sim = sims[finished_index].get();
-          save_sim(sim);
-          sims.erase(sims.begin() + finished_index);
-      }
+  }
+  for(auto && result: sims){
+    auto sim = result.get();
+    if (sim) {
+      std::cout<<"done.\n";
     }
   }
-  int j = 1;
-  for (auto sim_item  = sims.begin(); sim_item != sims.end();) {
-    auto sim = sim_item->get();
-    save_sim(sim);
-    sims.erase(sim_item);
-    j++;
-  }
+  // int j = 1;
+  // for (auto sim_item  = sims.begin(); sim_item != sims.end();) {
+  //   auto sim = sim_item->get();
+  //   save_sim(sim);
+  //   sims.erase(sim_item);
+  //   j++;
+  // }
 
   return true;
 }

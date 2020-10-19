@@ -84,6 +84,7 @@ class Translation {
   bool is_logging_codon_state = false;
   bool is_initiation_set = false;
   bool is_termination_set = false;
+  bool is_mRNA_valid = true;
   std::size_t history_size = 100000;
   bool simulate_to_steady_state = false;
   int steady_state_terminations = -1;
