@@ -363,7 +363,8 @@ void Simulations::Translation::run() {
 
   // pre-fill codons based on the rates.
   // do not pre-fill if ribosome propensities have been changed.
-  if (pre_populate && !changed_propensities) {
+  // do not pre-fill if initiation rate is zero.
+  if (pre_populate && !changed_propensities && initiation_rate > 0) {
     std::size_t last_index = 0;
     double time_sum = 0;
     std::map<std::string, double> estimated_codon_time{
