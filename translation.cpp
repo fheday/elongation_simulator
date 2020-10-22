@@ -367,6 +367,12 @@ void Simulations::Translation::run() {
     std::size_t last_index = 0;
     double time_sum = 0;
     std::map<std::string, double> estimated_codon_time{
+        {"AAA", 0.033433631062507}, {"AAC", 0.076520502567291}, 
+        {"AAG", 0.213781446218490}, {"AAU", 0.795929551124572},
+        {"ACA", 0.507978320121765}, {"ACC", 0.791741490364074},  
+        {"ACG", 0.631365478038787}, {"ACU", 0.231777504086494},
+        {"AGA", 0.032752707600593}, {"AGC", 0.159446164965629},
+        {"AGG", 0.687197327613830}, {"AGU", 0.927559494972229},
         {"AUA", 0.629360139369964}, {"AUC", 0.721506834030151},
         {"AUG", 0.223424538969994}, {"AUU", 0.112727925181389},
         {"CAA", 0.086375549435616}, {"CAC", 0.176103606820106},
@@ -393,9 +399,8 @@ void Simulations::Translation::run() {
         {"UUC", 0.131067156791687}, {"UUG", 0.287777960300446},
         {"UUU", 0.882003247737884}
     };
-    double time_10codons = 0;
-    for (std::size_t i = 0; i < 10; ++i) time_10codons += estimated_codon_time[codons_vector[i]->codon];
-    double initiation_time = std::max((1 / codons_vector[0]->alphas[0]), time_10codons); // propensity
+    double initiation_time = 0;
+    for (std::size_t i = 0; i < 10; ++i) initiation_time += estimated_codon_time[codons_vector[i]->codon];
     
     insertRibosome(last_index, true);
     for (std::size_t i = RIBOSOME_SIZE; i < codons_vector.size(); ++i) {
