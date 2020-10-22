@@ -277,8 +277,6 @@ bool Elongation_manager::SimulationManager::start(bool verbose=false, unsigned i
   // create thread pool of threads
   ThreadPool thread_pool(n_threads);
   std::vector<std::future<bool>> sims;
-  bool has_finished_tasks = false;
-  std::size_t finished_index = 0;
   for (std::size_t i = 0; i < number_of_simulations; i++) {
     std::string fasta_path, gene_name;
     float init_rate, term_rate, copy_number;
@@ -319,12 +317,17 @@ bool Elongation_manager::SimulationManager::save_sim(Simulations::Translation& s
   std::partial_sum(sim.dt_history.begin(), sim.dt_history.end(), clock.begin(), std::plus<double>());
   for (auto time:clock) newjson["clock"].append(time);
   Json::Value ribosomes_history;
-  for (auto entry:sim.ribosome_positions_history){
-    Json::Value entry_vector;
-    for (auto ribosome:entry) entry_vector.append(ribosome);
-    ribosomes_history.append(entry_vector);
-  }
-  newjson["elongating_ribosomes"] = ribosomes_history;
+  auto generate_json_vector_of_vector = [&](auto data_vector) {
+        Json::Value json_value;
+        for (auto entry:data_vector){
+            Json::Value entry_vector;
+            for (auto element:entry) entry_vector.append(element);
+            json_value.append(entry_vector);
+        }
+        return json_value;
+    };
+
+  newjson["elongating_ribosomes"] = generate_json_vector_of_vector(sim.ribosome_positions_history);
   
   // now post-processing.
   std::string json_file_name = directory + sim.gene_name+".json";
