@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "../elongation_simulation_manager.h"
+#include "../translation.h"
 TEST(ElongationSimulatorTester, openjsonconfig_file01)
 {
     std::string conf_file_path = "data/configurations/sim_test_01.json";
@@ -103,5 +104,4 @@ TEST(ElongationSimulatorTester, parallel_simulation_file02) {
     std::string conf_file_path = "data/configurations/sim_test_02.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
     sim_man.start();
-    sim_man.save_results();
 }
