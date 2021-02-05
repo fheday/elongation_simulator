@@ -29,6 +29,7 @@ PYBIND11_MODULE(translation, mod) {
       .def(py::init<>()) // constructor
       .def("loadMRNA", (void (Simulations::Translation::*) (const std::string &)) &Simulations::Translation::loadMRNA)
       .def("loadMRNA", (void (Simulations::Translation::*) (const std::string &, const std::string &)) &Simulations::Translation::loadMRNA)
+      .def("inputMRNA", &Simulations::Translation::inputMRNA)
       .def("loadConcentrations", &Simulations::Translation::loadConcentrations)
       .def("setInitiationRate", &Simulations::Translation::setInitiationRate)
       .def("setTerminationRate", &Simulations::Translation::setTerminationRate)
@@ -126,16 +127,23 @@ void Simulations::Translation::loadMRNA(const std::string &file_name, const std:
   }
 }
 
+void Simulations::Translation::inputMRNA(std::string user_mRNA) {
+  mrna_input = user_mRNA;
+  initializeMRNAReader();
+}
+
 
 void Simulations::Translation::initializeMRNAReader() {
-  if (!concentrations_file_name.empty() && !mrna_file_name.empty() &&
+  if (!concentrations_file_name.empty() && (!mrna_file_name.empty() || !mrna_input.empty() ) &&
       is_initiation_set && is_termination_set) {
     // we have the concentrations and mrna file names. we can proceed.
     mRNA_utils::mRNAReader mrr;
-    if (gene_name.empty()){ 
+    if (gene_name.empty() && !mrna_file_name.empty()){ 
       mrr.loadmRNAFile(mrna_file_name);
-    } else {
+    } else if (!gene_name.empty() && !mrna_file_name.empty()){
       mrr.loadGene(mrna_file_name, gene_name);
+    } else {
+      mrr.readMRNA(mrna_input);
     }
     std::vector<std::string> stop_codons = {"UAG", "UAA",
                                           "UGA"};  // list of stop codons.
