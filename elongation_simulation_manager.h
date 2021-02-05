@@ -21,7 +21,7 @@ public:
   stop_condition_enum get_stop_condition_type();
   float get_stop_condition_value();
   std::size_t get_history_size();
-  bool start(bool, unsigned int);
+  bool start(bool verbose=false, unsigned int n_threads = std::thread::hardware_concurrency());
   void set_save_collisions(bool);
   void set_remove_ribosome_positions(bool);
 
@@ -31,7 +31,7 @@ private:
   std::string directory;
   bool pre_populate = false;
   bool save_collisions = false;
-  bool remove_ribosome_positions;
+  bool remove_ribosome_positions = false;
   std::vector<std::tuple<std::string, std::string, float, float, float>>
       simulations_configurations;
   stop_condition_enum stop_condition_type;

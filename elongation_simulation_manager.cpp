@@ -198,7 +198,7 @@ void Elongation_manager::SimulationManager::set_remove_ribosome_positions(bool r
   remove_ribosome_positions = rib_pos;
 }
 
-bool Elongation_manager::SimulationManager::start(bool verbose=false, unsigned int n_threads = std::thread::hardware_concurrency()) {
+bool Elongation_manager::SimulationManager::start(bool verbose, unsigned int n_threads) {
   auto number_of_simulations = simulations_configurations.size();
   auto do_simulation = [&](std::string concentration_file_path,
                           bool pre_populate, std::string fasta_file,
@@ -236,6 +236,7 @@ bool Elongation_manager::SimulationManager::start(bool verbose=false, unsigned i
       std::vector<std::map<std::string, double>> changed_propensities_vector;
       for (auto codon : original_reactions){
         std::map<std::string, double> new_propensities;
+        
         for (auto item : reactions_modifiers){
           if ( codon.find(item.first) == codon.end() ) {
             continue; //not found. skip.
@@ -317,7 +318,7 @@ bool Elongation_manager::SimulationManager::save_sim(Simulations::Translation& s
   std::partial_sum(sim.dt_history.begin(), sim.dt_history.end(), clock.begin(), std::plus<double>());
   for (auto time:clock) newjson["clock"].append(time);
   Json::Value ribosomes_history;
-  auto generate_json_vector_of_vector = [&](auto data_vector) {
+  auto generate_json_vector_of_vector = [&](auto &data_vector) {
         Json::Value json_value;
         for (auto entry:data_vector){
             Json::Value entry_vector;
@@ -330,7 +331,7 @@ bool Elongation_manager::SimulationManager::save_sim(Simulations::Translation& s
   newjson["elongating_ribosomes"] = generate_json_vector_of_vector(sim.ribosome_positions_history);
   
   // now post-processing.
-  std::string json_file_name = directory + sim.gene_name+".json";
+  std::string json_file_name = directory + sim.gene_name + ".json";
   if (save_collisions || remove_ribosome_positions) {
     Simulations::SimulationProcessor processor = Simulations::SimulationProcessor(newjson, json_file_name);
     if (save_collisions) {
