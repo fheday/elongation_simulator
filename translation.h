@@ -12,6 +12,8 @@ class Translation {
  public:
   void loadMRNA(const std::string&);
   void loadMRNA(const std::string&, const std::string&);
+
+  void inputMRNA(std::string); // get mRNA informed by the user
   void loadConcentrations(const std::string&);
 
   void setInitiationRate(double);
@@ -60,6 +62,7 @@ class Translation {
   std::vector<std::unique_ptr<Simulations::mRNAElement>> codons_vector;
   std::string mrna_file_name;
   std::string gene_name;
+  std::string mrna_input = "";
   std::string concentrations_file_name;
 
   std::vector<double> dt_history;
