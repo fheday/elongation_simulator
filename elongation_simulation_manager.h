@@ -15,6 +15,7 @@ public:
   SimulationManager(std::string); // constructor with configuration file name.
   std::string get_concentration_file_path();
   std::string get_configuration_file_path();
+  std::map<std::string, float> get_reactions_modifiers();
   bool get_pre_populate();
   std::vector<std::tuple<std::string, std::string, float, float, float>> &
   get_simulations_configurations();

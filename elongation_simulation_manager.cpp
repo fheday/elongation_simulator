@@ -168,6 +168,11 @@ Elongation_manager::SimulationManager::get_configuration_file_path() {
   return configuration_file_path;
 }
 
+std::map<std::string, float> 
+Elongation_manager::SimulationManager::get_reactions_modifiers() {
+  return reactions_modifiers;
+}
+
 bool Elongation_manager::SimulationManager::get_pre_populate() {
   return pre_populate;
 }
@@ -232,19 +237,19 @@ bool Elongation_manager::SimulationManager::start(bool verbose, unsigned int n_t
     if (!reactions_modifiers.empty()) {
       //modify reactions
       //get reactions
-      auto original_reactions = ts.getPropensities();
-      std::vector<std::map<std::string, double>> changed_propensities_vector;
-      for (auto codon : original_reactions){
-        std::map<std::string, double> new_propensities;
+
+      // auto original_reactions = ts.getPropensities();
+      std::vector<std::map<std::string, double>> changed_propensities_vector = ts.getPropensities();
+      for (auto &codon : changed_propensities_vector){
+        // std::map<std::string, double> new_propensities;
         
         for (auto item : reactions_modifiers){
           if ( codon.find(item.first) == codon.end() ) {
             continue; //not found. skip.
           } else {
-            new_propensities[item.first] = codon[item.first] * item.second; //update reaction to desired value.
+            codon[item.first] *= item.second; //update reaction to desired value.
           }
         }
-        changed_propensities_vector.push_back(new_propensities);
       }
       // int i = 0;
       // for (auto codon: changed_propensities_vector) {
