@@ -40,6 +40,15 @@ void mRNA_utils::mRNAReader::loadmRNAFile(const std::string& mRNA_file_name) {
   }
 }
 
+void mRNA_utils::mRNAReader::readMRNA(std::string user_mRNA) {
+  mRNA_sequence = user_mRNA;
+  std::size_t found = mRNA_sequence.find('T');
+  while (found != std::string::npos) {
+    mRNA_sequence[found] = 'U';
+    found = mRNA_sequence.find('T', found + 1);
+  }
+}
+
 void mRNA_utils::mRNAReader::loadGene(const std::string& mRNA_file_name, const std::string& gene_name) {
   std::ifstream ist{mRNA_file_name};
   if (!ist) {
