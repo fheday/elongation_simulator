@@ -1,0 +1,19 @@
+{
+    "concentration_file": "/mnt/Projects/RSim/HEK293/concentrations.csv",
+    "pre_populate": 0,
+    "propensity_modifiers": {
+        "trans1f": 0.4
+    },
+    "mRNA_entries": [
+        {
+            "fasta_file": "/data/home/heday/tmp/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "gene": "YAL001C",
+            "initiation_rate": 10.0,
+            "termination_rate": 10.0,
+            "transcript_copy_number": 1.0
+        }
+    ],
+    "history_size": 10000,
+    "results": {},
+    "steady_state_ribosomes": 1000
+}
