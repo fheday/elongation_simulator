@@ -133,7 +133,7 @@ class Gui():
         termination_condition_groupbox_grid.addWidget(iteration_limit_radiobutton, 1, 0)
         iteration_limit_spinbox = QSpinBox()
         iteration_limit_spinbox.setObjectName("iteration_limit_spinbox")
-        iteration_limit_spinbox.setRange(0, int(10e10))
+        iteration_limit_spinbox.setRange(0, 2147483647)
         iteration_limit_spinbox.valueChanged.connect(self.changed_iteration_limit)
         termination_condition_groupbox_grid.addWidget(iteration_limit_spinbox, 1, 1)
 
@@ -154,7 +154,7 @@ class Gui():
         termination_condition_groupbox_grid.addWidget(finished_ribosomes_limit_radiobutton, 3, 0)
         finished_ribosomes_spinbox = QSpinBox()
         finished_ribosomes_spinbox.setObjectName("finished_ribosomes_spinbox")
-        finished_ribosomes_spinbox.setRange(0, int(10e10))
+        finished_ribosomes_spinbox.setRange(0, 2147483647)
         finished_ribosomes_spinbox.valueChanged.connect(self.changed_finished_ribosomes)
         termination_condition_groupbox_grid.addWidget(finished_ribosomes_spinbox, 3,1)
 
@@ -167,7 +167,7 @@ class Gui():
         history_groupbox_grid.addWidget(QLabel("Number of history entries: "), 0, 0)
         history_size_spinbox = QSpinBox()
         history_size_spinbox.setObjectName("history_size_spinbox")
-        history_size_spinbox.setRange(1, int(10e15))
+        history_size_spinbox.setRange(1, 2147483647)
         history_size_spinbox.setValue(100000)
         history_groupbox_grid.addWidget(history_size_spinbox, 0, 1)
 
