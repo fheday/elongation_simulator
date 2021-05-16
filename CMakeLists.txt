@@ -17,9 +17,9 @@ add_library(ribosome_simulator_lib STATIC ${ribosome_simulator_sources})
 add_library(elongation_simulator_lib STATIC  ${elongation_simulator_sources})
 
 add_executable(calculateCodonsTimes calculateCodonsTimes.cpp)
-target_link_libraries(calculateCodonsTimes PRIVATE ribosome_simulator_lib gflags)
+target_link_libraries(calculateCodonsTimes PRIVATE ribosome_simulator_lib)
 add_executable(run_translation run_translation.cpp)
-target_link_libraries(run_translation PRIVATE elongation_simulator_lib gflags)
+target_link_libraries(run_translation PRIVATE elongation_simulator_lib)
 
 ##python interface
 find_package(PythonLibs REQUIRED)
