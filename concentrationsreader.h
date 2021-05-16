@@ -1,6 +1,16 @@
 #ifndef CONCENTRATIONS_READER_H
 #define CONCENTRATIONS_READER_H
 
+/*
+ * @file  concentrationsreader.h
+ * 
+ * @brief interface for reading concentration file
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include <string>
 #include <vector>
 

@@ -1,6 +1,17 @@
 #ifndef MRNAELEMENT_H
 #define MRNAELEMENT_H
 
+/*
+ * @file  mrnaelement.h
+ * 
+ * @brief class to represent codons in a mRNA
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
+
 #include <array>
 #include <map>
 #include <string>

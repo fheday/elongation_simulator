@@ -5,7 +5,7 @@
 #include "concentrationsreader.h"
 #include <map>
 #include "ribosomesimulator.h"
-//#include "elongation_codon.h"
+
 
 /**
  * @brief use the concentrations informed in concentrations_file_name, execute
@@ -29,6 +29,9 @@
  * the times spent in the ribosome's states
  * @return std::map< std::__cxx11::string, double > a map with codons and
  * average decoding times. Average Translocating time is given by entry 'tra'
+ * 
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
  */
 std::map<std::string, double> calculate_codons_times(
     const std::string& concentrations_file_name, int iterations,

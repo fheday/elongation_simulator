@@ -1,3 +1,13 @@
+/*
+ * @file  mrnaelement.cpp
+ * 
+ * @brief class to represent codons in a mRNA
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include "mrnaelement.h"
 
 Simulations::mRNAElement::mRNAElement() {

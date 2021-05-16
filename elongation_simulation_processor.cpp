@@ -1,3 +1,13 @@
+/*
+ * @file  elongation_simulation_processor.cpp
+ * 
+ * @brief manager class to process parallel simulations output and save its results
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include "elongation_simulation_processor.h"
 #include <fstream>
 #include <iostream>

@@ -1,3 +1,13 @@
+/*
+ * @file  translation.cpp
+ * 
+ * @brief class implementing the translation process
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include "translation.h"
 
 #include <algorithm>

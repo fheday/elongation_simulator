@@ -1,6 +1,16 @@
 #ifndef ELONGATION_SIMULATION_READER_H
 #define ELONGATION_SIMULATION_READER_H
 
+/*
+ * @file  elongation_simulation_processor.h
+ * 
+ * @brief manager class to process parallel simulations output and save its results
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include <string>
 #include <vector>
 #include "json/json.h"
