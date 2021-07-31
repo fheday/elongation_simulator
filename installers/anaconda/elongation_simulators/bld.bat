@@ -13,6 +13,7 @@ copy "%SRC_DIR%"\concentrations\__init__.py "%PREFIX%"\concentrations\
 if errorlevel 1 exit 1
 copy "%SRC_DIR%"\concentrations\Saccharomyces_cerevisiae.csv "%PREFIX%"\concentrations\
 if errorlevel 1 exit 1
-copy "%SRC_DIR%"\simulationbuilder.py "%PREFIX%"\
+mkdir "%PREFIX%"\elongation
+copy "%SRC_DIR%"\elongation\simulationbuilder.py "%PREFIX%"\elongation\
 if errorlevel 1 exit 1
 
