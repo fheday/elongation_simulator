@@ -16,4 +16,6 @@ if errorlevel 1 exit 1
 mkdir "%PREFIX%"\elongation
 copy "%SRC_DIR%"\elongation\simulationbuilder.py "%PREFIX%"\elongation\
 if errorlevel 1 exit 1
+copy "%SRC_DIR%"\elongation\utils.py "%PREFIX%"\elongation\
+if errorlevel 1 exit 1
 
