@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ribosomesimulator", "elongation_simulators.vcxproj", "{A5AFAFF2-B132-46DA-A107-CB3EAA1A3CC0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "translation", "translation\translation.vcxproj", "{C04C3EB6-9BF9-44EB-965D-CFF0A1F8BBFB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "translation", "translation_vsproject\translation.vcxproj", "{C04C3EB6-9BF9-44EB-965D-CFF0A1F8BBFB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

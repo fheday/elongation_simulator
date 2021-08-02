@@ -1,5 +1,6 @@
 #include "elongation_simulation_manager.h"
 #include <thread>
+#include <numeric>
 #include <iostream>
 #include <fstream>
 #include "json/json.h"

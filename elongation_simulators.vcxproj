@@ -143,7 +143,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="concentrationsreader.cpp" />
-    <ClCompile Include="elongationsimulator.cpp" />
     <ClCompile Include="elongation_codon.cpp" />
     <ClCompile Include="initiationterminationcodon.cpp" />
     <ClCompile Include="mrnaelement.cpp" />
@@ -153,7 +152,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="concentrationsreader.h" />
-    <ClInclude Include="elongationsimulator.h" />
     <ClInclude Include="elongation_codon.h" />
     <ClInclude Include="initiationterminationcodon.h" />
     <ClInclude Include="mrnaelement.h" />

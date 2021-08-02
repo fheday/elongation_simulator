@@ -20,9 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\concentrationsreader.cpp" />
-    <ClCompile Include="..\elongationsimulator.cpp" />
     <ClCompile Include="..\elongation_codon.cpp" />
     <ClCompile Include="..\elongation_simulation_manager.cpp" />
+    <ClCompile Include="..\elongation_simulation_processor.cpp" />
     <ClCompile Include="..\initiationterminationcodon.cpp" />
     <ClCompile Include="..\jsoncpp\jsoncpp.cpp" />
     <ClCompile Include="..\mrnaelement.cpp" />
@@ -35,7 +35,10 @@
     <ClInclude Include="..\elongationsimulator.h" />
     <ClInclude Include="..\elongation_codon.h" />
     <ClInclude Include="..\elongation_simulation_manager.h" />
+    <ClInclude Include="..\elongation_simulation_processor.h" />
     <ClInclude Include="..\initiationterminationcodon.h" />
+    <ClInclude Include="..\jsoncpp\json\json-forwards.h" />
+    <ClInclude Include="..\jsoncpp\json\json.h" />
     <ClInclude Include="..\mrnaelement.h" />
     <ClInclude Include="..\mrna_reader.h" />
     <ClInclude Include="..\ribosomesimulator.h" />
@@ -167,12 +170,14 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Heday\Anaconda3\include;C:\Users\Heday\Anaconda3\Library\include;Z:\Projects\Gillespie_Cpp\jsoncpp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Heday\Anaconda3\include;C:\Users\Heday\Anaconda3\Library\include;Z:\Gillespie_Cpp\jsoncpp\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <CompileAs>CompileAsCpp</CompileAs>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -180,7 +185,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>C:\Users\Heday\Anaconda3\libs;Z:\Projects\Gillespie_Cpp\jsoncpp;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Heday\Anaconda3\libs;Z:\Gillespie_Cpp\jsoncpp;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
