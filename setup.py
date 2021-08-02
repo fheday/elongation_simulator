@@ -110,7 +110,7 @@ setup(
     author_email='fheday@gmail.com',
     maintainer='Fabio Hedayioglu',
     maintainer_email='fheday@gmail.com',
-    url='https://github.com/fheday',
+    url='https://github.com/fheday/elongation_simulator/',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Science/Research',
