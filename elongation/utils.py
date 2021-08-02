@@ -20,7 +20,7 @@ the second element is a vector with the iteration where such ribosomes
 started enlogating.
 '''
 def get_codon_average_occupancy(sim):
-    sim.updateRibosomeHistory()
+    # sim.updateRibosomeHistory()
     return sim.getEnlogationDuration()
 
 
