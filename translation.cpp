@@ -209,7 +209,7 @@ std::vector<std::map<std::string, double>>
 Simulations::Translation::getPropensities() {
   auto result = std::vector<std::map<std::string, double>>();
   result.push_back(std::map<std::string, double>()); // codon 0 will be empty.
-  for (std::size_t i = 1; i < codons_vector.size() - 2; i++) {
+  for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
     result.push_back(codons_vector[i]->getPropensities());
   }
   result.push_back(std::map<std::string, double>()); // last codon will also be empty.
