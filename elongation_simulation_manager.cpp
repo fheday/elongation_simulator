@@ -1,3 +1,13 @@
+/*
+ * @file  elongation_simulation_manager.cpp
+ * 
+ * @brief manager class to load and execute parallel simulations
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include "elongation_simulation_manager.h"
 #include <thread>
 #include <numeric>

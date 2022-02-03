@@ -1,6 +1,16 @@
 #ifndef ELONGATION_SIMULATION_MANAGER_H
 #define ELONGATION_SIMULATION_MANAGER_H
 
+/*
+ * @file  elongation_simulation_manager.h
+ * 
+ * @brief manager class to load and execute parallel simulations
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include "translation.h"
 #include <future>
 #include <string>

@@ -1,3 +1,13 @@
+/*
+ * @file  initiationterminationcodon.cpp
+ * 
+ * @brief general definition of a non-elongation codon.
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include "initiationterminationcodon.h"
 
 Simulations::InitiationTerminationCodon::InitiationTerminationCodon(double prop,

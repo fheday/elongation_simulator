@@ -1,6 +1,16 @@
 #ifndef INITIATIONTERMINATIONCODON_H
 #define INITIATIONTERMINATIONCODON_H
 
+/*
+ * @file  initiationterminationcodon.h
+ * 
+ * @brief general definition of a non-elongation codon.
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include <math.h>
 #include <random>
 #include "mrnaelement.h"

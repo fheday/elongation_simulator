@@ -1,6 +1,16 @@
 #ifndef THREAD_POOL_H
 #define THREAD_POOL_H
 
+/*
+ * @file  threadPool.h
+ * 
+ * @brief definition of a thread pool for paralllel mRNA simulations
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include <vector>
 #include <queue>
 #include <memory>

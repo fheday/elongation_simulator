@@ -1,7 +1,13 @@
 /*
- * Circularqueue.h
+ * @file Circularqueue.h
  *
  *  Created on: 30 Mar 2020
+ *
+ * @brief Implementation of custom circular buffer
+ *
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
  *
  */
 

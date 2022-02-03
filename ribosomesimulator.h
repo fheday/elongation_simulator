@@ -1,6 +1,16 @@
 #ifndef SIMULATIONS_RIBOSOMESIMULATOR_H
 #define SIMULATIONS_RIBOSOMESIMULATOR_H
 
+/*
+ * @file  ribosomesimulator.h
+ * 
+ * @brief class where a codon is represented and could be individually simulated
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include <array>
 #include <functional>
 #include <map>

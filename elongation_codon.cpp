@@ -1,3 +1,13 @@
+/*
+ * @file  elongation_codon.cpp
+ * 
+ * @brief implementation of general representation of codon
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include "elongation_codon.h"
 #include <fstream>
 

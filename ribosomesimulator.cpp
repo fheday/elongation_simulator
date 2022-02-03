@@ -1,3 +1,13 @@
+/*
+ * @file  ribosomesimulator.cpp
+ * 
+ * @brief class where a codon is represented and could be individually simulated
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include "ribosomesimulator.h"
 #include <float.h>
 #include <algorithm>

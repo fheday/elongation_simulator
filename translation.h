@@ -1,5 +1,14 @@
 #ifndef TRANSLATION_H
 #define TRANSLATION_H
+/*
+ * @file  translation.h
+ * 
+ * @brief class implementing the translation process
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
 
 #include <memory>
 #include <vector>

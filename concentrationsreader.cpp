@@ -2,9 +2,21 @@
 #ifndef _MSC_VER
 #include <error.h>
 #endif
+
+/*
+ * @file  concentrationsreader.cpp
+ * 
+ * @brief Methods to read concentration file
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include <algorithm>
 #include <fstream>
 #include <string>
+
 
 csv_utils::ConcentrationsReader::ConcentrationsReader() { contents.clear(); }
 

@@ -1,6 +1,16 @@
 #ifndef SIMULATIONS_ELONGATION_CODON_H
 #define SIMULATIONS_ELONGATION_CODON_H
 
+/*
+ * @file  elongation_codon.h
+ * 
+ * @brief definition of general representation of codon
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include "mrnaelement.h"
 #include "ribosomesimulator.h"
 

@@ -1,6 +1,16 @@
 #ifndef MRNA_UTILS_MRNA_READER_H
 #define MRNA_UTILS_MRNA_READER_H
 
+/*
+ * @file  mrna_reader.h
+ * 
+ * @brief class to read mRNA FASTA files mRNA string sequences.
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include <string>
 #include <vector>
 

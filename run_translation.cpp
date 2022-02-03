@@ -1,3 +1,13 @@
+/*
+ * @file  run_translation.cpp
+ * 
+ * @brief command line mRNA simulator
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include "concentrationsreader.h"
 #include "translation.h"
 #include <execinfo.h>

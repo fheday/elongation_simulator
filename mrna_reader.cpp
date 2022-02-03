@@ -1,3 +1,13 @@
+/*
+ * @file  mrna_reader.cpp
+ * 
+ * @brief class to read mRNA FASTA files mRNA string sequences.
+ *
+ * @author Fabio Hedayioglu
+ * Contact: fheday@gmail.com
+ *
+ */
+
 #include "mrna_reader.h"
 #include <fstream>
 #include <regex>
