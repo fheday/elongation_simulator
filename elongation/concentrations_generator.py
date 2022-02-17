@@ -118,7 +118,7 @@ def make_matrix(tRNAs, codons, verbose=False):
 
     return {"cognate.wc.matrix":cognate_WC_matrix, "cognate.wobble.matrix":cognate_wobble_matrix, "nearcognate.matrix":nearcognate_matrix}
 
-def plot_matrix(matrices_dict):
+def plot_matrix(matrices_dict, tRNAs, codons):
     colours=['g', 'y', 'r']
     labels = list(matrices_dict.keys())
     i = 0
@@ -127,7 +127,7 @@ def plot_matrix(matrices_dict):
     xmax = 0
     for k in matrices_dict.keys():
         c = np.argwhere(matrices_dict[k] == 1)#[:,1]
-        display(c)
+        # display(c)
         plt.plot(c[:,1], c[:,0], colours[i] + 's', label=labels[i])
         i +=1
     plt.xticks(range(len(codons.codon)), codons.codon, rotation = 45)
