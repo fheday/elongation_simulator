@@ -28,29 +28,52 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(ribosomesimulator, mod)
 {
+  mod.doc() = R"pbdoc(
+    Module for simulating ribosomes outside a mRNA contruct. 
+    This module simulates ribosomes decoding a given codon using a given concentration.
+    )pbdoc";
   py::class_<Simulations::RibosomeSimulator>(mod, "ribosomesimulator")
-      .def(py::init<>()) // constructor
+      .def(py::init<>(),"Creates an empty simulator") // constructor
       .def("loadConcentrations",
-           &Simulations::RibosomeSimulator::loadConcentrations)
+           &Simulations::RibosomeSimulator::loadConcentrations, py::arg("file_name"),R"docstr(
+             Load a concentration csv file.
+             ==============================
+             file_name: string with the path to the file containing the concentrations.
+             )docstr")
       .def("setCodonForSimulation",
-           &Simulations::RibosomeSimulator::setCodonForSimulation)
-      .def("setState", &Simulations::RibosomeSimulator::setState)
+           &Simulations::RibosomeSimulator::setCodonForSimulation, R"docstr(
+             Select the codon to be simulated. A simulator can simulate the decoding of only one codon.
+             codon: 3-letter string with codon to be simulated. 
+           )docstr")
+      .def("setState", &Simulations::RibosomeSimulator::setState,py::arg("target_state"), R"docstr(
+        Optional method: Set the ribosome's state accordingly to the reactions map.
+        When creating a simaultion, the state is zero.
+        target_state: State to set the ribosome.
+      )docstr")
       .def("run_and_get_times",
            [](Simulations::RibosomeSimulator &rs) {
              double d = 0.0;
              double t = 0.0;
              rs.run_and_get_times(d, t);
              return std::make_tuple(d, t);
-           })
-      .def("run_repeatedly_get_average_time",&Simulations::RibosomeSimulator::run_repeatedly_get_average_time)
-      .def("setPropensities", &Simulations::RibosomeSimulator::setPropensities)
-      .def("setNonCognate", &Simulations::RibosomeSimulator::setNonCognate)
-      .def("getPropensities", &Simulations::RibosomeSimulator::getPropensities)
-      .def("getPropensity", &Simulations::RibosomeSimulator::getPropensity)
-      .def("setPropensity", &Simulations::RibosomeSimulator::setPropensity)
-      .def_readonly("dt_history", &Simulations::RibosomeSimulator::dt_history)
+           }, R"docstr(
+             Run the simulation and returns a tuple where:
+             First term: total decoding time in seconds.
+             Second term: total translocation time in seconds.
+           )docstr")
+      .def("run_repeatedly_get_average_time",&Simulations::RibosomeSimulator::run_repeatedly_get_average_time, R"docstr(
+          Runs a simulation a given number of times and return the average translation time.
+          repetitions: the number of times the simulation is being run.
+          return: the average translation time of the simulations.
+      )docstr")
+      .def("setPropensities", &Simulations::RibosomeSimulator::setPropensities, R"docstr()docstr")
+      .def("setNonCognate", &Simulations::RibosomeSimulator::setNonCognate, R"docstr()docstr")
+      .def("getPropensities", &Simulations::RibosomeSimulator::getPropensities, R"docstr()docstr")
+      .def("getPropensity", &Simulations::RibosomeSimulator::getPropensity, R"docstr()docstr")
+      .def("setPropensity", &Simulations::RibosomeSimulator::setPropensity, R"docstr()docstr")
+      .def_readonly("dt_history", &Simulations::RibosomeSimulator::dt_history, R"docstr()docstr")
       .def_readonly("ribosome_state_history",
-                    &Simulations::RibosomeSimulator::ribosome_state_history)
+                    &Simulations::RibosomeSimulator::ribosome_state_history, R"docstr()docstr")
       .def_property_readonly("saccharomyces_cerevisiae_concentrations",
                              [](py::object) {
                                py::object conc_path = py::module::import("concentrations"); // load module
@@ -63,7 +86,7 @@ PYBIND11_MODULE(ribosomesimulator, mod)
                                  break;
                                }
                                return conc_path_string + file_name;
-                             });
+                             }, R"docstr()docstr");
 }
 #endif
 
@@ -79,6 +102,15 @@ Simulations::RibosomeSimulator::RibosomeSimulator() : gen(rd()), dis(0, 1)
 
 }
 
+/**
+ * Loads the concentrations file.
+ *
+ * This method loads the csv file containing the tRNA concentrations
+ * to be simulated.
+ *
+ * @param file_name string with the path to the file containing the concentrations.
+ * @return void
+ */
 void Simulations::RibosomeSimulator::loadConcentrations(
     const std::string &file_name)
 {
