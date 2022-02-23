@@ -365,7 +365,7 @@ void Simulations::RibosomeSimulator::run_and_get_times(
   std::uniform_real_distribution<> dis(0, 1);
 
   double r1 = 0, r2 = 0;
-  double tau = 0, clock = 0.0;
+  double tau = 0;
   std::vector<double> alphas;
   std::vector<int> next_state;
   while (true)
@@ -425,7 +425,6 @@ void Simulations::RibosomeSimulator::run_and_get_times(
     setState(next_state[static_cast<std::size_t>(selected_alpha_vector_index)]);
     // Update time
     tau = (1.0 / a0) * log(1.0 / r1);
-    clock += tau;
   }
 }
 
