@@ -36,8 +36,8 @@ PYBIND11_MODULE(ribosomesimulator, mod)
       .def(py::init<>(),"Creates an empty simulator") // constructor
       .def("loadConcentrations",
            &Simulations::RibosomeSimulator::loadConcentrations, py::arg("file_name"),R"docstr(
-             Load a concentration csv file.
-             ==============================
+             Loads a csv file containing the concentrations to be used in this simulation.
+             
              file_name: string with the path to the file containing the concentrations.
              )docstr")
       .def("setCodonForSimulation",
@@ -66,14 +66,39 @@ PYBIND11_MODULE(ribosomesimulator, mod)
           repetitions: the number of times the simulation is being run.
           return: the average translation time of the simulations.
       )docstr")
-      .def("setPropensities", &Simulations::RibosomeSimulator::setPropensities, R"docstr()docstr")
-      .def("setNonCognate", &Simulations::RibosomeSimulator::setNonCognate, R"docstr()docstr")
-      .def("getPropensities", &Simulations::RibosomeSimulator::getPropensities, R"docstr()docstr")
-      .def("getPropensity", &Simulations::RibosomeSimulator::getPropensity, R"docstr()docstr")
-      .def("setPropensity", &Simulations::RibosomeSimulator::setPropensity, R"docstr()docstr")
-      .def_readonly("dt_history", &Simulations::RibosomeSimulator::dt_history, R"docstr()docstr")
+      .def("setPropensities", &Simulations::RibosomeSimulator::setPropensities, py::arg("prop"), R"docstr(
+        This method changes the reactions propensities of the codon selected for simulation.
+        prop: dictionary with new propensities. An initial dictionary can be acquired by calling getPropensities().
+      )docstr")
+      .def("setNonCognate", &Simulations::RibosomeSimulator::setNonCognate, py::arg("nonCognatePropensity"), R"docstr(
+        Set the propensity of non-cognates for the selected codon.
+        To use this function correctly, we must have set the codon for simulation.
+        nonCognatePropensity: the propensity of non-coganates in reactions/sec 
+      )docstr")
+      .def("getPropensities", &Simulations::RibosomeSimulator::getPropensities, R"docstr(
+        This method returns a dictionary with the reactions labels and their propensities.
+        This method should be used after the setCodonForSimulation.
+        The dictionary returned by this method can be changed and used as an input parameter for 
+        setPropensities, in order to change a specific reaction's propensity. 
+      )docstr")
+      .def("getPropensity", &Simulations::RibosomeSimulator::getPropensity, py::arg("reaction") R"docstr(
+        This method returns the propensity of the given reaction label.
+        reaction: string with the propensity label.
+        return: reaction's propensity in reactions/sec.
+      )docstr")
+      .def("setPropensity", &Simulations::RibosomeSimulator::setPropensity, R"docstr(
+        given a reaction, sets its propensity.
+        reaction: string with the reaction label
+        propensity: float with new propensity value.
+      )docstr")
+      .def_readonly("dt_history", &Simulations::RibosomeSimulator::dt_history, R"docstr(
+        Attribute with the time taken by each reaction. This numpy array is filled after a simulation has been run.
+      )docstr")
       .def_readonly("ribosome_state_history",
-                    &Simulations::RibosomeSimulator::ribosome_state_history, R"docstr()docstr")
+                    &Simulations::RibosomeSimulator::ribosome_state_history, R"docstr(
+                      Attribute with the current state of the ribosome at each point in the simulation.
+                      Each entry in this numpy array corresponds to an entry on dt_history at the same line.
+                    )docstr")
       .def_property_readonly("saccharomyces_cerevisiae_concentrations",
                              [](py::object) {
                                py::object conc_path = py::module::import("concentrations"); // load module
@@ -86,7 +111,10 @@ PYBIND11_MODULE(ribosomesimulator, mod)
                                  break;
                                }
                                return conc_path_string + file_name;
-                             }, R"docstr()docstr");
+                             }, R"docstr(
+                               This attribute can be use as a parameter when setting the concentrations file to the saccharomyces cerevisiae.
+                               E.g: sim.loadConcentrations(sim.saccharomyces_cerevisiae_concentrations)
+                             )docstr");
 }
 #endif
 
