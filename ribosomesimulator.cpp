@@ -81,7 +81,7 @@ PYBIND11_MODULE(ribosomesimulator, mod)
         The dictionary returned by this method can be changed and used as an input parameter for 
         setPropensities, in order to change a specific reaction's propensity. 
       )docstr")
-      .def("getPropensity", &Simulations::RibosomeSimulator::getPropensity, py::arg("reaction") R"docstr(
+      .def("getPropensity", &Simulations::RibosomeSimulator::getPropensity, py::arg("reaction"), R"docstr(
         This method returns the propensity of the given reaction label.
         reaction: string with the propensity label.
         return: reaction's propensity in reactions/sec.
