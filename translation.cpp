@@ -46,11 +46,11 @@ PYBIND11_MODULE(translation, mod) {
       )docstr") // constructor
       .def("loadMRNA", (void (Simulations::Translation::*) (const std::string &)) &Simulations::Translation::loadMRNA, R"docstr(
         Reads a Fasta file. Assumes there is only one gene in the file.
-        file_name: string with the FASTA file to be read
+        file_name: string with the FASTA file to be read. All occurrences of 'T' will be replaced by 'U'.
       )docstr")
       .def("loadMRNA", (void (Simulations::Translation::*) (const std::string &, const std::string &)) &Simulations::Translation::loadMRNA, R"docstr(
         Reads a specific gene in a Fasta file.
-        file_name: string with the FASTA file to be read
+        file_name: string with the FASTA file to be read. All occurrences of 'T' will be replaced by 'U'.
         gene_name: name of the gene to be read.
       )docstr")
       .def("inputMRNA", &Simulations::Translation::inputMRNA, R"docstr(
