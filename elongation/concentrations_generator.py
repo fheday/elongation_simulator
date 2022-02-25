@@ -16,7 +16,6 @@ import pandas as pd
 import os
 import matplotlib.pyplot as plt
 
-# make.matrix
 def make_matrix(tRNAs, codons, verbose=False):
     """
     Given a DataFrame with tRNA concentrations, and another DataFrame with codons information, generates a decoding matrix
@@ -41,7 +40,6 @@ def make_matrix(tRNAs, codons, verbose=False):
 
     def second_WC(codon, tRNA):
         codon_nt = codon[1] # second character
-        # print(tRNA)
         if tRNA is np.NaN: 
             return False
         tRNA_nt = tRNA[1] # second character
@@ -155,26 +153,14 @@ def make_concentrations(tRNAs, matrices, codons, use_gene_copy_number=True, tota
     use_gene_copy_number: if True, will use tRNAs column ‘gene.copy.number’, otherwise will use ‘experimental.abundance’
     total_Trna: default value is 190 (micro moles).
     """
-    #check if directory exists
-    # if (not os.path.isdir(directory)):
-    #     print('Directory ', directory, 'not found.')
-
-    # #check if codons.csv exits
-    # codons = None
-    # if os.path.isfile(os.path.join(directory, "codons.csv")):
-    #     codons = pd.read_csv(os.path.join(directory, "codons.csv"))
     WCcognate = matrices["cognate.wc.matrix"]
     wobblecognate = matrices["cognate.wobble.matrix"]
     nearcognate = matrices["nearcognate.matrix"]
-    # if "gene.copy.number" not in tRNAs.columns:
-    #     print("tRNA list must contain columns with abundance information headed either 'gene.copy.number' or 'experimental.abundance'.")
-    #     return pd.DataFrame()
     
     concentration_col_name = 'gene.copy.number'
     if "gene.copy.number" not in tRNAs.columns and "experimental.abundance" not in tRNAs.columns:
         print("tRNA list must contain columns with abundance information headed either 'gene.copy.number' or 'experimental.abundance'.")
         return pd.DataFrame()
-    # if "gene.copy.number" in tRNAs.columns and "experimental.abundance" in tRNAs.columns:
     if use_gene_copy_number:
         concentration_col_name = 'gene.copy.number'
     else:
@@ -210,9 +196,6 @@ def make_concentrations(tRNAs, matrices, codons, use_gene_copy_number=True, tota
     return tRNA_concentrations
 
 ##example of how to use:
-# matrices_dict = conc_generator.make_matrix(tRNAs)
-# #here we can change the column gene.copy.number in tRNAs
-# x=conc_generator.make_concentrations(tRNAs, matrices_dict)
 
 # tRNAs = pd.read_csv('/home/heday/Projects/R3/Native Spike and B117 Kent/HEK293_processed.csv')
 # codons = pd.read_csv('/home/heday/Projects/R3/Native Spike and B117 Kent/codons.csv')
