@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+#include <sstream>
 
 
 csv_utils::ConcentrationsReader::ConcentrationsReader() { contents.clear(); }
@@ -33,27 +34,67 @@ void csv_utils::ConcentrationsReader::loadConcentrations(
   double wc_cognate_conc;
   double wobblecognate_conc;
   double nearcognate_conc;
+  int wc_cognate_conc_index = 0;
+  int wobblecognate_conc_index = 0;
+  int nearcognate_conc_index = 0;
+  int codon_index;
+  int three_letter_index = 0;
   std::string tmp_str;
   std::vector<std::string> stop_codons = {"UAG", "UAA",
                                           "UGA"};  // list of stop codons.
   bool header = true;
   while (ist.good()) {
-    if (!std::getline(ist, codon, ',')) {
-      break;
-    }
-    std::getline(ist, three_letter, ',');
-    std::getline(ist, tmp_str, ',');
-    wc_cognate_conc = std::atof(tmp_str.c_str());
-    std::getline(ist, tmp_str, ',');
-    wobblecognate_conc = std::atof(tmp_str.c_str());
-    std::getline(ist, tmp_str, '\n');
-    nearcognate_conc = std::atof(tmp_str.c_str());
-    codon.erase(std::remove(codon.begin(), codon.end(), '\"'),
-                codon.end());  // remove \" from string.
-    three_letter.erase(
-        std::remove(three_letter.begin(), three_letter.end(), '\"'),
-        three_letter.end());  // remove \" from string.
-    if (!header) {
+    if (header){
+      // get the indexes of the columns of interest.
+      std::getline(ist,tmp_str);
+      // make header all lowercase.
+      transform(tmp_str.begin(), tmp_str.end(), tmp_str.begin(), ::tolower);
+      //remove \r and \n from the header.
+      tmp_str.erase(std::remove(tmp_str.begin(), tmp_str.end(), '\r'), tmp_str.end());
+      tmp_str.erase(std::remove(tmp_str.begin(), tmp_str.end(), '\n'), tmp_str.end());
+      std::stringstream ss(tmp_str);
+      int index = 0;
+      std::string column_name;
+      while (std::getline(ss, column_name, ',')) {
+      
+        if (column_name == "codon"){
+          codon_index = index;
+        } else if (column_name == "three.letter") {
+          three_letter_index = index;
+        } else if (column_name == "wccognate.conc") {
+          wc_cognate_conc_index = index;
+        } else if (column_name == "wobblecognate.conc"){
+          wobblecognate_conc_index = index;
+        } if (column_name == "nearcognate.conc") {
+          nearcognate_conc_index = index;
+        }
+        index++;
+      }
+      if (codon_index == 0) throw std::runtime_error("no codon column in csv file.");
+      if (three_letter_index == 0) throw std::runtime_error("no three.letter column in csv file.");
+      if (wc_cognate_conc_index == 0) throw std::runtime_error("no WCcognate.conc column in csv file.");
+      if (wobblecognate_conc_index == 0) throw std::runtime_error("no wobblecognate.conc column in csv file.");
+      if (nearcognate_conc_index == 0) throw std::runtime_error("no nearcognate.conc column in csv file.");
+
+      header = false;
+    } else {
+      std::getline(ist,tmp_str);
+      std::stringstream ss(tmp_str);
+      int curr_index = 0;
+      while (std::getline(ss, tmp_str, ',')) {
+        if (curr_index == codon_index) {
+          codon = tmp_str;
+        } else if (curr_index == three_letter_index) {
+          three_letter = tmp_str;
+        } else if (curr_index == wc_cognate_conc_index){
+            wc_cognate_conc = std::atof(tmp_str.c_str());
+        } else if (curr_index == wobblecognate_conc_index) {
+            wobblecognate_conc = std::atof(tmp_str.c_str());
+        } else if (curr_index == nearcognate_conc_index) {
+            nearcognate_conc = std::atof(tmp_str.c_str());
+        }
+        curr_index++;
+      }
       auto result = std::find(stop_codons.begin(), stop_codons.end(), codon);
       // only add if not a stop codon.
       if (result == end(stop_codons)) {
@@ -61,8 +102,6 @@ void csv_utils::ConcentrationsReader::loadConcentrations(
             concentration_entry{codon, three_letter, wc_cognate_conc,
                                 wobblecognate_conc, nearcognate_conc});
       }
-    } else {
-      header = false;
     }
   }
 }
