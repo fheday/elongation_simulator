@@ -20,7 +20,7 @@ TEST(TranslatorTester, simulateAAAx100xlowInitxHighTerm)
 
   ts.setPrepopulate(false);
   ts.run();
-  ts.calculateAverageTimes();
+  ts.getAverageTimes();
 
   std::vector<double> enlongation_duration;
   std::vector<int> iteration_initiation;
