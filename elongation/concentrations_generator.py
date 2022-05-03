@@ -10,10 +10,8 @@ of wobble and near cognates. it is intended to be use in GA algorithm.
 @author: heday
 """
 
-from cmath import nan
 import numpy as np
 import pandas as pd
-import os
 import matplotlib.pyplot as plt
 
 def make_matrix(tRNAs, codons, verbose=False):
@@ -34,35 +32,38 @@ def make_matrix(tRNAs, codons, verbose=False):
 
     def first_WC(codon, tRNA):
         codon_nt = codon[0] # first character
-        tRNA_nt = tRNA[2] # thrird character
+        tRNA_nt = tRNA[2] # third character
         return (codon_nt == "A" and tRNA_nt == "U") or (codon_nt == "C" and tRNA_nt == "G") or \
                (codon_nt == "G" and tRNA_nt == "C") or (codon_nt == "U" and tRNA_nt == "A")
 
     def second_WC(codon, tRNA):
         codon_nt = codon[1] # second character
-        if tRNA is np.NaN: 
-            return False
         tRNA_nt = tRNA[1] # second character
         return (codon_nt == "A" and tRNA_nt == "U") or (codon_nt == "C" and tRNA_nt == "G") or \
                (codon_nt == "G" and tRNA_nt == "C") or (codon_nt == "U" and tRNA_nt == "A")
 
     def third_WC(codon, tRNA):
-        codon_nt = codon[2] # thrid character
-        tRNA_nt = tRNA[0] # thrird character
-        return (codon_nt == "A" and tRNA_nt in ['U','&','N','3','1','P','~','V','}','S',')','{']) or (codon_nt == "C" and tRNA_nt in ['G','#', 'Q']) or \
-               (codon_nt == "G" and tRNA_nt in ['C','B','?', 'M']) or (codon_nt == "U" and tRNA_nt in ['A','I'])
+        codon_nt = codon[2] # third character
+        tRNA_nt = tRNA[0] # first character
+        return (codon_nt == "A" and tRNA_nt in ['U','&','3','1','~','N','S',')','{','V','}','P']) or \
+                (codon_nt == "C" and tRNA_nt in ['G','#','W']) or \
+                (codon_nt == "G" and tRNA_nt in ['C','B']) or (codon_nt == "U" and tRNA_nt in ['A'])
 
     def first_wobble(codon, tRNA):
         codon_nt = codon[0] # first character
-        tRNA_nt = tRNA[2] # thrird character
-        return (codon_nt == "A" and tRNA_nt in ["A", "U"]) or (codon_nt == "C" and tRNA_nt in ["G", "A", "U"]) or \
-               (codon_nt == "G" and tRNA_nt in ["A", "C", "U"]) or (codon_nt == "U" and tRNA_nt in ["A", "G", "U"])
+        tRNA_nt = tRNA[2] # third character
+        return (codon_nt == "A" and tRNA_nt in ['A']) or \
+                (codon_nt == "C" and tRNA_nt in ['A','U']) or \
+                (codon_nt == "G" and tRNA_nt in ['A','U']) or \
+                (codon_nt == "U" and tRNA_nt in ['G','U'])
 
     def third_wobble(codon, tRNA):
-        codon_nt = codon[2] # thrid character
-        tRNA_nt = tRNA[0] # thrird character
-        return (codon_nt == "A" and tRNA_nt in ['A','U','&','N','3','1','P','~','I']) or (codon_nt == "C" and tRNA_nt in ['G','#','A','U','I']) or \
-               (codon_nt == "G" and tRNA_nt in ['C','B','?','A','U','&','N','3','1','P','~', 'V', 'S', ')', '{']) or (codon_nt == "U" and tRNA_nt in ['A','G','U','I','#', 'Q', 'V'])
+        codon_nt = codon[2] # third character
+        tRNA_nt = tRNA[0] # first character
+        return (codon_nt == "A" and tRNA_nt in ['A','I','M','?']) or \
+                (codon_nt == "C" and tRNA_nt in ['A','U','P','I','?']) or \
+                (codon_nt == "G" and tRNA_nt in ['A','U','&','3','1','~','N','S',')','{','V','P','Q','?','M']) or \
+                (codon_nt == "U" and tRNA_nt in ['G','#','W','U','V','P','I','Q'])
 
     cognate_WC_matrix = np.zeros((len(tRNAs.anticodon), len(codons.codon)))
     cognate_wobble_matrix = np.zeros((len(tRNAs.anticodon), len(codons.codon)))
@@ -98,12 +99,15 @@ def make_matrix(tRNAs, codons, verbose=False):
         print('done.')
         print('Populating nearcognate matrix...')
 
-    #populate near-cognate matrix if wobble criteria matched and wobble and WC matrix entries are 0
+    #populate near-cognate matrix if:
+    #wobble and WC matrix entries are 0,
+    #wobble criteria are matched
 
     for n in range(len(tRNAs.anticodon)):
         for m in range(len(codons.codon)):
             if (cognate_WC_matrix[n,m] == 0 and cognate_wobble_matrix[n,m] == 0 and second_WC(codons.codon[m],tRNAs.anticodon[n]) and \
-                first_wobble(codons.codon[m],tRNAs.anticodon[n]) and third_wobble(codons.codon[m],tRNAs.anticodon[n])):
+                 (first_wobble(codons.codon[m],tRNAs.anticodon[n]) or first_WC(codons.codon[m],tRNAs.anticodon[n])) and\
+                 (third_wobble(codons.codon[m],tRNAs.anticodon[n]) or third_WC(codons.codon[m],tRNAs.anticodon[n])) ):
                 nearcognate_matrix[n,m] = 1
 
     if verbose:
@@ -122,7 +126,7 @@ def make_matrix(tRNAs, codons, verbose=False):
 
     return {"cognate.wc.matrix":cognate_WC_matrix, "cognate.wobble.matrix":cognate_wobble_matrix, "nearcognate.matrix":nearcognate_matrix}
 
-def plot_matrix(matrices_dict, tRNAs, codons):
+def plot_matrix(matrices_dict, tRNAs, codons, save_fig = None):
     """
     Plots the pairing matrices.
     """
@@ -141,30 +145,24 @@ def plot_matrix(matrices_dict, tRNAs, codons):
     plt.xticks(range(len(codons.codon)), codons.codon, rotation = 45)
     plt.yticks(range(len(tRNAs.anticodon)), tRNAs.anticodon)
     plt.legend()
+    if save_fig != None:
+        plt.savefig(save_fig)
+    plt.show()
     
 
-def make_concentrations(tRNAs, matrices, codons, use_gene_copy_number=True, total_tRNA=190):
+def make_concentrations(matrices_dict, tRNAs, codons, concentration_col_name = 'gene.copy.number', total_tRNA=190):
     """
     Given a tRNA matrix, and the decoding matrix, generates a concentrations DataFrame.
 
     TRNAs: DataFrame with the tRNAs: anticodon, gene.copy.number
     Matrices: pairing matrices generated by make_matrix
     Codons: DataFrame with the codons to be used
-    use_gene_copy_number: if True, will use tRNAs column ‘gene.copy.number’, otherwise will use ‘experimental.abundance’
+    concentration_col_name: name of the concentrations column name. Default = 'gene.copy.number'
     total_Trna: default value is 190 (micro moles).
     """
-    WCcognate = matrices["cognate.wc.matrix"]
-    wobblecognate = matrices["cognate.wobble.matrix"]
-    nearcognate = matrices["nearcognate.matrix"]
-    
-    concentration_col_name = 'gene.copy.number'
-    if "gene.copy.number" not in tRNAs.columns and "experimental.abundance" not in tRNAs.columns:
-        print("tRNA list must contain columns with abundance information headed either 'gene.copy.number' or 'experimental.abundance'.")
-        return pd.DataFrame()
-    if use_gene_copy_number:
-        concentration_col_name = 'gene.copy.number'
-    else:
-        concentration_col_name = 'experimental.abundance'
+    WCcognate = matrices_dict["cognate.wc.matrix"]
+    wobblecognate = matrices_dict["cognate.wobble.matrix"]
+    nearcognate = matrices_dict["nearcognate.matrix"]
 
     # construct empty results dataframe
     tRNA_concentrations = pd.DataFrame(codons[[codons.columns[0],codons.columns[2]]])
@@ -173,7 +171,7 @@ def make_concentrations(tRNAs, matrices, codons, use_gene_copy_number=True, tota
     tRNA_concentrations["nearcognate.conc"] = 0.0
     
     #calculate a conversion factor to convert the abundance factor to a molar concentration
-    print('using: '+concentration_col_name)
+    print('using: '+ concentration_col_name)
     conversion_factor = np.float64(total_tRNA / np.float64(tRNAs[concentration_col_name].sum()) * 1e-6)
     
     #go through the WCcognates matrix and for each entry of 1 add the abundance of the tRNA from the abundance table to the concentration table
