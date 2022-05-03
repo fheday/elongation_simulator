@@ -78,7 +78,7 @@ void execute_translation(const std::string &concentrations_file,
     std::vector<double> elongation_duration;
     std::vector<int> iteration_initiation;
     std::tie(elongation_duration, iteration_initiation) =
-        ts.getEnlogationDuration();
+        ts.getElongationDuration();
     // save elongation data into csv file.
 
     std::vector<double> clock(ts.dt_history.size()), clock_at_initiation(iteration_initiation.size());

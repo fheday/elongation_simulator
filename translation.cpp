@@ -115,8 +115,8 @@ PYBIND11_MODULE(translation, mod) {
              * setFinishedRibosomes or setIterationLimit or setTimeLimit 
                or setSimulateToSteadyState and either setSteadyStateTerminations or setSteadystateTime
            )docstr")
-      .def("getEnlogationDuration",
-           &Simulations::Translation::getEnlogationDuration, R"docstr(
+      .def("getElongationDuration",
+           &Simulations::Translation::getElongationDuration, R"docstr(
              Alanysises the simulation log (dt_history and ribosome_positions_history) and calculates the times (in seconds) each ribosome takes from initiation to termination.
              returns two lists: 
              the first list contains the durations
@@ -195,7 +195,7 @@ PYBIND11_MODULE(translation, mod) {
       .def_readonly("elongations_durations",
                     &Simulations::Translation::elongations_durations, R"docstr(
                       Attribute: Durations of each completed elongation. This attribute is only
-                      populated AFTER getEnlogationDuration method is run.
+                      populated AFTER getElongationDuration method is run.
                     )docstr")
       .def_readonly("total_time", &Simulations::Translation::total_time, R"docstr(
         Attribute: total time ribosomes spent in each codon. Populated after calling calculateAverageTimes method.
@@ -734,7 +734,7 @@ void Simulations::Translation::run() {
  *
  */
 std::tuple<std::vector<double>, std::vector<int>>
-Simulations::Translation::getEnlogationDuration() {
+Simulations::Translation::getElongationDuration() {
   if (elongations_durations.empty()) {
     getInitiationElongationTermination();
   }

@@ -25,7 +25,7 @@ TEST(TranslatorTester, simulateAAAx100xlowInitxHighTerm)
   std::vector<double> enlongation_duration;
   std::vector<int> iteration_initiation;
   std::tie(enlongation_duration, iteration_initiation) =
-      ts.getEnlogationDuration();
+      ts.getElongationDuration();
   ts.getInitiationElongationTermination();
   double total = 0;
   for (auto dur : ts.elongations_durations)
