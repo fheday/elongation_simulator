@@ -34,10 +34,10 @@ void csv_utils::ConcentrationsReader::loadConcentrations(
   double wc_cognate_conc;
   double wobblecognate_conc;
   double nearcognate_conc;
-  int wc_cognate_conc_index = 0;
-  int wobblecognate_conc_index = 0;
-  int nearcognate_conc_index = 0;
-  int codon_index;
+  int wc_cognate_conc_index = -1;
+  int wobblecognate_conc_index = -1;
+  int nearcognate_conc_index = -1;
+  int codon_index = -1;
   int three_letter_index = 0;
   std::string tmp_str;
   std::vector<std::string> stop_codons = {"UAG", "UAA",
@@ -49,14 +49,15 @@ void csv_utils::ConcentrationsReader::loadConcentrations(
       std::getline(ist,tmp_str);
       // make header all lowercase.
       transform(tmp_str.begin(), tmp_str.end(), tmp_str.begin(), ::tolower);
-      //remove \r and \n from the header.
-      tmp_str.erase(std::remove(tmp_str.begin(), tmp_str.end(), '\r'), tmp_str.end());
-      tmp_str.erase(std::remove(tmp_str.begin(), tmp_str.end(), '\n'), tmp_str.end());
+      //remove \r, \n and non-printable characters from the header.
+      tmp_str.erase(std::remove_if(tmp_str.begin(), tmp_str.end(), 
+        [](unsigned char x){return std::isspace(x);}), tmp_str.end());
+      // remove double quotes.
+      tmp_str.erase(std::remove(tmp_str.begin(), tmp_str.end(), '\"'), tmp_str.end());
       std::stringstream ss(tmp_str);
       int index = 0;
       std::string column_name;
       while (std::getline(ss, column_name, ',')) {
-      
         if (column_name == "codon"){
           codon_index = index;
         } else if (column_name == "three.letter") {
@@ -65,16 +66,16 @@ void csv_utils::ConcentrationsReader::loadConcentrations(
           wc_cognate_conc_index = index;
         } else if (column_name == "wobblecognate.conc"){
           wobblecognate_conc_index = index;
-        } if (column_name == "nearcognate.conc") {
+        } else if (column_name == "nearcognate.conc") {
           nearcognate_conc_index = index;
         }
         index++;
       }
-      if (codon_index == 0) throw std::runtime_error("no codon column in csv file.");
-      if (three_letter_index == 0) throw std::runtime_error("no three.letter column in csv file.");
-      if (wc_cognate_conc_index == 0) throw std::runtime_error("no WCcognate.conc column in csv file.");
-      if (wobblecognate_conc_index == 0) throw std::runtime_error("no wobblecognate.conc column in csv file.");
-      if (nearcognate_conc_index == 0) throw std::runtime_error("no nearcognate.conc column in csv file.");
+      if (codon_index < 0) throw std::runtime_error("no codon column in csv file.");
+      if (three_letter_index < 0) throw std::runtime_error("no three.letter column in csv file.");
+      if (wc_cognate_conc_index < 0) throw std::runtime_error("no WCcognate.conc column in csv file.");
+      if (wobblecognate_conc_index < 0) throw std::runtime_error("no wobblecognate.conc column in csv file.");
+      if (nearcognate_conc_index < 0) throw std::runtime_error("no nearcognate.conc column in csv file.");
 
       header = false;
     } else {
@@ -83,6 +84,7 @@ void csv_utils::ConcentrationsReader::loadConcentrations(
       int curr_index = 0;
       while (std::getline(ss, tmp_str, ',')) {
         if (curr_index == codon_index) {
+          tmp_str.erase(std::remove(tmp_str.begin(), tmp_str.end(), '\"'), tmp_str.end());
           codon = tmp_str;
         } else if (curr_index == three_letter_index) {
           three_letter = tmp_str;
