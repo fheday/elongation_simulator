@@ -41,8 +41,8 @@ class Translation {
 
   void run();
 
-  void calculateAverageTimes();
-  std::tuple<std::vector<double>, std::vector<int>> getElongationDuration();
+  void getAverageTimes();
+  std::tuple<std::vector<double>, std::vector<int>> getEnlogationDuration();
   void getInitiationElongationTermination();
 
   std::vector<int> getRibosomesPositions();

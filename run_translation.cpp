@@ -74,7 +74,7 @@ void execute_translation(const std::string &concentrations_file,
                                     // future.
   ts.run();
   if (save_ribosomes_positions == false) {
-    ts.calculateAverageTimes();
+    ts.getAverageTimes();
     std::vector<double> elongation_duration;
     std::vector<int> iteration_initiation;
     std::tie(elongation_duration, iteration_initiation) =
