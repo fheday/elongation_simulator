@@ -31,6 +31,7 @@ class mRNAReader {
   double termination_rate;
   double initiation_rate;
   std::string mRNA_file_name;
+  void post_process_sequence(std::string);
 };
 }  // namespace mRNA_utils
 
