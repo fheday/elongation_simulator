@@ -17,13 +17,25 @@ mRNA_utils::mRNAReader::mRNAReader() {
   initiation_rate = 0;
 }
 
+void mRNA_utils::mRNAReader::post_process_sequence(std::string raw_sequence) {
+  // replace all T's for U's.
+    std::size_t found = raw_sequence.find('T');
+    while (found != std::string::npos) {
+      raw_sequence[found] = 'U';
+      found = raw_sequence.find('T', found + 1);
+    }
+    // remove all non-printable characgters, if any.
+    raw_sequence.erase(std::remove_if(raw_sequence.begin(), raw_sequence.end(), 
+        [](unsigned char x){return std::isspace(x);}), raw_sequence.end());
+    mRNA_sequence = raw_sequence;
+}
+
 void mRNA_utils::mRNAReader::loadmRNAFile(const std::string& mRNA_file_name) {
-  
   std::ifstream ist{mRNA_file_name};
   if (!ist) {
     throw std::runtime_error("can't open input file: " + mRNA_file_name);
   }
-  mRNA_sequence.clear();
+  std::string raw_sequence;
   std::string line;
   bool found_first_gene = false;
   while (ist.good()) {
@@ -39,24 +51,14 @@ void mRNA_utils::mRNAReader::loadmRNAFile(const std::string& mRNA_file_name) {
         break;
       }
     }
-    mRNA_sequence.append(line);
+    raw_sequence.append(line);
   }
   ist.close(); // close file.
-  // replace all T's for U's.
-  std::size_t found = mRNA_sequence.find('T');
-  while (found != std::string::npos) {
-    mRNA_sequence[found] = 'U';
-    found = mRNA_sequence.find('T', found + 1);
-  }
+  post_process_sequence(raw_sequence);
 }
 
 void mRNA_utils::mRNAReader::readMRNA(std::string user_mRNA) {
-  mRNA_sequence = user_mRNA;
-  std::size_t found = mRNA_sequence.find('T');
-  while (found != std::string::npos) {
-    mRNA_sequence[found] = 'U';
-    found = mRNA_sequence.find('T', found + 1);
-  }
+  post_process_sequence(user_mRNA);
 }
 
 void mRNA_utils::mRNAReader::loadGene(const std::string& mRNA_file_name, const std::string& gene_name) {
@@ -64,7 +66,7 @@ void mRNA_utils::mRNAReader::loadGene(const std::string& mRNA_file_name, const s
   if (!ist) {
     throw std::runtime_error("can't open input file: " + mRNA_file_name);
   }
-  mRNA_sequence.clear();
+  std::string raw_sequence;
   std::string line;
   bool found_gene = false;
   while (ist.good()) {
@@ -77,7 +79,7 @@ void mRNA_utils::mRNAReader::loadGene(const std::string& mRNA_file_name, const s
     }
     if (found_gene){
       if (line[0] != '>'){
-        mRNA_sequence.append(line);
+        raw_sequence.append(line);
       } else {
         // we reached a new gene. no need to progress further.
         break;
@@ -86,12 +88,7 @@ void mRNA_utils::mRNAReader::loadGene(const std::string& mRNA_file_name, const s
     }
   }
   ist.close(); // close file.
-  // replace all T's for U's.
-  std::size_t found = mRNA_sequence.find('T');
-  while (found != std::string::npos) {
-    mRNA_sequence[found] = 'U';
-    found = mRNA_sequence.find('T', found + 1);
-  }
+  post_process_sequence(raw_sequence);
 }
 
 std::vector<std::string> mRNA_utils::mRNAReader::get_names_in_file(const std::string& mRNA_file_name) {
