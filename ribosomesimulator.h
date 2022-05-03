@@ -95,7 +95,7 @@ class RibosomeSimulator {
   double wobble4f = 1000;
   double wobble5f = 1000;
   double wobblediss = 1.1;
-  double wobble6f = 1.6;
+  double wobble6f = 6.4;
 
   // constants for nearcognate interaction in 1/sec
   std::map<std::string, double> near1f;
