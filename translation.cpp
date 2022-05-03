@@ -122,8 +122,8 @@ PYBIND11_MODULE(translation, mod) {
              the first list contains the durations
              the second contains the indexes in dt_history and ribosome_positions_history when the ribosome initiated
            )docstr")
-      .def("calculateAverageTimes",
-           &Simulations::Translation::calculateAverageTimes, R"docstr(
+      .def("getAverageTimes",
+           &Simulations::Translation::getAverageTimes, R"docstr(
              This method calculates the average codon occupancy.
              Its output is in the attribute average_times. All times are in seconds.
            )docstr")
@@ -198,15 +198,15 @@ PYBIND11_MODULE(translation, mod) {
                       populated AFTER getEnlogationDuration method is run.
                     )docstr")
       .def_readonly("total_time", &Simulations::Translation::total_time, R"docstr(
-        Attribute: total time ribosomes spent in each codon. Populated after calling calculateAverageTimes method.
+        Attribute: total time ribosomes spent in each codon. Populated after calling getAverageTimes method.
       )docstr")
       .def_readonly("n_times_occupied",
                     &Simulations::Translation::n_times_occupied, R"docstr(
-                      Attribute: vector with number of times each codon is occupied. Populated after calling calculateAverageTimes method.
+                      Attribute: vector with number of times each codon is occupied. Populated after calling getAverageTimes method.
                     )docstr")
       .def_readonly("average_times",
                     &Simulations::Translation::codons_average_occupation_time, R"docstr(
-                      Attribute: vector with average time each codon is occupied by a ribosome. Populated after calling calculateAverageTimes method.
+                      Attribute: vector with average time each codon is occupied by a ribosome. Populated after calling getAverageTimes method.
                     )docstr");
 
     init_simulation_manager(mod); //include simulation manager to package
@@ -869,7 +869,7 @@ void Simulations::Translation::setRibosomePositions(
   }
 }
 
-void Simulations::Translation::calculateAverageTimes() {
+void Simulations::Translation::getAverageTimes() {
   std::size_t number_codons = codons_vector.size();
   // initialize the total_time vector.
   total_time = std::vector<double>(number_codons);

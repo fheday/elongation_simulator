@@ -41,7 +41,7 @@ class Translation {
 
   void run();
 
-  void calculateAverageTimes();
+  void getAverageTimes();
   std::tuple<std::vector<double>, std::vector<int>> getEnlogationDuration();
   void getInitiationElongationTermination();
 
