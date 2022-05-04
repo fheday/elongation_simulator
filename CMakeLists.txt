@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 2.8.12)
-project(gillespie)
+cmake_minimum_required(VERSION 3.9.2)
+project(gillespie CXX)
 
 #-fopt-info-vec-missed -g -fno-inline
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -ffast-math -march=native -ftree-vectorize -Wall -DNDEBUG -flto -g")
