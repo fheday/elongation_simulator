@@ -122,11 +122,11 @@ PYBIND11_MODULE(translation, mod) {
              the first list contains the durations
              the second contains the indexes in dt_history and ribosome_positions_history when the ribosome initiated
            )docstr")
-      .def("getAverageTimes",
-           &Simulations::Translation::getAverageTimes, R"docstr(
-             This method calculates the average codon occupancy.
-             Its output is in the attribute average_times. All times are in seconds.
-           )docstr")
+      // .def("getAverageTimes",
+      //      &Simulations::Translation::getAverageTimes, R"docstr(
+      //        This method calculates the average codon occupancy.
+      //        Its output is in the attribute average_times. All times are in seconds.
+      //      )docstr")
       .def("setPrepopulate", &Simulations::Translation::setPrepopulate, R"docstr(
         This is an optional method to be called BEFORE the simulation.
         It tries to create an approximated configuration where ribosomes would be located in the mRNA
@@ -192,8 +192,10 @@ PYBIND11_MODULE(translation, mod) {
                     &Simulations::Translation::termination_rate, R"docstr(
                       Attribute: the termination rate set by setInitiationRate.
                     )docstr")
-      .def_readonly("elongations_durations",
-                    &Simulations::Translation::elongations_durations, R"docstr(
+      .def_property_readonly("elongations_durations",[](Simulations::Translation &sim){
+                      sim.getElongationDuration();
+                      return sim.elongations_durations;
+                    }, R"docstr(
                       Attribute: Durations of each completed elongation. This attribute is only
                       populated AFTER getElongationDuration method is run.
                     )docstr")
@@ -204,8 +206,11 @@ PYBIND11_MODULE(translation, mod) {
                     &Simulations::Translation::n_times_occupied, R"docstr(
                       Attribute: vector with number of times each codon is occupied. Populated after calling getAverageTimes method.
                     )docstr")
-      .def_readonly("average_times",
-                    &Simulations::Translation::codons_average_occupation_time, R"docstr(
+      .def_property_readonly("average_times", [](Simulations::Translation &sim) {
+             if (sim.codons_average_occupation_time.empty()) sim.getAverageTimes();
+             return sim.codons_average_occupation_time;
+           }
+                    , R"docstr(
                       Attribute: vector with average time each codon is occupied by a ribosome. Populated after calling getAverageTimes method.
                     )docstr");
 
