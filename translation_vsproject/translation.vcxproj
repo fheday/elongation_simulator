@@ -43,6 +43,10 @@
     <ClInclude Include="..\mrna_reader.h" />
     <ClInclude Include="..\ribosomesimulator.h" />
     <ClInclude Include="..\translation.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="translation.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -170,7 +174,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Heday\Anaconda3\include;C:\Users\Heday\Anaconda3\Library\include;Z:\Gillespie_Cpp\jsoncpp\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Heday\Anaconda3\include;C:\Users\Heday\Anaconda3\Library\include;Z:\Gillespie_Cpp\jsoncpp\;Z:\Gillespie_Cpp\pybind11;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
