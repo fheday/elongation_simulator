@@ -218,7 +218,7 @@ PYBIND11_MODULE(translation, mod) {
              return sim.colliding_ribosomes;
            }
           , R"docstr(
-            Attribute: vector with the positions of the colliding ribosomes. By definitions a ribosome is only colliding if another one is stopping it moving forward.
+            Attribute: vector with the positions of the colliding ribosomes. By definition a ribosome is only colliding if another one is stopping it moving forward.
           )docstr")
       .def_property_readonly("stalled_ribosomes", [](Simulations::Translation &sim) {
              sim.getRibosomeCollisions();
