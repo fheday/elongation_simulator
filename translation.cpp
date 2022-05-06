@@ -210,9 +210,23 @@ PYBIND11_MODULE(translation, mod) {
              if (sim.codons_average_occupation_time.empty()) sim.getAverageTimes();
              return sim.codons_average_occupation_time;
            }
-                    , R"docstr(
-                      Attribute: vector with average time each codon is occupied by a ribosome. Populated after calling getAverageTimes method.
-                    )docstr");
+          , R"docstr(
+            Attribute: vector with average time each codon is occupied by a ribosome. Populated after calling getAverageTimes method.
+          )docstr")
+      .def_property_readonly("colliding_ribosomes", [](Simulations::Translation &sim) {
+             sim.getRibosomeCollisions();
+             return sim.colliding_ribosomes;
+           }
+          , R"docstr(
+            Attribute: vector with the positions of the colliding ribosomes. By definitions a ribosome is only colliding if another one is stopping it moving forward.
+          )docstr")
+      .def_property_readonly("stalled_ribosomes", [](Simulations::Translation &sim) {
+             sim.getRibosomeCollisions();
+             return sim.stalled_ribosomes;
+           }
+          , R"docstr(
+            Attribute: vector with the positions of stalling ribosomes. By definition a stalled ribosome can move forward but is blocking another ribosome to move forward.
+          )docstr");
 
     init_simulation_manager(mod); //include simulation manager to package
     init_simulation_processor(mod); //include simulation processor to package
@@ -934,4 +948,42 @@ Simulations::Translation::getLogCodonStates() {
     result[i] = std::tie(state, dt);
   }
   return result;
+}
+
+void Simulations::Translation::getRibosomeCollisions()
+{
+  if (!is_collisions_calculated)
+  {
+    // calculate collisions
+    for (auto ribosomes_positions : ribosome_positions_history)
+    {
+      std::vector<int> collision_entry;
+      std::vector<int> stall_entry;
+      if (ribosomes_positions.size() == 0) continue;
+      for (std::size_t i = 0; i < ribosomes_positions.size() - 1; i++)
+      {
+        if (ribosomes_positions[i + 1] - ribosomes_positions[i] == 10)
+        {
+          // colliding ribosome: collision with the next ribosome detected.
+          collision_entry.emplace_back(ribosomes_positions[i]);
+        }
+        else if (!collision_entry.empty() && ribosomes_positions[i] - collision_entry.back() == 10)
+        {
+          // stalled ribosome: no collision with next ribosome,
+          // but collision with previous ribosome detected.
+          stall_entry.emplace_back(ribosomes_positions[i]);
+        }
+      }
+      // check last entry. it can only stall.
+      if (!collision_entry.empty() && ribosomes_positions.back() - collision_entry.back() == 10)
+      {
+        // stalled ribosome: no collision with next ribosome,
+        // but collision with previous ribosome detected.
+        stall_entry.emplace_back(ribosomes_positions.back());
+      }
+      colliding_ribosomes.emplace_back(collision_entry);
+      stalled_ribosomes.emplace_back(stall_entry);
+    }
+    is_collisions_calculated = true;
+  }
 }

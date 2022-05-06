@@ -52,6 +52,8 @@ class Translation {
   std::vector<std::tuple<std::vector<int>, std::vector<double>>>
   getLogCodonStates();
 
+  void getRibosomeCollisions();
+
   std::vector<double> initiations_durations, elongations_durations,
       terminations_durations;
   std::vector<int> initiation_iteration, termination_iteration;
@@ -87,6 +89,10 @@ class Translation {
   std::vector<int> n_times_occupied;
   // average occupation time
   std::vector<double> codons_average_occupation_time;
+  // ribosomes colliding
+  std::vector<std::vector<int>> colliding_ribosomes;
+  //stalled ribosomes (blocking others to elongate)
+  std::vector<std::vector<int>> stalled_ribosomes;
 
  private:
   void initializeMRNAReader();
@@ -97,6 +103,7 @@ class Translation {
   bool is_initiation_set = false;
   bool is_termination_set = false;
   bool is_mRNA_valid = true;
+  bool is_collisions_calculated = false;
   std::size_t history_size = 100000;
   bool simulate_to_steady_state = false;
   int steady_state_terminations = -1;
