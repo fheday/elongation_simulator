@@ -122,11 +122,6 @@ PYBIND11_MODULE(translation, mod) {
              the first list contains the durations
              the second contains the indexes in dt_history and ribosome_positions_history when the ribosome initiated
            )docstr")
-      // .def("getAverageTimes",
-      //      &Simulations::Translation::getAverageTimes, R"docstr(
-      //        This method calculates the average codon occupancy.
-      //        Its output is in the attribute average_times. All times are in seconds.
-      //      )docstr")
       .def("setPrepopulate", &Simulations::Translation::setPrepopulate, R"docstr(
         This is an optional method to be called BEFORE the simulation.
         It tries to create an approximated configuration where ribosomes would be located in the mRNA
