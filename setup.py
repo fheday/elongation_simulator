@@ -7,83 +7,40 @@
 
 import os
 import sys
-import subprocess
+from glob import glob
 from pathlib import Path
-from setuptools import setup, Extension, find_packages
+from xml.etree.ElementInclude import include
+from setuptools import setup
+DIR = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(DIR, "pybind11"))
+from pybind11.setup_helpers import Pybind11Extension, build_ext, ParallelCompile, naive_recompile # noqa:E402
+del sys.path[-1]
 
-from setuptools.command.build_ext import build_ext
+# Avoid a gcc warning below:
+# cc1plus: warning: command line option ‘-Wstrict-prototypes’ is valid
+# for C/ObjC but not for C++
+class BuildExt(build_ext):
+    def build_extensions(self):
+        if '-Wstrict-prototypes' in self.compiler.compiler_so:
+            self.compiler.compiler_so.remove('-Wstrict-prototypes')
+        super().build_extensions()
 
 
+ext_modules = [
+    Pybind11Extension(
+        "translation",
+        ["concentrationsreader.cpp", "mrna_reader.cpp", "elongation_codon.cpp", "initiationterminationcodon.cpp", "mrnaelement.cpp", "translation.cpp", "ribosomesimulator.cpp", "elongation_simulation_manager.cpp", "elongation_simulation_processor.cpp", "./jsoncpp/jsoncpp.cpp"],
+        include_dirs=["./jsoncpp/", "./eigen-3.3.7/", "./pybind11/"],
+        extra_compile_args=["-O3", "-ffast-math", "-march=native", "-ftree-vectorize", "-Wall", "-g2", "-flto", "-DCOMIPLE_PYTHON_MODULE"]
+    ),
+    Pybind11Extension(
+        "ribosomesimulator",
+        ["concentrationsreader.cpp", "mrna_reader.cpp", "ribosomesimulator.cpp", "./jsoncpp/jsoncpp.cpp"],
+        include_dirs=["./jsoncpp/", "./eigen-3.3.7/", "./pybind11/"],
+        extra_compile_args=["-O3", "-ffast-math", "-march=native", "-ftree-vectorize", "-Wall", "-DNDEBUG", "-flto", "-DCOMIPLE_PYTHON_MODULE"]
+    )
+]
 
-
-class CMakeExtension(Extension):
-    def __init__(self, name):
-        Extension.__init__(self, name, sources=[])
-
-
-class CMakeBuild(build_ext):
-    def run(self):
-        env = os.environ.copy()
-        try:
-            out = subprocess.run(['cmake', '--version'], env=env)
-        except OSError:
-            raise RuntimeError(
-                "CMake must be installed to build the following extensions: " +
-                ", ".join(e.name for e in self.extensions))
-        workers = os.cpu_count()
-        # create pybind11 cmake file.
-        subprocess.check_call(['cmake', '.', '-DPYBIND11_TEST=no'],
-                              cwd='pybind11', env=env)
-        subprocess.check_call(['make', '-j'+str(workers)],
-                              cwd='pybind11', env=env)
-        # print("make pybind11 mock install--------------------------------")
-        # subprocess.check_call(['make', 'mock_install'],
-        #                       cwd='pybind11', env=env)
-        build_directory = os.path.abspath(self.build_temp)
-
-        cmake_args = [
-            '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + build_directory,
-            '-DPYTHON_EXECUTABLE=' + sys.executable,
-            '-Dpybind11_DIR=pybind11/mock_install/share/cmake/pybind11/',
-        ]
-
-        cfg = 'Debug' if self.debug else 'Release'
-        build_args = ['--config', cfg]
-
-        cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-
-        # Assuming Makefiles
-        build_args += ['--', 'ribosomesimulator', 'translation', '-j'+str(workers)]
-
-        self.build_args = build_args
-
-        env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(
-            env.get('CXXFLAGS', ''),
-            self.distribution.get_version())
-        if not os.path.exists(self.build_temp):
-            os.makedirs(self.build_temp)
-
-        cmake_list_dir = "./"
-        print('-'*10, 'Running CMake prepare', '-'*40)
-        subprocess.check_call(['cmake', cmake_list_dir] + cmake_args,
-                              cwd='.', env=env)
-
-        print('-'*10, 'Building extensions', '-'*40)
-        cmake_cmd = ['cmake', '--build', '../../'] + self.build_args
-        subprocess.check_call(cmake_cmd,
-                              cwd=self.build_temp, env=env)
-
-        # Move from build temp to final position
-        for ext in self.extensions:
-            self.move_output(ext)
-
-    def move_output(self, ext):
-        build_temp = Path(self.build_temp).resolve()
-        dest_path = Path(self.get_ext_fullpath(ext.name)).resolve()
-        source_path = build_temp / self.get_ext_filename(ext.name)
-        dest_directory = dest_path.parents[0]
-        dest_directory.mkdir(parents=True, exist_ok=True)
-        self.copy_file(source_path, dest_path)
 
 if sys.version_info < (3,):
     raise NotImplementedError("Only Python 3+ is supported.")
@@ -97,6 +54,9 @@ with open('README.rst', encoding='utf-8') as f:
 
 with open('CHANGES.rst', encoding='utf-8') as f:
     CHANGES = f.read()
+
+# Optional multithreaded build
+ParallelCompile(default=0, needs_recompile=naive_recompile).install()
 
 setup(
     name='elongation_simulators',
@@ -125,11 +85,8 @@ setup(
         'Programming Language :: Python',
     ],
    packages=["concentrations", "elongation"],
-    ext_modules=[
-                CMakeExtension('ribosomesimulator'),
-                CMakeExtension('translation'),
-    ],
-    cmdclass=dict(build_ext=CMakeBuild),
-    zip_safe=False,
-    include_package_data=True
+   cmdclass={"build_ext": BuildExt},
+   ext_modules=ext_modules,
+   zip_safe=False,
+   include_package_data=True
 )
