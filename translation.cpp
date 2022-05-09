@@ -188,11 +188,11 @@ PYBIND11_MODULE(translation, mod) {
                       Attribute: the termination rate set by setInitiationRate.
                     )docstr")
       .def_property_readonly("elongations_durations",[](Simulations::Translation &sim){
-                      sim.getElongationDuration();
-                      return sim.elongations_durations;
+                      return sim.getElongationDuration();
                     }, R"docstr(
-                      Attribute: Durations of each completed elongation. This attribute is only
-                      populated AFTER getElongationDuration method is run.
+                      Attribute: Durations of each completed elongation. The first list contains the duration in seconds of the time
+                      taken by a ribosome from initiation to termination, the second list contains the entry number where the ribosome
+                      initiated. This attribute is only populated AFTER getElongationDuration method is run.
                     )docstr")
       .def_readonly("total_time", &Simulations::Translation::total_time, R"docstr(
         Attribute: total time ribosomes spent in each codon. Populated after calling getAverageTimes method.
@@ -202,7 +202,7 @@ PYBIND11_MODULE(translation, mod) {
                       Attribute: vector with number of times each codon is occupied. Populated after calling getAverageTimes method.
                     )docstr")
       .def_property_readonly("average_times", [](Simulations::Translation &sim) {
-             if (sim.codons_average_occupation_time.empty()) sim.getAverageTimes();
+             if (sim.codons_average_occupation_time.empty() and !sim.ribosome_positions_history.empty()) sim.getAverageTimes();
              return sim.codons_average_occupation_time;
            }
           , R"docstr(
@@ -749,7 +749,7 @@ void Simulations::Translation::run() {
  */
 std::tuple<std::vector<double>, std::vector<int>>
 Simulations::Translation::getElongationDuration() {
-  if (elongations_durations.empty()) {
+  if (elongations_durations.empty() && !ribosome_positions_history.empty()) {
     getInitiationElongationTermination();
   }
   return std::make_tuple(elongations_durations, initiation_iteration);
@@ -947,7 +947,7 @@ Simulations::Translation::getLogCodonStates() {
 
 void Simulations::Translation::getRibosomeCollisions()
 {
-  if (!is_collisions_calculated)
+  if (!is_collisions_calculated and !ribosome_positions_history.empty())
   {
     // calculate collisions
     for (auto ribosomes_positions : ribosome_positions_history)
