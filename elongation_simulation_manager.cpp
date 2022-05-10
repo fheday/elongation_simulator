@@ -268,17 +268,17 @@ bool Elongation_manager::SimulationManager::start(bool verbose, unsigned int n_t
     ts.setInitiationRate(init_rate);
     ts.setTerminationRate(term_rate);
     if (stop_condition == ITERATION) {
-      ts.setIterationLimit(stop_value);
+      ts.setIterationLimit(static_cast<int>(stop_value));
     } else if (stop_condition == TIME) {
       ts.setTimeLimit(stop_value);
     } else if (stop_condition == RIBOSOMES) {
-      ts.setFinishedRibosomes(stop_value);
+      ts.setFinishedRibosomes(static_cast<int>(stop_value));
     } else if (stop_condition == STEADY_STATE_TIME) {
       ts.setSimulateToSteadyState(true);
       ts.setSteadyStateTime(stop_value);
     } else if (stop_condition == STEADY_STATE_RIBOSOMES) {
       ts.setSimulateToSteadyState(true);
-      ts.setSteadyStateTerminations(stop_value);
+      ts.setSteadyStateTerminations(static_cast<int>(stop_value));;
     }
     ts.setPrepopulate(pre_populate); // simulations pre-populate the mRNA
                                      // by default. This can be changed in
