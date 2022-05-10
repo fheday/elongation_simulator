@@ -8,7 +8,7 @@
 .*
 **/dist/
 **/*.egg-info/
-!.gitignore
+# !.gitignore
 **/x64/
 **/Debug/
 **/Release/
