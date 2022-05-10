@@ -24,13 +24,13 @@ WIN = sys.platform.startswith("win32") and "mingw" not in sysconfig.get_platform
 # for C/ObjC but not for C++
 class BuildExt(build_ext):
     def build_extensions(self):
-        if not WIN and '-Wstrict-prototypes' in self.compiler.compiler_so:
+        if '-Wstrict-prototypes' in self.compiler.compiler_so:
             self.compiler.compiler_so.remove('-Wstrict-prototypes')
         super().build_extensions()
 
-EXTRA_COMPILE_ARGS = []
+EXTRA_COMPILE_ARGS = None
 if WIN:
-    EXTRA_COMPILE_ARGS = []
+    EXTRA_COMPILE_ARGS = ["/O2", "/Ot", "/GL", "/DCOMIPLE_PYTHON_MODULE", "/I./eigen-3.3.7/eigen3/"]
 else:
     EXTRA_COMPILE_ARGS = ["-O3", "-ffast-math", "-march=native", "-ftree-vectorize", "-Wall", "-g2", "-flto", "-DCOMIPLE_PYTHON_MODULE"]
 
@@ -66,6 +66,10 @@ with open('CHANGES.rst', encoding='utf-8') as f:
 # Optional multithreaded build
 ParallelCompile(default=0, needs_recompile=naive_recompile).install()
 
+CMDCLASS = {}
+if not WIN:
+    CMDCLASS = {"build_ext": BuildExt}
+
 setup(
     name='elongation_simulators',
     version=VERSION,
@@ -93,7 +97,7 @@ setup(
         'Programming Language :: Python',
     ],
    packages=["concentrations", "elongation"],
-   cmdclass={"build_ext": BuildExt},
+   cmdclass=CMDCLASS,
    ext_modules=ext_modules,
    zip_safe=False,
    include_package_data=True
