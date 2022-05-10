@@ -2,10 +2,11 @@ name: Build distribution
 
 on: [push, pull_request]
 
+matrix:
+    os: [ubuntu-latest, windows-latest, macOS-latest]
+
 jobs:
   ubuntu-build:
-    matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source
