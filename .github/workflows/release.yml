@@ -4,10 +4,10 @@ on: [push, pull_request]
 
 jobs:
   ubuntu-build:
-    runs-on: ${{ matrix.os }}
     strategy:
     matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
