@@ -436,7 +436,7 @@ double Simulations::RibosomeSimulator::run_repeatedly_get_average_time(const int
   double tau = 0.0, clock = 0.0;
   std::size_t selected_alpha_vector_index = 0;
   std::array<double, 4> alphas;
-  std::array<std::size_t, 4> next_state;
+  std::array<int, 4> next_state;
   double k;      // get alphas
   int index, ii; //get alphas
   for (std::size_t i = 0; i < static_cast<std::size_t>(repetitions); i++)

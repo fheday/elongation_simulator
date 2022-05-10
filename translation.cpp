@@ -562,7 +562,7 @@ void Simulations::Translation::run() {
       }
     }
   }
-  for (int i = codons_vector.size() - 1; i >= 0; i--) {
+  for (int i = static_cast<int>(codons_vector.size()) - 1; i >= 0; i--) {
     if (codons_vector[i]->isOccupied()) {
       rib_positions.put(static_cast<int>(i));
       pre_filled_ribosomes++;
@@ -626,7 +626,7 @@ void Simulations::Translation::run() {
     current_codon = codon_index[selected_alpha_vector_index];
     // Apply reaction
     codons_vector[current_codon]->executeReaction(
-        reaction_index[selected_alpha_vector_index]);
+        static_cast<int>(reaction_index[selected_alpha_vector_index]));
     // Update time
     tau = (1.0 / a0) * log(1.0 / r1);
 
@@ -676,7 +676,7 @@ void Simulations::Translation::run() {
         // initiated.
         rib_positions.put(0);
       } else {
-        rib_positions.replace(moved_codon - 1, moved_codon);
+        rib_positions.replace(static_cast<int>(moved_codon) - 1, static_cast<int>(moved_codon));
       }
       // ribosome movement detected. create new entry in the history.
       dt_history_circ_buffer.put(tau);
