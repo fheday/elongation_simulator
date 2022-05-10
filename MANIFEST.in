@@ -6,9 +6,9 @@ include *.cpp *.h
 
 include docs CMake* *.rst
 
-graft pybind11/
-graft eigen-3.3.7/
-graft jsoncpp/
+graft pybind11/*
+graft eigen-3.3.7/*
+graft jsoncpp/*
 include concentrations/*.csv
 include elongation/simulationbuilder.py
 include elongation/utils.py
