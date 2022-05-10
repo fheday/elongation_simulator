@@ -29,7 +29,7 @@ requirements:
     - libstdcxx-ng #[not win]
     - pyqt
     - biopython
-##    - vs2015_runtime
+    # - vs2015_runtime
 
 
 about:
