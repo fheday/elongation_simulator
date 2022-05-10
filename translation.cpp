@@ -202,7 +202,7 @@ PYBIND11_MODULE(translation, mod) {
                       Attribute: vector with number of times each codon is occupied. Populated after calling getAverageTimes method.
                     )docstr")
       .def_property_readonly("average_times", [](Simulations::Translation &sim) {
-             if (sim.codons_average_occupation_time.empty() and !sim.ribosome_positions_history.empty()) sim.getAverageTimes();
+             if (sim.codons_average_occupation_time.empty() && !sim.ribosome_positions_history.empty()) sim.getAverageTimes();
              return sim.codons_average_occupation_time;
            }
           , R"docstr(
@@ -947,7 +947,7 @@ Simulations::Translation::getLogCodonStates() {
 
 void Simulations::Translation::getRibosomeCollisions()
 {
-  if (!is_collisions_calculated and !ribosome_positions_history.empty())
+  if (!is_collisions_calculated && !ribosome_positions_history.empty())
   {
     // calculate collisions
     for (auto ribosomes_positions : ribosome_positions_history)
