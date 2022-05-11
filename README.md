@@ -1,4 +1,5 @@
 # Gillespie C++
+[![CMake](https://github.com/fheday/elongation_simulators/actions/workflows/cmake.yml/badge.svg)](https://github.com/fheday/elongation_simulators/actions/workflows/cmake.yml)
 
 This is repository contains a C++ version of the Gillespie algorithm. 
 This should address some disadvantages of the python version. 
