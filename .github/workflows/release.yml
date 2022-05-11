@@ -23,7 +23,7 @@ jobs:
         run: python setup.py sdist bdist_wheel
 
   Windows:
-    runs-on: windows-latest"
+    runs-on: ["windows-2016", "windows-latest"]
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
