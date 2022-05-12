@@ -3,3 +3,4 @@ skip = ["*musllinux*"]
 
 [build-system]
 requires = ["setuptools", "pybind11", "numpy"]
+build-backend = "setuptools.build_meta"
