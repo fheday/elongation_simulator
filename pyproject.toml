@@ -1,6 +1,5 @@
 [tool.cibuildwheel]
-before-all = "python -m pip install build wheel pybind11 numpy"
-
+skip = ["*musllinux*"]
 
 [build-system]
 requires = ["setuptools", "pybind11", "numpy"]
