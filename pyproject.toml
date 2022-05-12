@@ -1,2 +1,6 @@
+[tool.cibuildwheel]
+before-all = "python -m pip install build wheel pybind11 numpy"
+
+
 [build-system]
 requires = ["setuptools", "pybind11", "numpy"]
