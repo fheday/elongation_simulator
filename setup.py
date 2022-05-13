@@ -70,6 +70,8 @@ CMDCLASS = {}
 if not WIN:
     CMDCLASS = {"build_ext": BuildExt}
 
+
+
 setup(
     name='elongation_simulators',
     version=VERSION,
@@ -96,6 +98,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python',
     ],
+   install_requires=['pybind11', 'pytest', 'numpy'],
    packages=["concentrations", "elongation"],
    cmdclass=CMDCLASS,
    ext_modules=ext_modules,

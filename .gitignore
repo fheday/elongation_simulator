@@ -1,14 +1,14 @@
 **/build*/
 **/__pycache__/
 **/.kdev4/
-##**.csv
 **/nbproject/
 **.a
 **.so
-.*
+.gitignore
+.cache
+.vs*
 **/dist/
 **/*.egg-info/
-!.gitignore
 **/x64/
 **/Debug/
 **/Release/
