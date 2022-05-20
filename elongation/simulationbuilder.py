@@ -409,13 +409,13 @@ class Gui():
         """
         This method should assemble the json and ask the user for a place to save the file.
         """
-        file_name = QFileDialog.getSaveFileName(self.window, 'Save simulation configuration', os.getcwd(), filter='*.json')
+        file_name = QFileDialog.getSaveFileName(self.window, 'Save simulation configuration', os.getcwd(), 'Simulation Files (*.json) ;;All files(*)', options=QFileDialog.DontUseNativeDialog)
         if file_name == "":
             return
         if file_name[0] and file_name[1].split('.')[1] in file_name[0].split(".")[-1]:
             file_name = file_name[0] # file name already has extension.
         else:
-            file_name = file_name[0] + '.' + file_name[1].split('.')[1]
+            file_name = file_name[0] + '.' + file_name[1].split('.')[1][:-1]
         selected_concentration_label = self.window.findChild(QLabel, "selected_concentration_label")
         pre_populate_check_box = self.window.findChild(QCheckBox, "pre_populate_check_box")
         history_size_spinbox = self.window.findChild(QSpinBox, "history_size_spinbox")
