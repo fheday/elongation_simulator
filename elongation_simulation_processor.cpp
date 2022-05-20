@@ -112,6 +112,7 @@ void Simulations::SimulationProcessor::calculateRibosomeCollisions() {
     for (auto ribosomes_positions:elongating_ribosomes) {
         std::vector<int> collision_entry;
         std::vector<int> stall_entry;
+        if (ribosomes_positions.size() == 0) continue;
         for (std::size_t i = 0; i < ribosomes_positions.size() - 1; i++) {
             if (ribosomes_positions[i + 1] - ribosomes_positions[i] == 10) {
                 // colliding ribosome: collision with the next ribosome detected.
