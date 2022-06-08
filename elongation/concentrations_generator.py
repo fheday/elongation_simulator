@@ -4,8 +4,8 @@
 Created on Wed Jan 02 11:32:41 2019
 
 Re-implementation of the R-code that calculates concentrations
-This script is intented to generate new concentrations (WC, wobble, near) with different interpretation
-of wobble and near cognates. it is intended to be use in GA algorithm.
+This script is intented to generate new concentrations (WC, wobble, near) with different
+interpretation of wobble and near cognates. it is intended to be use in GA algorithm.
 
 @author: heday
 """
@@ -16,7 +16,8 @@ import matplotlib.pyplot as plt
 
 def make_matrix(tRNAs, codons, verbose=False):
     """
-    Given a DataFrame with tRNA concentrations, and another DataFrame with codons information, generates a decoding matrix
+    Given a DataFrame with tRNA concentrations, and another DataFrame with codons information,
+    generates a decoding matrix
 
     TRNAs: DataFrame with the tRNAs: anticodon, gene.copy.number
     Codons: DataFrame with the codons to be used
@@ -61,14 +62,14 @@ def make_matrix(tRNAs, codons, verbose=False):
         codon_nt = codon[2] # third character
         tRNA_nt = tRNA[0] # first character
         return (codon_nt == "A" and tRNA_nt in ['A','I','M','?']) or \
-                (codon_nt == "C" and tRNA_nt in ['A','U','P','I','?']) or \
-                (codon_nt == "G" and tRNA_nt in ['A','U','&','3','1','~','N','S',')','{','V','P','Q','?','M']) or \
+                (codon_nt == "C" and tRNA_nt in ['A','U','P','I','?','Q']) or \
+                (codon_nt == "G" and tRNA_nt in ['A','U','&','3','1','~','N','S',')','{','V','P','?','M']) or \
                 (codon_nt == "U" and tRNA_nt in ['G','#','W','U','V','P','I','Q'])
 
     cognate_WC_matrix = np.zeros((len(tRNAs.anticodon), len(codons.codon)))
     cognate_wobble_matrix = np.zeros((len(tRNAs.anticodon), len(codons.codon)))
     nearcognate_matrix = np.zeros((len(tRNAs.anticodon), len(codons.codon)))
-    
+
     if verbose:
         print("Populating WC matrix...")
     # populate cognate WC matrix if WC criteria matched
@@ -81,19 +82,21 @@ def make_matrix(tRNAs, codons, verbose=False):
     if verbose:
         print("done.")
         print("Populating wobble matrix...")
-        
-    
+
+
     #populate cognate wobble matrix if wobble criteria matched, amino acid is correct, and WC matrix entry is 0
     #if incorrect amino acid, assign to near-cognates
 
     for n in range(len(tRNAs.anticodon)):
         for m in range(len(codons.codon)):
-            if cognate_WC_matrix[n,m] == 0 and second_WC(codons.codon[m],tRNAs.anticodon[n]) and\
-            first_WC(codons.codon[m],tRNAs.anticodon[n]) and third_wobble(codons.codon[m],tRNAs.anticodon[n]):
+            codon = codons.codon[m]
+            anticodon = tRNAs.anticodon[n]
+            if cognate_WC_matrix[n,m] == 0 and second_WC(codon, anticodon) and\
+               first_WC(codon, anticodon) and third_wobble(codon, anticodon):
                 if tRNAs["three.letter"][n] == codons["three.letter"][m]:
                     cognate_wobble_matrix[n,m] = 1
                 else:
-                    nearcognate_matrix[n,m] = 1  
+                    nearcognate_matrix[n,m] = 1
 
     if verbose:
         print('done.')
@@ -105,7 +108,8 @@ def make_matrix(tRNAs, codons, verbose=False):
 
     for n in range(len(tRNAs.anticodon)):
         for m in range(len(codons.codon)):
-            if (cognate_WC_matrix[n,m] == 0 and cognate_wobble_matrix[n,m] == 0 and second_WC(codons.codon[m],tRNAs.anticodon[n]) and \
+            if (cognate_WC_matrix[n,m] == 0 and cognate_wobble_matrix[n,m] == 0) and\
+                (second_WC(codons.codon[m],tRNAs.anticodon[n]) and \
                  (first_wobble(codons.codon[m],tRNAs.anticodon[n]) or first_WC(codons.codon[m],tRNAs.anticodon[n])) and\
                  (third_wobble(codons.codon[m],tRNAs.anticodon[n]) or third_WC(codons.codon[m],tRNAs.anticodon[n])) ):
                 nearcognate_matrix[n,m] = 1
@@ -119,12 +123,13 @@ def make_matrix(tRNAs, codons, verbose=False):
 
     testsum = cognate_WC_matrix + cognate_wobble_matrix + nearcognate_matrix
     if np.any(testsum>1):
-      print('Warning: multiple relationships for identical tRNA:codon pairs detected.')
-      return {}
+        print('Warning: multiple relationships for identical tRNA:codon pairs detected.')
+        return {}
     elif verbose:
-      print('No threesome errors detected.')
+        print('No threesome errors detected.')
 
-    return {"cognate.wc.matrix":cognate_WC_matrix, "cognate.wobble.matrix":cognate_wobble_matrix, "nearcognate.matrix":nearcognate_matrix}
+    return {"cognate.wc.matrix":cognate_WC_matrix, "cognate.wobble.matrix":cognate_wobble_matrix,
+            "nearcognate.matrix":nearcognate_matrix}
 
 def plot_matrix(matrices_dict, tRNAs, codons, save_fig = None):
     """
@@ -148,7 +153,7 @@ def plot_matrix(matrices_dict, tRNAs, codons, save_fig = None):
     if save_fig != None:
         plt.savefig(save_fig)
     plt.show()
-    
+
 
 def make_concentrations(matrices_dict, tRNAs, codons, concentration_col_name = 'gene.copy.number', total_tRNA=190):
     """
@@ -169,28 +174,32 @@ def make_concentrations(matrices_dict, tRNAs, codons, concentration_col_name = '
     tRNA_concentrations["WCcognate.conc"] = 0.0
     tRNA_concentrations["wobblecognate.conc"] = 0.0
     tRNA_concentrations["nearcognate.conc"] = 0.0
-    
+
     #calculate a conversion factor to convert the abundance factor to a molar concentration
     print('using: '+ concentration_col_name)
     conversion_factor = np.float64(total_tRNA / np.float64(tRNAs[concentration_col_name].sum()) * 1e-6)
-    
-    #go through the WCcognates matrix and for each entry of 1 add the abundance of the tRNA from the abundance table to the concentration table
+
+    # go through the WCcognates matrix and for each entry of 1 add the abundance of the tRNA from the abundance table
+    # to the concentration table
     for n in range(len(codons.codon)):
         for m in range(len(tRNAs.anticodon)):
             if WCcognate[m, n] == 1:
-                tRNA_concentrations.loc[n, "WCcognate.conc"] = tRNA_concentrations["WCcognate.conc"][n] + (tRNAs[concentration_col_name][m]*conversion_factor)
+                tRNA_concentrations.loc[n, "WCcognate.conc"] =\
+                    tRNA_concentrations["WCcognate.conc"][n] + (tRNAs[concentration_col_name][m]*conversion_factor)
     
     #ditto for wobblecognate
     for n in range(len(codons.codon)):
         for m in range(len(tRNAs.anticodon)):
             if wobblecognate[m, n] == 1:
-                tRNA_concentrations.loc[n, "wobblecognate.conc"] = tRNA_concentrations["wobblecognate.conc"][n] + (tRNAs[concentration_col_name][m]*conversion_factor)
+                tRNA_concentrations.loc[n, "wobblecognate.conc"] =\
+                    tRNA_concentrations["wobblecognate.conc"][n] + (tRNAs[concentration_col_name][m]*conversion_factor)
 
     #ditto for nearcognates
     for n in range(len(codons.codon)):
         for m in range(len(tRNAs.anticodon)):
             if nearcognate[m, n] == 1:
-                tRNA_concentrations.loc[n, "nearcognate.conc"] = tRNA_concentrations["nearcognate.conc"][n] + (tRNAs[concentration_col_name][m]*conversion_factor)
+                tRNA_concentrations.loc[n, "nearcognate.conc"] =\
+                    tRNA_concentrations["nearcognate.conc"][n] + (tRNAs[concentration_col_name][m]*conversion_factor)
     return tRNA_concentrations
 
 ##example of how to use:
