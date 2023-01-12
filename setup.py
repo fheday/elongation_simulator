@@ -1,3 +1,4 @@
+""" instaler """
 # -*- coding: utf-8 -*-
 # :Project:   elongation_simulators -- Packaging
 # :Author:    Fabio Hedayioglu <fheday@gmail.com>
@@ -7,15 +8,13 @@
 
 import os
 import sys
-from glob import glob
-from pathlib import Path
-from xml.etree.ElementInclude import include
+import sysconfig
 from setuptools import setup
+from pybind11.setup_helpers import Pybind11Extension, build_ext, ParallelCompile, naive_recompile # noqa:E402
 DIR = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(DIR, "pybind11"))
-from pybind11.setup_helpers import Pybind11Extension, build_ext, ParallelCompile, naive_recompile # noqa:E402
 del sys.path[-1]
-import sysconfig
+
 
 WIN = sys.platform.startswith("win32") and "mingw" not in sysconfig.get_platform()
 
@@ -23,6 +22,7 @@ WIN = sys.platform.startswith("win32") and "mingw" not in sysconfig.get_platform
 # cc1plus: warning: command line option ‘-Wstrict-prototypes’ is valid
 # for C/ObjC but not for C++
 class BuildExt(build_ext):
+    """ Class to remove warning on gcc."""
     def build_extensions(self):
         if '-Wstrict-prototypes' in self.compiler.compiler_so:
             self.compiler.compiler_so.remove('-Wstrict-prototypes')
@@ -32,12 +32,15 @@ EXTRA_COMPILE_ARGS = None
 if WIN:
     EXTRA_COMPILE_ARGS = ["/O2", "/Ot", "/GL", "/DCOMIPLE_PYTHON_MODULE", "/I./eigen-3.3.7/eigen3/"]
 else:
-    EXTRA_COMPILE_ARGS = ["-O3", "-ffast-math", "-march=native", "-ftree-vectorize", "-Wall", "-g2", "-flto", "-DCOMIPLE_PYTHON_MODULE"]
+    EXTRA_COMPILE_ARGS = ["-O3", "-ffast-math", "-march=native", "-ftree-vectorize", "-Wall",\
+                          "-g2", "-flto", "-DCOMIPLE_PYTHON_MODULE"]
 
 ext_modules = [
     Pybind11Extension(
         "translation",
-        ["concentrationsreader.cpp", "mrna_reader.cpp", "elongation_codon.cpp", "initiationterminationcodon.cpp", "mrnaelement.cpp", "translation.cpp", "ribosomesimulator.cpp", "elongation_simulation_manager.cpp", "elongation_simulation_processor.cpp", "./jsoncpp/jsoncpp.cpp"],
+        ["concentrationsreader.cpp", "mrna_reader.cpp", "elongation_codon.cpp", "initiationterminationcodon.cpp",\
+         "mrnaelement.cpp", "translation.cpp", "ribosomesimulator.cpp", "elongation_simulation_manager.cpp",\
+         "elongation_simulation_processor.cpp", "./jsoncpp/jsoncpp.cpp"],
         include_dirs=["./jsoncpp/", "./eigen-3.3.7/", "./pybind11/"],
         extra_compile_args=EXTRA_COMPILE_ARGS
     ),
