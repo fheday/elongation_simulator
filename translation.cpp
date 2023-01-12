@@ -938,10 +938,7 @@ Simulations::Translation::getLogCodonStates() {
       codons_vector.size());
   std::vector<int> state;
   std::vector<double> dt;
-  for (std::size_t i = 0; i < codons_vector.size(); i++) {
-    std::tie(state, dt) = codons_vector[i]->getHistory();
-    result[i] = std::tie(state, dt);
-  }
+  for (std::size_t i = 0; i < codons_vector.size(); i++) result[i] = codons_vector[i]->getHistory();
   return result;
 }
 
