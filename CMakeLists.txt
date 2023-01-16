@@ -3,7 +3,7 @@ project(gillespie CXX)
 
 #-fopt-info-vec-missed -g -fno-inline
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -ffast-math -march=native -ftree-vectorize -Wall -DNDEBUG -flto -g")
-set(CMAKE_CXX_FLAGS_DEFAULT "${CMAKE_CXX_FLAGS_DEFAULT} -O0 -g3 -Wall -Wextra -fsanitize=address -fsanitize=leak -fno-omit-frame-pointer -fsanitize=undefined")
+set(CMAKE_CXX_FLAGS_DEFAULT "${CMAKE_CXX_FLAGS_DEFAULT} -O0 -g3 -Wall -Wextra -fsanitize=leak -fno-omit-frame-pointer -fsanitize=undefined,address")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -Wall -Wextra")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC")
@@ -22,7 +22,7 @@ add_executable(run_translation run_translation.cpp)
 target_link_libraries(run_translation PRIVATE elongation_simulator_lib)
 
 ##python interface
-find_package(PythonInterp REQUIRED)
+set (PYTHON_EXECUTABLE "python3.10")
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories("eigen-3.3.7/")
 include_directories("jsoncpp/")
