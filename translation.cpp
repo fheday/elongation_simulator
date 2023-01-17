@@ -62,6 +62,10 @@ PYBIND11_MODULE(translation, mod) {
         Loads a csv file containing the concentrations to be used in this simulation.
         file_name: string with the path to the file containing the concentrations.
       )docstr")
+      .def("loadConcentrationsFromString", &Simulations::Translation::loadConcentrationsFromString, R"docstr(
+        Loads a csv string containing the concentrations to be used in this simulation.
+        data: string containing the concentrations. this could be the content of the csv concentrations file.
+      )docstr")
       .def("setInitiationRate", &Simulations::Translation::setInitiationRate, R"docstr(
         Sets the initiation rate in initations/sec.
         init_rate: float with the initiation rate.
