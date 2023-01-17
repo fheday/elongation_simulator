@@ -21,6 +21,7 @@ class ElongationCodon : public mRNAElement {
   ElongationCodon();
   void setCodon(const std::string&);
   void loadConcentrations(const std::string&);
+  void loadConcentrationsFromString(const std::string&);
   void executeReaction(int) override;
   int getState() override;
   void setState(int) override;

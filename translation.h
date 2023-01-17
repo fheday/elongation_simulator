@@ -24,6 +24,7 @@ class Translation {
 
   void inputMRNA(std::string); // get mRNA informed by the user
   void loadConcentrations(const std::string&);
+  void loadConcentrationsFromString(const std::string&);
 
   void setInitiationRate(double);
   void setTerminationRate(double);
@@ -75,6 +76,8 @@ class Translation {
   std::string gene_name;
   std::string mrna_input = "";
   std::string concentrations_file_name;
+  std::string concentrations_string;
+  std::string concentrations_source = "None";
 
   std::vector<double> dt_history;
   std::vector<std::vector<int>> ribosome_positions_history;

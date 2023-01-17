@@ -18,6 +18,7 @@
 #include "initiationterminationcodon.h"
 #include "mrna_reader.h"
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include <list>
 #include <random>
@@ -237,9 +238,17 @@ void Simulations::Translation::loadConcentrations(
     throw std::runtime_error("can't open input file: " + file_name);
   } else {
     concentrations_file_name = file_name;
+    concentrations_source = "file_name";
     initializeMRNAReader();
   }
 }
+
+void Simulations::Translation::loadConcentrationsFromString(const std::string & data) {
+  concentrations_string = data;
+  concentrations_source = "string";
+	initializeMRNAReader();
+}
+
 
 void Simulations::Translation::loadMRNA(const std::string &file_name) {
   std::ifstream ist{file_name};
@@ -271,7 +280,7 @@ void Simulations::Translation::inputMRNA(std::string user_mRNA) {
 
 
 void Simulations::Translation::initializeMRNAReader() {
-  if (!concentrations_file_name.empty() && (!mrna_file_name.empty() || !mrna_input.empty() ) &&
+  if (concentrations_source != "None" && (!mrna_file_name.empty() || !mrna_input.empty() ) &&
       is_initiation_set && is_termination_set) {
     // we have the concentrations and mrna file names. we can proceed.
     mRNA_utils::mRNAReader mrr;
@@ -302,7 +311,12 @@ void Simulations::Translation::initializeMRNAReader() {
       }
       std::unique_ptr<Simulations::ElongationCodon> c(
           new Simulations::ElongationCodon());
-      c->loadConcentrations(concentrations_file_name);
+      if (concentrations_source == "file_name"){
+        c->loadConcentrations(concentrations_file_name);
+      } else if (concentrations_source == "string") {
+        c->loadConcentrationsFromString(concentrations_string);
+      }
+      
       c->codon = mrr.getCodon(i);
       c->setCodon(c->codon);
       c->index = i;

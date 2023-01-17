@@ -27,11 +27,13 @@ class ConcentrationsReader {
  public:
   ConcentrationsReader();
   void loadConcentrations(const std::string&);
+  void loadConcentrationsFromString(const std::string&);
   void getContents(std::vector<concentration_entry>&);
   void getCodonsVector(std::vector<std::string>&);
 
  private:
   std::vector<concentration_entry> contents;
+  void readConcentratonsStream(std::istream&);
 };
 }  // namespace csv_utils
 #endif  // CONCENTRATIONS_READER_H

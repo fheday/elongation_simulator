@@ -36,6 +36,7 @@ class RibosomeSimulator {
 
   std::map<std::string, double> getPropensities();
   void loadConcentrations(const std::string&);
+  void loadConcentrationsFromString(const std::string&);
   void setCodonForSimulation(const std::string&);
   void run_and_get_times(double&, double&);
   double run_repeatedly_get_average_time(const int);
