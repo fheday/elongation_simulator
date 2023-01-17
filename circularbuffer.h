@@ -14,7 +14,9 @@
 #ifndef CIRCULARQUEUE_H_
 #define CIRCULARQUEUE_H_
 
+#include <cstddef>
 #include <memory>
+#include <vector>
 namespace utils
 {
 
@@ -116,7 +118,7 @@ namespace utils
     const size_t max_size_;
     bool full_ = 0;
 
-    int fast_mod(const int input, const int ceil) {
+    size_t fast_mod(const size_t input, const size_t ceil) {
       // get the modulus to be put into the buffer.
       // input has to be positive and to greater than ceil.
       return input < ceil ? input : input - ceil;
