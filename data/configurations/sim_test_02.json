@@ -1,135 +1,135 @@
 {
-    "concentration_file": "../../../RSim/data/concentrations.csv",
+    "concentration_file": "../../../rSim/data/concentrations.csv",
     "pre_populate": 0,
     "mRNA_entries": [
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL001C",
             "initiation_rate": 0.2154329023064577,
             "termination_rate": 10.0,
             "transcript_copy_number": 4.5748826822239215
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL002W",
             "initiation_rate": 0.09514953185201884,
             "termination_rate": 10.0,
             "transcript_copy_number": 3.4008593956858126
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL003W",
             "initiation_rate": 2.808042992925658,
             "termination_rate": 10.0,
             "transcript_copy_number": 117.12649114831306
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL005C",
             "initiation_rate": 0.0,
             "termination_rate": 10.0,
             "transcript_copy_number": 46.59278180819215
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL007C",
             "initiation_rate": 0.6743205952990898,
             "termination_rate": 10.0,
             "transcript_copy_number": 8.743500440522217
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL008W",
             "initiation_rate": 1.1747337607652857,
             "termination_rate": 10.0,
             "transcript_copy_number": 2.0358152806345093
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL009W",
             "initiation_rate": 0.3721681442743443,
             "termination_rate": 10.0,
             "transcript_copy_number": 2.283805139523944
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL010C",
             "initiation_rate": 0.5751902380783647,
             "termination_rate": 10.0,
             "transcript_copy_number": 1.9460999389449092
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL011W",
             "initiation_rate": 0.3225249102645953,
             "termination_rate": 10.0,
             "transcript_copy_number": 2.1264098112282053
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL012W",
             "initiation_rate": 1.3902447184711295,
             "termination_rate": 10.0,
             "transcript_copy_number": 26.00494089214123
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL013W",
             "initiation_rate": 0.7298960396622051,
             "termination_rate": 10.0,
             "transcript_copy_number": 2.978069539423594
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL014C",
             "initiation_rate": 0.35694734139399675,
             "termination_rate": 10.0,
             "transcript_copy_number": 2.943713707607156
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL015C",
             "initiation_rate": 0.4447596657036942,
             "termination_rate": 10.0,
             "transcript_copy_number": 2.3996130091556167
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL016W",
             "initiation_rate": 0.7988189573203942,
             "termination_rate": 10.0,
             "transcript_copy_number": 12.327135682446167
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL017W",
             "initiation_rate": 0.26250030813645553,
             "termination_rate": 10.0,
             "transcript_copy_number": 5.4415462409526905
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL018C",
             "initiation_rate": 1.1242319173622863,
             "termination_rate": 10.0,
             "transcript_copy_number": 0.023552614479173062
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL019W",
             "initiation_rate": 0.0,
             "termination_rate": 10.0,
             "transcript_copy_number": 7.665040692561605
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL020C",
             "initiation_rate": 0.6726033765125892,
             "termination_rate": 10.0,
             "transcript_copy_number": 2.6149421432521502
         },
         {
-            "fasta_file": "../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL021C",
             "initiation_rate": 0.5831518888157773,
             "termination_rate": 10.0,
