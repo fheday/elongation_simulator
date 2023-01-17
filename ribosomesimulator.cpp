@@ -146,6 +146,11 @@ void Simulations::RibosomeSimulator::loadConcentrations(
   buildReactionsMap();
 }
 
+void Simulations::RibosomeSimulator::loadConcentrationsFromString(const std::string& data) {
+  concentrations_reader.loadConcentrationsFromString(data);
+  buildReactionsMap();
+}
+
 void Simulations::RibosomeSimulator::buildReactionsMap()
 {
   std::vector<csv_utils::concentration_entry> codons_concentrations;

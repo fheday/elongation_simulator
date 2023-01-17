@@ -23,11 +23,21 @@ csv_utils::ConcentrationsReader::ConcentrationsReader() { contents.clear(); }
 
 void csv_utils::ConcentrationsReader::loadConcentrations(
     const std::string& file_name) {
-  std::ifstream ist{file_name};
+  std::filebuf fb;
+	if (!fb.open (file_name,std::ios::in)) {
+		throw std::runtime_error("can't open input file: " + file_name);
+	}
+	std::istream ist(&fb);
+	readConcentratonsStream(ist);
+	fb.close();
+}
 
-  if (!ist) {
-    throw std::runtime_error("can't open input file: " + file_name);
-  }
+void csv_utils::ConcentrationsReader::loadConcentrationsFromString(const std::string& data) {
+  std::istringstream ifs (data);
+	readConcentratonsStream(ifs);
+}
+
+void csv_utils::ConcentrationsReader::readConcentratonsStream(std::istream& inputStream){
   contents.clear();
   std::string codon;
   std::string three_letter;
@@ -43,10 +53,10 @@ void csv_utils::ConcentrationsReader::loadConcentrations(
   std::vector<std::string> stop_codons = {"UAG", "UAA",
                                           "UGA"};  // list of stop codons.
   bool header = true;
-  while (ist.good()) {
+  while (inputStream.good()) {
     if (header){
       // get the indexes of the columns of interest.
-      std::getline(ist,tmp_str);
+      std::getline(inputStream,tmp_str);
       // make header all lowercase.
       transform(tmp_str.begin(), tmp_str.end(), tmp_str.begin(), ::tolower);
       //remove \r, \n and non-printable characters from the header.
@@ -79,7 +89,7 @@ void csv_utils::ConcentrationsReader::loadConcentrations(
 
       header = false;
     } else {
-      std::getline(ist,tmp_str);
+      std::getline(inputStream,tmp_str);
       std::stringstream ss(tmp_str);
       int curr_index = 0;
       while (std::getline(ss, tmp_str, ',')) {

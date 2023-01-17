@@ -26,6 +26,10 @@ void Simulations::ElongationCodon::loadConcentrations(
   }
 }
 
+void Simulations::ElongationCodon::loadConcentrationsFromString(const std::string& data) {
+  ribosome.loadConcentrationsFromString(data);
+}
+
 void Simulations::ElongationCodon::setPropensities(
     std::map<std::string, double> prop) {
   ribosome.setPropensities(prop);
