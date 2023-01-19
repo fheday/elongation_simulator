@@ -23,7 +23,7 @@ TEST(ElongationSimulatorTester, openjsonconfig_file02)
     std::string conf_file_path = "../../data/configurations/sim_test_02.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
     ASSERT_EQ(sim_man.get_configuration_file_path(), conf_file_path);
-    ASSERT_TRUE(sim_man.get_concentration_file_path().find("data/configurations/../../../RSim/data/concentrations.csv") != std::string::npos);
+    ASSERT_TRUE(sim_man.get_concentration_file_path().find("../../rSim/data/concentrations.csv") != std::string::npos);
     ASSERT_EQ(sim_man.get_pre_populate(), false);
     ASSERT_EQ(sim_man.get_stop_condition_type(), Elongation_manager::stop_condition_enum::TIME);
     ASSERT_EQ(sim_man.get_stop_condition_value(), 60.0);
@@ -96,7 +96,7 @@ TEST(ElongationSimulatorTester, openjsonconfig_file02)
     int i = 0;
     for (auto [fasta_file_path, gene_name, initiation_rate, termination_rate, gene_copy_number] : simulations_configurations)
     {
-        ASSERT_TRUE(fasta_file_path.find("data/configurations/../mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa") != std::string::npos);
+        ASSERT_TRUE(fasta_file_path.find("Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa") != std::string::npos);
         ASSERT_EQ(gene_name, genes[i]);
         ASSERT_EQ(initiation_rate, init_rates[i]);
         ASSERT_EQ(termination_rate, 10);
