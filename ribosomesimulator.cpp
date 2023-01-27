@@ -40,6 +40,11 @@ PYBIND11_MODULE(ribosomesimulator, mod)
              
              file_name: string with the path to the file containing the concentrations.
              )docstr")
+      .def("loadConcentrationsFromString",
+           &Simulations::RibosomeSimulator::loadConcentrationsFromString, py::arg("string"),R"docstr(
+             Loads a string similar to the csv file containing the concentrations to be used in this simulation.
+             string: string with the csv values of the concentrations.
+             )docstr")
       .def("setCodonForSimulation",
            &Simulations::RibosomeSimulator::setCodonForSimulation, R"docstr(
              Select the codon to be simulated. A simulator can simulate the decoding of only one codon.
