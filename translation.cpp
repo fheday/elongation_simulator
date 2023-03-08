@@ -122,7 +122,7 @@ PYBIND11_MODULE(translation, mod) {
            )docstr")
       .def("getElongationDuration",
            &Simulations::Translation::getElongationDuration, R"docstr(
-             Alanysises the simulation log (dt_history and ribosome_positions_history) and calculates the times (in seconds) each ribosome takes from initiation to termination.
+             Analysis the simulation log (dt_history and ribosome_positions_history) and calculates the times (in seconds) each ribosome takes from initiation to termination.
              returns two lists: 
              the first list contains the durations
              the second contains the indexes in dt_history and ribosome_positions_history when the ribosome initiated
