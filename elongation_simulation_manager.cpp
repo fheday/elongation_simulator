@@ -9,6 +9,7 @@
  */
 
 #include "elongation_simulation_manager.h"
+#include <string>
 #include <thread>
 #include <numeric>
 #include <iostream>
@@ -283,6 +284,7 @@ bool Elongation_manager::SimulationManager::start(bool verbose, unsigned int n_t
     ts.setPrepopulate(pre_populate); // simulations pre-populate the mRNA
                                      // by default. This can be changed in
                                      // the future.
+    ts.setHistorySize(log_size); // update history size
     
     if (!reactions_modifiers.empty()) {
       //modify reactions
@@ -321,9 +323,6 @@ bool Elongation_manager::SimulationManager::start(bool verbose, unsigned int n_t
       //   }
       //   i++;
       // }
-
-    
-    ts.setHistorySize(log_size);
 
     }
     //execute simulation.
