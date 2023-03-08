@@ -1,5 +1,5 @@
 {
-    "concentration_file": "../../../rSim/data/concentrations.csv",
+    "concentration_file": "../../concentrations/Saccharomyces_cerevisiae.csv",
     "pre_populate": 0,
     "mRNA_entries": [
         {
