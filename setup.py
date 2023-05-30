@@ -104,7 +104,7 @@ setup(
     ],
    install_requires=['pybind11', 'pytest', 'numpy'],
    packages=["concentrations", "elongation"],
-   package_dir={"concentrations":"concentrations/", "elongation":"elongation/"},
+   package_dir={"concentrations":"concentrations", "elongation":"elongation"},
    cmdclass=CMDCLASS,
    ext_modules=ext_modules,
    zip_safe=False,
