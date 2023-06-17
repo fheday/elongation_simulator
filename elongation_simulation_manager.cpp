@@ -14,7 +14,7 @@
 #include <numeric>
 #include <iostream>
 #include <fstream>
-#include "json/json.h"
+#include "jsoncpp/json/json.h"
 #include "elongation_simulation_processor.h"
 #include "threadPool.h"
 
