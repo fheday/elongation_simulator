@@ -79,6 +79,10 @@ class Translation {
   std::string concentrations_string;
   std::string concentrations_source = "None";
 
+  std::string saccharomyces_cerevisiae_concentrations = 
+    "concentrations/Saccharomyces_cerevisiae.csv";
+
+
   std::vector<double> dt_history;
   std::vector<std::vector<int>> ribosome_positions_history;
 

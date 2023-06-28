@@ -226,7 +226,23 @@ PYBIND11_MODULE(translation, mod) {
            }
           , R"docstr(
             Attribute: vector with the positions of stalling ribosomes. By definition a stalled ribosome can move forward but is blocking another ribosome to move forward.
-          )docstr");
+          )docstr")
+          .def_property_readonly("saccharomyces_cerevisiae_concentrations",
+                             [](py::object) {
+                               py::object conc_path = py::module::import("concentrations"); // load module
+                               std::string file_name = "/Saccharomyces_cerevisiae.csv";     // file name
+                               std::string conc_path_string;
+                               for (auto item : conc_path.attr("__path__"))
+                               { // iterate the path list
+                                 //cast to string and concatenate with file to form proper path.
+                                 conc_path_string = std::string(item.cast<py::str>());
+                                 break;
+                               }
+                               return conc_path_string + file_name;
+                             }, R"docstr(
+                               This attribute can be use as a parameter when setting the concentrations file to the saccharomyces cerevisiae.
+                               E.g: sim.loadConcentrations(sim.saccharomyces_cerevisiae_concentrations)
+                             )docstr");;
 
     init_simulation_manager(mod); //include simulation manager to package
     init_simulation_processor(mod); //include simulation processor to package
