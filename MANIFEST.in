@@ -13,3 +13,4 @@ include concentrations/*.csv
 include elongation/simulationbuilder.py
 include elongation/utils.py
 include concentrations/concentrations_generator.py
+include concentrations/default_basepairing.json
