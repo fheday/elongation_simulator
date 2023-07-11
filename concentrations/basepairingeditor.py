@@ -223,7 +223,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         pairings = Pairing_relationship.load_all_dict(sys.argv[1])
     else:
-        pairings = Pairing_relationship.load_all_dict("concentrations/default_basepairing.json")
+        raise ValueError("Base pairing file not informed.")
     window = Window(pairings)
     window.resize(int(window.width()*1.5), int(window.height()*2.5))
     sys.exit(app.exec_())
