@@ -10,12 +10,14 @@ interpretation of wobble and near cognates. it is intended to be use in GA algor
 @author: heday
 """
 
+from importlib import resources
 import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import concentrations
 
-def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, settings_file="default_basepairing.json"):
+def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, settings_file_name="default_basepairing.json"):
     """
     Given a DataFrame with tRNA concentrations, and another DataFrame with codons information,
     generates a decoding matrix
@@ -26,8 +28,13 @@ def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, setti
     settings_file: json file with the basepairing rules.
     """
     # open file with basepairing rules
-    with open(settings_file, "r") as file:
-        basepairing_rules = json.load(file)
+    if settings_file_name == "default_basepairing.json":
+        with resources.path(concentrations, settings_file_name) as re:
+            with open(re, "r") as file:
+                basepairing_rules = json.load(file)
+    else:
+        with open(settings_file_name, "r") as file:
+                basepairing_rules = json.load(file)
     # sanity checks
     if "Watson-Crick" not in basepairing_rules.keys():
         raise ValueError("settings file does not contain Watson-Crick pariring rules")
@@ -181,7 +188,7 @@ def make_concentrations(matrices_dict: dict, t_rnas: pd.DataFrame, codons: pd.Da
     nearcognate = matrices_dict["nearcognate.matrix"]
 
     # construct empty results dataframe
-    trna_concentrations = pd.DataFrame(codons[[codons.columns[0],codons.columns[3]]])
+    trna_concentrations = pd.DataFrame(codons[[codons.columns[0]]])
     trna_concentrations["WCcognate.conc"] = 0.0
     trna_concentrations["wobblecognate.conc"] = 0.0
     trna_concentrations["nearcognate.conc"] = 0.0
