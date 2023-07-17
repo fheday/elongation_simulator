@@ -1,4 +1,4 @@
-import sys, json
+import sys, os, json
 from dataclasses import dataclass
 from typing import Iterable, Callable
 from PyQt5.QtWidgets import (
@@ -32,17 +32,38 @@ class Pairing_relationship:
             for codon in data[pairing_type][str(codon_position)]:
                 result.append(cls(codon, data[pairing_type][str(codon_position)][codon]))
             return result
+    
+    @classmethod
+    def convert_one_position_from_dict(cls, data: dict, pairing_type: str, codon_position: int) -> list['Pairing_relationship']:
+        result = []
+        for codon in data[pairing_type][str(codon_position)]:
+            result.append(cls(codon, data[pairing_type][str(codon_position)][codon]))
+        return result
+
 
     @classmethod
     def load_all_dict(cls, json_file_name: str):
         result = {}
-        with open(json_file_name) as json_file:
-            data = json.load(json_file)
+        if os.path.isfile(json_file_name) and os.path.exists(json_file_name):
+            # this is an existing file. Edit:
+            with open(json_file_name) as json_file:
+                data = json.load(json_file)
+                for pairing in data.keys():
+                    result[pairing] = {}
+                    for codon_position in data[pairing].keys():
+                        result[pairing][codon_position] = cls.load_dict_one_position(json_file_name, pairing, codon_position)
+        else:
+            # need to create a new file.
+            data = {"Watson-Crick": {"1": {"A": ["U"], "C": ["G"], "G": ["C"], "U": ["A"]}, "2": {"A": ["U"], "C": ["G"], "G": ["C"], "U": ["A"]},
+                                       "3": {"A": ["U", "&", "3", "1", "~", "N", "S", ")", "{", "V", "}", "P"],
+                                             "C": ["G", "#", "W"], "G": ["C", "B"], "U": ["A"]} },
+                      "Wobble": {"1": {"A": [], "C": [], "G": [], "U": []},
+                                 "3": {"A": [], "C": [],"G": [], "U": []}}}
             for pairing in data.keys():
-                result[pairing] = {}
-                for codon_position in data[pairing].keys():
-                    result[pairing][codon_position] = cls.load_dict_one_position(json_file_name, pairing, codon_position)
-            return result
+                    result[pairing] = {}
+                    for codon_position in data[pairing].keys():
+                        result[pairing][codon_position] = cls.convert_one_position_from_dict(data, pairing, codon_position)
+        return result
 
 
 
