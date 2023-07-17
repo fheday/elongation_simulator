@@ -69,9 +69,9 @@ class Pairing_relationship:
 
 class Window(QMainWindow):
 
-    def __init__(self, pairings):
+    def __init__(self, pairings, display_file_name):
         super().__init__()
-        self.setWindowTitle("Base pairing editor")
+        self.setWindowTitle("Base pairing editor: " + display_file_name)
         widget = QWidget()
         layout = QGridLayout()
 
@@ -241,10 +241,11 @@ class EditPairingDialog(QDialog):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     pairings = None
+    file_name = sys.argv[1]
     if len(sys.argv) > 1:
-        pairings = Pairing_relationship.load_all_dict(sys.argv[1])
+        pairings = Pairing_relationship.load_all_dict(file_name)
     else:
         raise ValueError("Base pairing file not informed.")
-    window = Window(pairings)
+    window = Window(pairings, os.path.basename(file_name))
     window.resize(int(window.width()*1.5), int(window.height()*2.5))
     sys.exit(app.exec_())
