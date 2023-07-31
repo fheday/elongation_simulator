@@ -17,6 +17,36 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import concentrations
 
+def identify_3_base_pairing(codon: str, trna: str, basepairing_rules) -> [str]:
+    result = []
+    for i, c in enumerate(codon):
+        anticodon = trna[2 - i]
+        if anticodon in basepairing_rules["Watson-Crick"][c]:
+            result.append("WC")
+        elif anticodon in basepairing_rules["Wobble"][c]:
+            result.append("Wo")
+        else:
+            result.append("X")
+    return result
+
+def is_near_cognate(pairing_id:[str], near_cognate_rules:[str]) -> bool:
+    for pairing_candidate in near_cognate_rules:
+        matches = 0
+        for i, pairing_type in enumerate(pairing_id):
+            if pairing_candidate[i].upper() == 'X':
+                # doesn't matter, it is always a match.
+                matches += 1
+            elif pairing_type.upper() == pairing_candidate[i].upper():
+                # match.
+                matches += 1
+            elif pairing_type.upper() == 'WC' and pairing_candidate[i].upper() == 'WO':
+                # this is also a match.
+                matches += 1
+        if matches == 3:
+            return True
+    return False
+
+
 def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, settings_file_name="default_basepairing.json"):
     """
     Given a DataFrame with tRNA concentrations, and another DataFrame with codons information,
@@ -40,16 +70,22 @@ def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, setti
         raise ValueError("settings file does not contain Watson-Crick pariring rules")
     elif "Wobble" not in basepairing_rules.keys():
         raise ValueError("settings file does not contain Wobble pariring rules")
-    elif "1" not in basepairing_rules["Watson-Crick"]:
-        raise ValueError("settings file does not rules for Watson-Crick 1st basepairing")
-    elif "2" not in basepairing_rules["Watson-Crick"]:
-        raise ValueError("settings file does not rules for Watson-Crick 2nd basepairing")
-    elif "3" not in basepairing_rules["Watson-Crick"]:
-        raise ValueError("settings file does not rules for Watson-Crick 3rd basepairing")
-    elif "1" not in basepairing_rules["Wobble"]:
-        raise ValueError("settings file does not rules for Wobble 1st basepairing")
-    elif "3" not in basepairing_rules["Wobble"]:
-        raise ValueError("settings file does not rules for Wobble 3rd basepairing")
+    elif "A" not in basepairing_rules["Watson-Crick"]:
+        raise ValueError("settings file does not rules for Watson-Crick A basepairing")
+    elif "C" not in basepairing_rules["Watson-Crick"]:
+        raise ValueError("settings file does not rules for Watson-Crick C basepairing")
+    elif "G" not in basepairing_rules["Watson-Crick"]:
+        raise ValueError("settings file does not rules for Watson-Crick G basepairing")
+    elif "U" not in basepairing_rules["Watson-Crick"]:
+        raise ValueError("settings file does not rules for Watson-Crick U basepairing")
+    elif "A" not in basepairing_rules["Wobble"]:
+        raise ValueError("settings file does not rules for Wobble A basepairing")
+    elif "C" not in basepairing_rules["Wobble"]:
+        raise ValueError("settings file does not rules for Wobble C basepairing")
+    elif "G" not in basepairing_rules["Wobble"]:
+        raise ValueError("settings file does not rules for Wobble G basepairing")
+    elif "U" not in basepairing_rules["Wobble"]:
+        raise ValueError("settings file does not rules for Wobble U basepairing")
     # settings seems fine. Proceed.
 
     # check if tRNAs have 'anticodon' column
@@ -61,30 +97,7 @@ def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, setti
         print('Codon list must contain a column named "codon".')
         return
 
-    def first_wc(codon, trna):
-        codon_nt = codon[0] # first character
-        trna_nt = trna[2] # third character
-        return trna_nt in basepairing_rules["Watson-Crick"]["1"][codon_nt]
 
-    def second_wc(codon, trna):
-        codon_nt = codon[1] # second character
-        trna_nt = trna[1] # second character
-        return trna_nt in basepairing_rules["Watson-Crick"]["2"][codon_nt]
-
-    def third_wc(codon, trna):
-        codon_nt = codon[2] # third character
-        trna_nt = trna[0] # first character
-        return trna_nt in basepairing_rules["Watson-Crick"]["3"][codon_nt]
-
-    def first_wobble(codon, trna):
-        codon_nt = codon[0] # first character
-        trna_nt = trna[2] # third character
-        return trna_nt in basepairing_rules["Wobble"]["1"][codon_nt]
-
-    def third_wobble(codon, trna):
-        codon_nt = codon[2] # third character
-        trna_nt = trna[0] # first character
-        return trna_nt in basepairing_rules["Wobble"]["3"][codon_nt]
 
     cognate_wc_matrix = np.zeros((len(t_rnas.anticodon), len(codons.codon)))
     cognate_wobble_matrix = np.zeros((len(t_rnas.anticodon), len(codons.codon)))
@@ -95,8 +108,9 @@ def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, setti
     # populate cognate WC matrix if WC criteria matched
     for anticodon_index, anticodon in enumerate(t_rnas.anticodon):
         for codon_index, codon in enumerate(codons.codon):
-            if second_wc(codon, anticodon) and first_wc(codon, anticodon) and third_wc(codon, anticodon):
+            if identify_3_base_pairing(codon, anticodon, basepairing_rules) == ["WC", "WC", "WC"]:
                 cognate_wc_matrix[anticodon_index, codon_index] = 1
+
     if verbose:
         print("done.")
         print("Populating wobble matrix...")
@@ -104,11 +118,10 @@ def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, setti
 
     #populate cognate wobble matrix if wobble criteria matched, amino acid is correct, and WC matrix entry is 0
     #if incorrect amino acid, assign to near-cognates
-
     for anticodon_index, anticodon in enumerate(t_rnas.anticodon):
         for codon_index, codon in enumerate(codons.codon):
-            if cognate_wc_matrix[anticodon_index,codon_index] == 0 and second_wc(codon, anticodon) and\
-               first_wc(codon, anticodon) and third_wobble(codon, anticodon):
+            if cognate_wc_matrix[anticodon_index,codon_index] == 0 and\
+               identify_3_base_pairing(codon, anticodon, basepairing_rules) == ["WC", "WC", "Wo"]:
                 if t_rnas["three.letter"][anticodon_index] == codons["three.letter"][codon_index]:
                     cognate_wobble_matrix[anticodon_index,codon_index] = 1
                 else:
@@ -126,12 +139,8 @@ def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, setti
         for codon_index, _ in enumerate(codons.codon):
             if (cognate_wc_matrix[anticodon_index,codon_index] == 0 and\
                 cognate_wobble_matrix[anticodon_index,codon_index] == 0) and\
-                (second_wc(codons.codon[codon_index],t_rnas.anticodon[anticodon_index]) and \
-                 (first_wobble(codons.codon[codon_index],t_rnas.anticodon[anticodon_index]) or\
-                     first_wc(codons.codon[codon_index],t_rnas.anticodon[anticodon_index])) and\
-                 (third_wobble(codons.codon[codon_index],t_rnas.anticodon[anticodon_index]) or\
-                     third_wc(codons.codon[codon_index],t_rnas.anticodon[anticodon_index])) ):
-                nearcognate_matrix[anticodon_index,codon_index] = 1
+                is_near_cognate(identify_3_base_pairing(codons.codon[codon_index], t_rnas.anticodon[anticodon_index], basepairing_rules), basepairing_rules["Pairing Rules"]["Near-Cognate"]["base-level"]):
+                    nearcognate_matrix[anticodon_index,codon_index] = 1
 
     if verbose:
         print('done.')
