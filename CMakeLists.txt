@@ -22,7 +22,7 @@ add_executable(run_translation run_translation.cpp)
 target_link_libraries(run_translation PRIVATE elongation_simulator_lib)
 
 ##python interface
-set (PYTHON_EXECUTABLE "python3.10")
+# set (PYTHON_EXECUTABLE "python3.10")
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories("eigen-3.3.7/")
 include_directories("jsoncpp/")
