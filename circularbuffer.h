@@ -72,8 +72,9 @@ namespace utils
 
     std::vector<T> get_vector(const bool inverted) {
       std::size_t size_ = size();
-      std::vector<T> result(size_);
-      for (std::size_t i = 0; i < result.size(); i++) {
+      std::vector<T> result;
+      result.resize(size_);
+      for (std::size_t i = 0; i < size_; i++) {
         std::size_t ind = inverted ? size_ - 1 - i: i;
         result[ind] = buf_[fast_mod((tail_ + i) , max_size_)];
       }

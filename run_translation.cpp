@@ -8,7 +8,6 @@
  *
  */
 
-#include "concentrationsreader.h"
 #include "translation.h"
 #include <execinfo.h>
 #include <fstream>
