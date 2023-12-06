@@ -1,5 +1,5 @@
 [tool.cibuildwheel]
-skip = ["*musllinux*", "*pp*win*", pp*manylinux*]
+skip = ["*musllinux*", "*pp*win*", "pp*manylinux*"]
 
 [build-system]
 requires = ["setuptools", "pybind11", "numpy"]
