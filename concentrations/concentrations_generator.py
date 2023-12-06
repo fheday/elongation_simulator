@@ -17,7 +17,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import concentrations
 
-def identify_3_base_pairing(codon: str, trna: str, basepairing_rules) -> [str]:
+def identify_3_base_pairing(codon: str, trna: str, basepairing_rules:dict) -> [str]:
     result = []
     for i, c in enumerate(codon):
         anticodon = trna[2 - i]
@@ -29,17 +29,17 @@ def identify_3_base_pairing(codon: str, trna: str, basepairing_rules) -> [str]:
             result.append("X")
     return result
 
-def is_near_cognate(pairing_id:[str], near_cognate_rules:[str]) -> bool:
-    for pairing_candidate in near_cognate_rules:
+def is_near_cognate(pairing_id:[str], near_cognate_rules:[[str]]) -> bool:
+    for partial_rule in near_cognate_rules:
         matches = 0
         for i, pairing_type in enumerate(pairing_id):
-            if pairing_candidate[i].upper() == 'X':
+            if partial_rule[i].upper() == 'X':
                 # doesn't matter, it is always a match.
                 matches += 1
-            elif pairing_type.upper() == pairing_candidate[i].upper():
+            elif pairing_type.upper() == partial_rule[i].upper():
                 # match.
                 matches += 1
-            elif pairing_type.upper() == 'WC' and pairing_candidate[i].upper() == 'WO':
+            elif pairing_type.upper() == 'WC' and partial_rule[i].upper() == 'WO':
                 # this is also a match.
                 matches += 1
         if matches == 3:
@@ -163,7 +163,6 @@ def plot_matrix(matrices_dict: dict, t_rnas: pd.DataFrame, codons: pd.DataFrame,
     """
     Plots the pairing matrices.
     """
-
     colours=['g', 'y', 'r']
     labels = list(matrices_dict.keys())
     i = 0
@@ -181,8 +180,17 @@ def plot_matrix(matrices_dict: dict, t_rnas: pd.DataFrame, codons: pd.DataFrame,
         plt.savefig(save_fig)
     plt.show()
 
+def print_codon_anticodon_pairings(matrices_dict: dict, t_rnas: pd.DataFrame, codons: pd.DataFrame):
+    """
+    prints the pairing of all codons with all anticodons.
+    """
+    for k in matrices_dict.keys():
+        print(" Pairings for: " + k)
+        matches_dict = np.argwhere(matrices_dict[k] == 1)
+        for anticodon, c in matches_dict:
+            print (codons.codon[c] + " - " + t_rnas.anticodon[anticodon])
 
-def make_concentrations(matrices_dict: dict, t_rnas: pd.DataFrame, codons: pd.DataFrame, concentration_col_name = 'gene.copy.number', total_trna=190):
+def make_concentrations(matrices_dict: dict, t_rnas: pd.DataFrame, codons: pd.DataFrame, concentration_col_name = 'gene.copy.number', total_trna=190, verbose=False):
     """
     Given a tRNA matrix, and the decoding matrix, generates a concentrations DataFrame.
 
@@ -203,7 +211,8 @@ def make_concentrations(matrices_dict: dict, t_rnas: pd.DataFrame, codons: pd.Da
     trna_concentrations["nearcognate.conc"] = 0.0
 
     #calculate a conversion factor to convert the abundance factor to a molar concentration
-    print('using: '+ concentration_col_name)
+    if verbose:
+        print('using: '+ concentration_col_name)
     conversion_factor = np.float64(total_trna / np.float64(t_rnas[concentration_col_name].sum()) * 1e-6)
 
     # go through the WCcognates matrix and for each entry of 1 add the abundance of the tRNA from the abundance table
