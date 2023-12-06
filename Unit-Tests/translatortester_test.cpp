@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include <stdlib.h>
-#include <numeric>
 #include <string>
 #include "../translation.h"
 
@@ -78,6 +77,9 @@ TEST(TranslatorTester, simulateAAAx100xlowInitxHighTerm)
   Simulations::Translation ts;
   char const *home_dir;
   home_dir = getenv("HOME");
+  if (home_dir == nullptr) {
+    ADD_FAILURE();
+  }
   std::string home_path(home_dir);
   ts.loadConcentrationsFromString(concentrationsString);
   ts.inputMRNA(mRNA_aaa);
@@ -117,6 +119,9 @@ TEST(TranslatorTester, checkSpaceBetweenRibosomes)
   Simulations::Translation ts;
   char const *home_dir;
   home_dir = getenv("HOME");
+  if (home_dir == nullptr) {
+    ADD_FAILURE();
+  }
   std::string home_path(home_dir);
   ts.loadConcentrationsFromString(concentrationsString);
   ts.inputMRNA(mRNA_aaa);
