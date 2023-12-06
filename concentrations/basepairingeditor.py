@@ -25,19 +25,19 @@ class Pairing_relationship:
     anticodons: list[str]
 
     @classmethod
-    def load_dict_one_position(cls, json_file_name: str, pairing_type: str, codon_position: int) -> list['Pairing_relationship']:
+    def load_dict_one_position(cls, json_file_name: str, pairing_type: str) -> list['Pairing_relationship']:
         result = []
         with open(json_file_name) as json_file:
             data = json.load(json_file)
-            for codon in data[pairing_type][str(codon_position)]:
-                result.append(cls(codon, data[pairing_type][str(codon_position)][codon]))
+            for codon in data[pairing_type]:
+                result.append(cls(codon, data[pairing_type][codon]))
             return result
     
     @classmethod
-    def convert_one_position_from_dict(cls, data: dict, pairing_type: str, codon_position: int) -> list['Pairing_relationship']:
+    def convert_one_position_from_dict(cls, data: dict, pairing_type: str) -> list['Pairing_relationship']:
         result = []
-        for codon in data[pairing_type][str(codon_position)]:
-            result.append(cls(codon, data[pairing_type][str(codon_position)][codon]))
+        for codon in data[pairing_type]:
+            result.append(cls(codon, data[pairing_type][codon]))
         return result
 
 
@@ -49,22 +49,25 @@ class Pairing_relationship:
             with open(json_file_name) as json_file:
                 data = json.load(json_file)
                 for pairing in data.keys():
-                    result[pairing] = {}
-                    for codon_position in data[pairing].keys():
-                        result[pairing][codon_position] = cls.load_dict_one_position(json_file_name, pairing, codon_position)
+                    if pairing == "Pairing Rules":
+                        result[pairing] = data[pairing]
+                    else:
+                        result[pairing] = cls.load_dict_one_position(json_file_name, pairing)
         else:
             # need to create a new file.
-            data = {"Watson-Crick": {"1": {"A": ["U"], "C": ["G"], "G": ["C"], "U": ["A"]}, "2": {"A": ["U"], "C": ["G"], "G": ["C"], "U": ["A"]},
-                                       "3": {"A": ["U", "&", "3", "1", "~", "N", "S", ")", "{", "V", "}", "P"],
-                                             "C": ["G", "#", "W"], "G": ["C", "B"], "U": ["A"]} },
-                      "Wobble": {"1": {"A": [], "C": [], "G": [], "U": []},
-                                 "3": {"A": [], "C": [],"G": [], "U": []}}}
+            data = {"Watson-Crick": {"A": ["U", "&", "3", "1", "~", "N", "S", ")", "{", "V", "}", "P"],
+                                     "C": ["G", "#", "W"], "G": ["C", "B"], "U": ["A"]},
+                    "Wobble": {"A": ["A", "I", "M", "?"], "C": ["A", "U", "P", "I", "?", "Q"], 
+                               "G": ["A", "U", "&", "3", "1", "~", "N", "S", ")", "{", "V", "P", "?", "M"],
+                               "U": ["G", "#", "W", "U", "V","P", "I", "Q"]}}
             for pairing in data.keys():
-                    result[pairing] = {}
-                    for codon_position in data[pairing].keys():
-                        result[pairing][codon_position] = cls.convert_one_position_from_dict(data, pairing, codon_position)
+                result[pairing] = cls.convert_one_position_from_dict(data, pairing)
         return result
 
+@dataclass
+class Classification_rules:
+    classification_type: str
+    rules: list[(str, str, str)]
 
 
 class Window(QMainWindow):
@@ -86,38 +89,28 @@ class Window(QMainWindow):
         self.watson_crick_pairing_widgetItem = QTreeWidgetItem(root)
         self.watson_crick_pairing_widgetItem.setText(0, "Watson-Crick")
 
-        self.watson_crick_widget_pairing_dict = {}
-        self.watson_crick_widget_pairing_dict["1"] = QTreeWidgetItem(self.watson_crick_pairing_widgetItem)
-        self.watson_crick_widget_pairing_dict["1"].setText(0, "1st base")
-
-        self.watson_crick_widget_pairing_dict["2"] = QTreeWidgetItem(self.watson_crick_pairing_widgetItem)
-        self.watson_crick_widget_pairing_dict["2"].setText(0, "2nd base")
-
-        self.watson_crick_widget_pairing_dict["3"] = QTreeWidgetItem(self.watson_crick_pairing_widgetItem)
-        self.watson_crick_widget_pairing_dict["3"].setText(0, "3rd base")
-
         # fill Watson-Crick
-        for position in pairings["Watson-Crick"]: 
-            for pairing in pairings["Watson-Crick"][position]:
-                node = QTreeWidgetItem((pairing.codon, ','.join(pairing.anticodons)))
-                self.watson_crick_widget_pairing_dict[position].addChild(node)
+        for pairing in pairings["Watson-Crick"]:
+            node = QTreeWidgetItem((pairing.codon, ','.join(pairing.anticodons)))
+            self.watson_crick_pairing_widgetItem.addChild(node)
 
 
         self.wobble_pairing_widgetItem = QTreeWidgetItem(root)
         self.wobble_pairing_widgetItem.setText(0, "Wobble")
+
+        self.pairing_rules = QTreeWidgetItem(tree)
+        self.pairing_rules.setText(0, "Pairing Rules")
+        self.near_cognate = QTreeWidgetItem(self.pairing_rules)
+        self.near_cognate.setText(0, "Near-Cognate")
+        self.near_cognate_base_rules = QTreeWidgetItem(self.near_cognate)
+        self.near_cognate_base_rules.setText(0, "base-level")
+        self.near_cognate_base_rules.addChild(QTreeWidgetItem(("base-level", str(pairings["Pairing Rules"]["Near-Cognate"]["base-level"]))))
+
         
-        self.wobble_widget_pairing_dict = {}
-        self.wobble_widget_pairing_dict["1"] = QTreeWidgetItem(self.wobble_pairing_widgetItem)
-        self.wobble_widget_pairing_dict["1"].setText(0, "1st base")
-
-        self.wobble_widget_pairing_dict["3"] = QTreeWidgetItem(self.wobble_pairing_widgetItem)
-        self.wobble_widget_pairing_dict["3"].setText(0, "3rd base")
-
         # fill Wobble
-        for position in pairings["Wobble"]: 
-            for pairing in pairings["Wobble"][position]:
-                node = QTreeWidgetItem((pairing.codon, ','.join(pairing.anticodons)))
-                self.wobble_widget_pairing_dict[position].addChild(node)
+        for pairing in pairings["Wobble"]:
+            node = QTreeWidgetItem((pairing.codon, ','.join(pairing.anticodons)))
+            self.wobble_pairing_widgetItem.addChild(node)
 
         tree.itemDoubleClicked.connect(self.edit_pairing)
         
@@ -135,16 +128,15 @@ class Window(QMainWindow):
         self.show()
 
     def identify_click(self, clicked_obj) -> (str, str):
-        for codon_no in self.watson_crick_widget_pairing_dict.keys():
-            if self.watson_crick_widget_pairing_dict[codon_no] == clicked_obj.parent():
-                return ("Watson-Crick", codon_no)
-            if codon_no in self.wobble_widget_pairing_dict.keys() and \
-               self.wobble_widget_pairing_dict[codon_no] == clicked_obj.parent():
-                return ("Wobble", codon_no)
-        return (None, None)
+        for child_number in range(self.watson_crick_pairing_widgetItem.childCount()):
+            if self.watson_crick_pairing_widgetItem.child(child_number) == clicked_obj:
+                return "Watson-Crick"
+            if self.wobble_pairing_widgetItem.child(child_number) == clicked_obj:
+                return "Wobble"
+        return None
         
     def edit_pairing(self, clicked_obj):
-        (pairing_type, codon_no) = self.identify_click(clicked_obj)
+        pairing_type = self.identify_click(clicked_obj)
         if pairing_type == None:
             return
         # open dialog for changing data.
@@ -161,9 +153,9 @@ class Window(QMainWindow):
             # we need to update the tree.abs
             pairing_node = None
             if pairing_type == "Watson-Crick":
-                pairing_node = self.watson_crick_widget_pairing_dict[codon_no]
+                pairing_node = self.watson_crick_pairing_widgetItem
             else:
-                pairing_node = self.wobble_widget_pairing_dict[codon_no]
+                pairing_node = self.wobble_pairing_widgetItem
             for child_no in range(pairing_node.childCount()):
                 item = pairing_node.child(child_no)
                 if pairing_dialog.pairing_relationship.codon == item.data(0, 0):
@@ -173,18 +165,16 @@ class Window(QMainWindow):
 
     def save(self):
         # recreate the dictionary
-        data = {'Watson-Crick':{'1':{}, '2':{}, '3':{}}, 'Wobble': {'1':{}, '3':{}}}
+        data = {'Watson-Crick':{}, 'Wobble': {}}
         # Watson-Crick:
-        for codon_no in self.watson_crick_widget_pairing_dict.keys():
-            for child_no in range(self.watson_crick_widget_pairing_dict[codon_no].childCount()):
-                item = self.watson_crick_widget_pairing_dict[codon_no].child(child_no)
-                data['Watson-Crick'][codon_no][item.data(0, 0)] = [k for k in item.data(1,0).replace(' ', '').split(',')]
+        for child_no in range(self.watson_crick_pairing_widgetItem.childCount()):
+            item = self.watson_crick_pairing_widgetItem.child(child_no)
+            data['Watson-Crick'][item.data(0, 0)] = [k for k in item.data(1,0).replace(' ', '').split(',')]
         
         # Wobble
-        for codon_no in self.wobble_widget_pairing_dict.keys():
-            for child_no in range(self.wobble_widget_pairing_dict[codon_no].childCount()):
-                item = self.wobble_widget_pairing_dict[codon_no].child(child_no)
-                data['Wobble'][codon_no][item.data(0, 0)] = [k for k in item.data(1,0).replace(' ', '').split(',')]
+        for child_no in range(self.wobble_pairing_widgetItem.childCount()):
+            item = self.wobble_pairing_widgetItem.child(child_no)
+            data['Wobble'][item.data(0, 0)] = [k for k in item.data(1,0).replace(' ', '').split(',')]
         # confirm save the data.
         qm = QMessageBox
         ret = qm.question(self,'', "Are you sure to save the file?", qm.Yes | qm.No)
