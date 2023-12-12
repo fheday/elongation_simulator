@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys, os, json
 from dataclasses import dataclass
 from typing import Iterable, Callable
@@ -296,7 +297,11 @@ class EditNearCognateDefinition(QDialog):
         self.definition_rules.setText(self.rules)
 
 
-def main(file_name):
+def main(file_name=None):
+    if file_name is None and len(sys.argv) <= 1:
+        raise ValueError("Base pairing file not informed.")
+    if file_name is None:
+        file_name = sys.argv[1]
     app = QApplication(sys.argv)
     pairings = None
     pairings = Pairing_relationship.load_all_dict(file_name)
@@ -305,7 +310,4 @@ def main(file_name):
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
-    if len(sys.argv) <= 1:
-        raise ValueError("Base pairing file not informed.")
-    file_name = sys.argv[1]
-    main(file_name)
+    main()
