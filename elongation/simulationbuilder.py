@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 '''
 Gui module to build and save a simulation set
 '''
