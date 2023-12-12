@@ -105,7 +105,7 @@ setup(
    install_requires=['pybind11', 'pytest', 'numpy', 'pyqt5'],
    packages=["concentrations", "elongation"],
    package_dir={"concentrations":"concentrations", "elongation":"elongation"},
-   scripts=['concentrations/basepairingeditor.py'],
+   scripts=['concentrations/basepairingeditor.py', 'elongation/simulationbuilder.py'],
    cmdclass=CMDCLASS,
    ext_modules=ext_modules,
    zip_safe=False,
