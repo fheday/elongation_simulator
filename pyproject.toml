@@ -2,5 +2,5 @@
 skip = ["*musllinux*", "*pp*win*", "pp*manylinux*"]
 
 [build-system]
-requires = ["setuptools", "pybind11", "numpy"]
+requires = ["setuptools", "pybind11", "numpy", "pyqt5"]
 build-backend = "setuptools.build_meta"
