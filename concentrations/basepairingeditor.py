@@ -149,12 +149,12 @@ class Window(QMainWindow):
     def edit_rule(self, clicked_obj: QTreeWidgetItem):
         pairing_type = self.identify_click(clicked_obj)
         if pairing_type == "Watson-Crick" or pairing_type == "Wobble":
-            self.edit_pairing(clicked_obj)
+            self.edit_pairing(clicked_obj, pairing_type)
         elif pairing_type == "Near Cognate":
             self.edit_near_cognate_definition(clicked_obj)
         return
         
-    def edit_pairing(self, clicked_obj: QTreeWidgetItem):
+    def edit_pairing(self, clicked_obj: QTreeWidgetItem, pairing_type: str):
         # open dialog for changing data.
         selected_pairing = Pairing_relationship(clicked_obj.data(0,0), clicked_obj.data(1,0))
         pairing_dialog = EditPairingDialog(self)
