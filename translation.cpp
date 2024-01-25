@@ -18,7 +18,6 @@
 #include "initiationterminationcodon.h"
 #include "mrna_reader.h"
 #include <fstream>
-#include <sstream>
 #include <iostream>
 #include <list>
 #include <random>
