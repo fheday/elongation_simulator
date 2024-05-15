@@ -22,7 +22,7 @@ class Test_concentrations_generator_pairings(unittest.TestCase):
                                 },
                                 "Pairing Rules":{
                                     "Near-Cognate": {
-                                        "base-level": ["Wo", "WC", "Wo"]
+                                        "base-level": [["Wo", "WC", "Wo"]]
                                     }
                                 }
                             }
