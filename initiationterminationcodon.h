@@ -12,7 +12,6 @@
  */
 
 #include <math.h>
-#include <random>
 #include "mrnaelement.h"
 
 namespace Simulations {
