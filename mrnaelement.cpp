@@ -40,9 +40,9 @@ void Simulations::mRNAElement::setPreviousCodon(mRNAElement* p_c) {
   previous_mRNA_element = p_c;
 }
 
-bool Simulations::mRNAElement::isAvailable() { return is_available; }
+bool Simulations::mRNAElement::isAvailable() const { return is_available; }
 
-bool Simulations::mRNAElement::isOccupied() { return is_occupied; }
+bool Simulations::mRNAElement::isOccupied() const { return is_occupied; }
 
 void Simulations::mRNAElement::addReactionToHistory(int state, double dt) {
   state_history.push_back(state);

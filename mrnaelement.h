@@ -12,7 +12,6 @@
  */
 
 
-#include <array>
 #include <map>
 #include <string>
 #include <vector>
@@ -27,8 +26,8 @@ class mRNAElement {
   virtual ~mRNAElement();
   void setAvailable(bool);
   void setOccupied(bool);
-  bool isAvailable();
-  bool isOccupied();
+  [[nodiscard]] bool isAvailable() const;
+  [[nodiscard]] bool isOccupied() const ;
   virtual void executeReaction(int) {}
   virtual int getState() { return -1; }
   virtual void setState(int) {}
@@ -38,11 +37,11 @@ class mRNAElement {
   void addReactionToHistory(int state, double dt);
   std::pair<std::vector<int>, std::vector<double>> getHistory();
 
-  virtual void setPropensities(std::map<std::string, double>) {}
+  virtual void setPropensities(std::map<std::string, double>&) {}
   virtual void setNoNonCognate(bool) {}
 
   virtual std::map<std::string, double> getPropensities() {
-    return std::map<std::string, double>();
+    return {};
   }
 
   std::vector<double> alphas;
