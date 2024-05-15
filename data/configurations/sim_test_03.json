@@ -1,12 +1,12 @@
 {
-    "concentration_file": "/mnt/Projects/RSim/HEK293/concentrations.csv",
+    "concentration_file": "../../concentrations/Saccharomyces_cerevisiae.csv",
     "pre_populate": 0,
     "propensity_modifiers": {
         "trans1f": 0.4
     },
     "mRNA_entries": [
         {
-            "fasta_file": "/data/home/heday/tmp/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
+            "fasta_file": "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa",
             "gene": "YAL001C",
             "initiation_rate": 10.0,
             "termination_rate": 10.0,
