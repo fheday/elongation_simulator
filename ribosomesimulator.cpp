@@ -161,7 +161,7 @@ void Simulations::RibosomeSimulator::buildReactionsMap()
   std::vector<csv_utils::concentration_entry> codons_concentrations;
   concentrations_reader.getContents(codons_concentrations);
   reactions_map.clear(); // make sure the map is clear.
-  for (csv_utils::concentration_entry entry : codons_concentrations)
+  for (csv_utils::concentration_entry& entry : codons_concentrations)
   {
     auto result =
         std::find(stop_codons.begin(), stop_codons.end(), entry.codon);
@@ -194,9 +194,9 @@ void Simulations::RibosomeSimulator::buildReactionsMap()
 }
 
 void Simulations::RibosomeSimulator::setPropensities(
-    std::map<std::string, double> prop)
+    std::map<std::string, double>& prop)
 {
-  for (auto it : prop)
+  for (auto& it : prop)
   {
     if (std::find(reactions_identifiers.begin(), reactions_identifiers.end(), it.first) != reactions_identifiers.end()) {
       // key exist.
@@ -245,7 +245,7 @@ void Simulations::RibosomeSimulator::setPropensities(
 }
 
 void Simulations::RibosomeSimulator::setPropensity(std::string &reaction,
-                                                   const double propensity)
+                                                   const double &propensity)
 {
   *propensities_map.at(reaction) = propensity;
 }
@@ -255,7 +255,7 @@ void Simulations::RibosomeSimulator::setNonCognate(double noNonCog)
   non1f[simulation_codon_3_letters] = noNonCog;
 }
 
-double Simulations::RibosomeSimulator::getPropensity(std::string reaction)
+double Simulations::RibosomeSimulator::getPropensity(std::string& reaction)
 {
   return *propensities_map.at(reaction);
 }
@@ -438,15 +438,15 @@ void Simulations::RibosomeSimulator::run_and_get_times(
   }
 }
 
-double Simulations::RibosomeSimulator::run_repeatedly_get_average_time(const int repetitions)
+double Simulations::RibosomeSimulator::run_repeatedly_get_average_time(const int& repetitions)
 {
 
   double r1 = 0.0, r2 = 0.0, a0 = 0.0;
   double cumsum = 0.0;
   double tau = 0.0, clock = 0.0;
   std::size_t selected_alpha_vector_index = 0;
-  std::array<double, 4> alphas;
-  std::array<int, 4> next_state;
+  std::array<double, 4> alphas{};
+  std::array<int, 4> next_state{};
   double k;      // get alphas
   int index, ii; //get alphas
   for (std::size_t i = 0; i < static_cast<std::size_t>(repetitions); i++)
@@ -853,7 +853,7 @@ Simulations::RibosomeSimulator::createReactionsGraph(
   return r_g;
 }
 
-int Simulations::RibosomeSimulator::getState() { return current_state; }
+int Simulations::RibosomeSimulator::getState() const { return current_state; }
 void Simulations::RibosomeSimulator::setState(int s) { current_state = s; }
 
 void Simulations::RibosomeSimulator::getAlphas(

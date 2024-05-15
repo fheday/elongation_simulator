@@ -24,14 +24,14 @@ namespace Simulations {
 class RibosomeSimulator {
  public:
   RibosomeSimulator();
-  int getState();
+  [[nodiscard]] int getState() const;
   void setState(int);
   void getAlphas(std::vector<double>&, std::vector<int>&);
   void getDecodingAlphas(std::vector<double>&, std::vector<int>&);
 
-  void setPropensities(std::map<std::string, double> prop);
-  void setPropensity(std::string&, const double);
-  double getPropensity(std::string);
+  void setPropensities(std::map<std::string, double>& prop);
+  void setPropensity(std::string&, const double&);
+  double getPropensity(std::string&);
   void setNonCognate(double noNonCog);
 
   std::map<std::string, double> getPropensities();
@@ -39,7 +39,7 @@ class RibosomeSimulator {
   void loadConcentrationsFromString(const std::string&);
   void setCodonForSimulation(const std::string&);
   void run_and_get_times(double&, double&);
-  double run_repeatedly_get_average_time(const int);
+  double run_repeatedly_get_average_time(const int&);
   std::vector<double> dt_history;
   std::vector<int> ribosome_state_history;
   std::string saccharomyces_cerevisiae_concentrations = 
@@ -59,7 +59,7 @@ class RibosomeSimulator {
   std::mt19937 gen;
   std::uniform_real_distribution<> dis;
   void buildReactionsMap();
-  std::string simulation_codon_3_letters = "";
+  std::string simulation_codon_3_letters;
   csv_utils::ConcentrationsReader concentrations_reader;
   std::vector<std::vector<std::tuple<std::reference_wrapper<double>, int>>>
   createReactionsGraph(const csv_utils::concentration_entry&);
