@@ -22,16 +22,16 @@ enum stop_condition_enum { ITERATION, TIME, RIBOSOMES, STEADY_STATE_TIME, STEADY
 class SimulationManager {
 public:
   SimulationManager() = delete;   // no default constructor
-  SimulationManager(std::string); // constructor with configuration file name.
+  explicit SimulationManager(const std::string&); // constructor with configuration file name.
   std::string get_concentration_file_path();
   std::string get_configuration_file_path();
   std::map<std::string, float> get_reactions_modifiers();
-  bool get_pre_populate();
+  [[nodiscard]] bool get_pre_populate() const;
   std::vector<std::tuple<std::string, std::string, float, float, float>> &
   get_simulations_configurations();
-  stop_condition_enum get_stop_condition_type();
-  float get_stop_condition_value();
-  std::size_t get_history_size();
+  [[nodiscard]] stop_condition_enum get_stop_condition_type() const;
+  [[nodiscard]] float get_stop_condition_value() const;
+  [[nodiscard]] std::size_t get_history_size() const;
   bool start(bool verbose=false, unsigned int n_threads = std::thread::hardware_concurrency());
   void set_save_collisions(bool);
   void set_remove_ribosome_positions(bool);
