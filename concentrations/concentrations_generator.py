@@ -17,7 +17,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import concentrations
 
-def identify_3_base_pairing(codon: str, trna: str, basepairing_rules:dict) -> [str]:
+def identify_3_base_pairing(codon: str, trna: str, basepairing_rules:dict) -> list[str]:
+    """"
+    Given a codon and a tRNA anticodon, Identify the base pairing type for each base.
+    """
     result = []
     for i, c in enumerate(codon):
         anticodon = trna[2 - i]
@@ -29,7 +32,11 @@ def identify_3_base_pairing(codon: str, trna: str, basepairing_rules:dict) -> [s
             result.append("X")
     return result
 
-def is_near_cognate(pairing_id:[str], near_cognate_rules:[[str]]) -> bool:
+def is_near_cognate(pairing_id:list[str], near_cognate_rules:list[list[str]]) -> bool:
+    """
+    Given a pairing id (WC, Wo or X), and a list of near-cognate rules,
+    identify if this pairing is a near-cognate.
+    """
     for partial_rule in near_cognate_rules:
         matches = 0
         for i, pairing_type in enumerate(pairing_id):
@@ -47,7 +54,8 @@ def is_near_cognate(pairing_id:[str], near_cognate_rules:[[str]]) -> bool:
     return False
 
 
-def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, settings_file_name="default_basepairing.json"):
+def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False,
+                settings_file_name="default_basepairing.json"):
     """
     Given a DataFrame with tRNA concentrations, and another DataFrame with codons information,
     generates a decoding matrix
@@ -60,31 +68,31 @@ def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, setti
     # open file with basepairing rules
     if settings_file_name == "default_basepairing.json":
         with resources.path(concentrations, settings_file_name) as re:
-            with open(re, "r") as file:
+            with open(re, "r", encoding="utf-8") as file:
                 basepairing_rules = json.load(file)
     else:
-        with open(settings_file_name, "r") as file:
-                basepairing_rules = json.load(file)
+        with open(settings_file_name, "r", encoding="utf-8") as file:
+            basepairing_rules = json.load(file)
     # sanity checks
     if "Watson-Crick" not in basepairing_rules.keys():
         raise ValueError("settings file does not contain Watson-Crick pariring rules")
-    elif "Wobble" not in basepairing_rules.keys():
+    if "Wobble" not in basepairing_rules.keys():
         raise ValueError("settings file does not contain Wobble pariring rules")
-    elif "A" not in basepairing_rules["Watson-Crick"]:
+    if "A" not in basepairing_rules["Watson-Crick"]:
         raise ValueError("settings file does not rules for Watson-Crick A basepairing")
-    elif "C" not in basepairing_rules["Watson-Crick"]:
+    if "C" not in basepairing_rules["Watson-Crick"]:
         raise ValueError("settings file does not rules for Watson-Crick C basepairing")
-    elif "G" not in basepairing_rules["Watson-Crick"]:
+    if "G" not in basepairing_rules["Watson-Crick"]:
         raise ValueError("settings file does not rules for Watson-Crick G basepairing")
-    elif "U" not in basepairing_rules["Watson-Crick"]:
+    if "U" not in basepairing_rules["Watson-Crick"]:
         raise ValueError("settings file does not rules for Watson-Crick U basepairing")
-    elif "A" not in basepairing_rules["Wobble"]:
+    if "A" not in basepairing_rules["Wobble"]:
         raise ValueError("settings file does not rules for Wobble A basepairing")
-    elif "C" not in basepairing_rules["Wobble"]:
+    if "C" not in basepairing_rules["Wobble"]:
         raise ValueError("settings file does not rules for Wobble C basepairing")
-    elif "G" not in basepairing_rules["Wobble"]:
+    if "G" not in basepairing_rules["Wobble"]:
         raise ValueError("settings file does not rules for Wobble G basepairing")
-    elif "U" not in basepairing_rules["Wobble"]:
+    if "U" not in basepairing_rules["Wobble"]:
         raise ValueError("settings file does not rules for Wobble U basepairing")
     # settings seems fine. Proceed.
 
@@ -116,8 +124,9 @@ def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, setti
         print("Populating wobble matrix...")
 
 
-    #populate cognate wobble matrix if wobble criteria matched, amino acid is correct, and WC matrix entry is 0
-    #if incorrect amino acid, assign to near-cognates
+    # populate cognate wobble matrix
+    # if wobble criteria matched, amino acid is correct, and WC matrix entry is 0
+    # if incorrect amino acid, assign to near-cognates
     for anticodon_index, anticodon in enumerate(t_rnas.anticodon):
         for codon_index, codon in enumerate(codons.codon):
             if cognate_wc_matrix[anticodon_index,codon_index] == 0 and\
@@ -139,21 +148,25 @@ def make_matrix(t_rnas: pd.DataFrame, codons: pd.DataFrame, verbose=False, setti
         for codon_index, _ in enumerate(codons.codon):
             if (cognate_wc_matrix[anticodon_index,codon_index] == 0 and\
                 cognate_wobble_matrix[anticodon_index,codon_index] == 0) and\
-                is_near_cognate(identify_3_base_pairing(codons.codon[codon_index], t_rnas.anticodon[anticodon_index], basepairing_rules), basepairing_rules["Pairing Rules"]["Near-Cognate"]["base-level"]):
-                    nearcognate_matrix[anticodon_index,codon_index] = 1
+                is_near_cognate(identify_3_base_pairing(codons.codon[codon_index],
+                                                        t_rnas.anticodon[anticodon_index],
+                                                        basepairing_rules),
+                                basepairing_rules["Pairing Rules"]["Near-Cognate"]["base-level"]):
+                nearcognate_matrix[anticodon_index,codon_index] = 1
 
     if verbose:
         print('done.')
 
     #Sanity checks
 
-    #Check whether any tRNA:codon combination is assigned 1 in more than one table (this should not occur)
+    #  Check whether any tRNA:codon combination is assigned 1
+    #  in more than one table (this should not occur)
 
     testsum = cognate_wc_matrix + cognate_wobble_matrix + nearcognate_matrix
     if np.any(testsum>1):
         print('Warning: multiple relationships for identical tRNA:codon pairs detected.')
         return {}
-    elif verbose:
+    if verbose:
         print('No threesome errors detected.')
 
     return {"cognate.wc.matrix":cognate_wc_matrix, "cognate.wobble.matrix":cognate_wobble_matrix,
@@ -190,7 +203,8 @@ def print_codon_anticodon_pairings(matrices_dict: dict, t_rnas: pd.DataFrame, co
         for anticodon, c in matches_dict:
             print (codons.codon[c] + " - " + t_rnas.anticodon[anticodon])
 
-def make_concentrations(matrices_dict: dict, t_rnas: pd.DataFrame, codons: pd.DataFrame, concentration_col_name = 'gene.copy.number', total_trna=190, verbose=False):
+def make_concentrations(matrices_dict: dict, t_rnas: pd.DataFrame, codons: pd.DataFrame,
+                        concentration_col_name = 'gene.copy.number', total_trna=190, verbose=False):
     """
     Given a tRNA matrix, and the decoding matrix, generates a concentrations DataFrame.
 
@@ -210,13 +224,14 @@ def make_concentrations(matrices_dict: dict, t_rnas: pd.DataFrame, codons: pd.Da
     trna_concentrations["wobblecognate.conc"] = 0.0
     trna_concentrations["nearcognate.conc"] = 0.0
 
-    #calculate a conversion factor to convert the abundance factor to a molar concentration
+    # calculate a conversion factor to convert the abundance factor to a molar concentration
     if verbose:
         print('using: '+ concentration_col_name)
-    conversion_factor = np.float64(total_trna / np.float64(t_rnas[concentration_col_name].sum()) * 1e-6)
+    conversion_factor = np.float64(total_trna /
+                                   np.float64(t_rnas[concentration_col_name].sum()) * 1e-6)
 
-    # go through the WCcognates matrix and for each entry of 1 add the abundance of the tRNA from the abundance table
-    # to the concentration table
+    # go through the WCcognates matrix and for each entry of 1 add the abundance of the tRNA
+    # from the abundance table to the concentration table
     for codon_index, _ in enumerate(codons.codon):
         for anticodon_index, _ in enumerate(t_rnas.anticodon):
             if wc_cognate[anticodon_index, codon_index] == 1:
@@ -243,6 +258,7 @@ def make_concentrations(matrices_dict: dict, t_rnas: pd.DataFrame, codons: pd.Da
 
 ##example of how to use:
 
-# tRNAs = pd.read_csv('/home/heday/Projects/R3/Native Spike and B117 Kent/HEK293_processed.csv')
-# codons = pd.read_csv('/home/heday/Projects/R3/Native Spike and B117 Kent/codons.csv')
+# tRNAs = pd.read_csv('/home/heday/Projects/R_concentrations/data/tRNAs.csv')
+# codons = pd.read_csv('/home/heday/Projects/R_concentrations/data/codons.csv')
 # matrix = make_matrix(tRNAs, codons, verbose=True)
+# make_concentrations(matrix, tRNAs, codons, verbose=True)
