@@ -468,7 +468,7 @@ void Simulations::Translation::getAlphas(utils::circular_buffer<std::vector<int>
   std::size_t global_index = 0;
 
   // add initiation if needed.
-  if (initiation_rate && codons_vector[0]->isAvailable()) {
+  if (initiation_rate > 0 && codons_vector[0]->isAvailable()) {
     // need to add initalization.
     for (global_index = 0; global_index < codons_vector[0]->alphas.size();
          global_index++) {
