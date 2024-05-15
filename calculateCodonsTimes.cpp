@@ -87,8 +87,8 @@ std::map<std::string, double> calculate_codons_times(
         codon_total_translocating += translocating;
         n++;
         // save vector.
-        vector[static_cast<std::size_t>(i)] = decoding;
-        vector[static_cast<std::size_t>(iterations + i)] = translocating;
+        vector[i] = decoding;
+        vector[iterations + i] = translocating;
       }
     }
     total_translocating += codon_total_translocating;
