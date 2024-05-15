@@ -86,19 +86,19 @@ namespace utils
       full_ = false;
     }
 
-    bool empty() const {
+    [[nodiscard]] bool empty() const {
       return (!full_ && (head_ == tail_));
     }
 
-    bool full() const {
+    [[nodiscard]] bool full() const {
       return full_;
     }
 
-    size_t capacity() const {
+    [[nodiscard]] size_t capacity() const {
       return max_size_;
     }
 
-    size_t size() const {
+    [[nodiscard]] size_t size() const {
       size_t size = max_size_;
 
       if (!full_) {
@@ -117,7 +117,7 @@ namespace utils
     size_t head_ = 0;
     size_t tail_ = 0;
     const size_t max_size_;
-    bool full_ = 0;
+    bool full_ = false;
 
     size_t fast_mod(const size_t input, const size_t ceil) {
       // get the modulus to be put into the buffer.
