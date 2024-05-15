@@ -19,8 +19,8 @@ namespace Simulations {
     class SimulationProcessor {
         public:
         SimulationProcessor() = delete;
-        SimulationProcessor(std::string);
-        SimulationProcessor(Json::Value, std::string);
+        explicit SimulationProcessor(std::string&);
+        SimulationProcessor(Json::Value&, std::string&);
         std::vector<float>& getClock();
         std::vector<std::vector<int>>& getRibosomes();
         void removeRibosomePositions();
