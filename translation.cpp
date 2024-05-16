@@ -928,7 +928,7 @@ void Simulations::Translation::getAverageTimes() {
   std::vector<int> last_index_occupied(number_codons);
   std::fill(last_index_occupied.begin(), last_index_occupied.end(), -1);
   int iteration_number = 0;
-  for (auto ribosome_vector : ribosome_positions_history) {
+  for (auto& ribosome_vector : ribosome_positions_history) {
     for (int position : ribosome_vector) {
       total_time[static_cast<std::size_t>(position)] +=
           dt_history[static_cast<std::size_t>(iteration_number)];
