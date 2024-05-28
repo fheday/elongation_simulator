@@ -45,9 +45,9 @@ void csv_utils::ConcentrationsReader::readConcentratonsStream(std::istream& inpu
   contents.clear();
   std::string codon;
   std::string three_letter;
-  double wc_cognate_conc;
-  double wobblecognate_conc;
-  double nearcognate_conc;
+  float wc_cognate_conc;
+  float wobblecognate_conc;
+  float nearcognate_conc;
   int wc_cognate_conc_index = -1;
   int wobblecognate_conc_index = -1;
   int nearcognate_conc_index = -1;
@@ -103,11 +103,11 @@ void csv_utils::ConcentrationsReader::readConcentratonsStream(std::istream& inpu
         } else if (curr_index == three_letter_index) {
           three_letter = tmp_str;
         } else if (curr_index == wc_cognate_conc_index){
-            wc_cognate_conc = std::strtod(tmp_str.c_str(), nullptr);
+            wc_cognate_conc = std::strtof(tmp_str.c_str(), nullptr);
         } else if (curr_index == wobblecognate_conc_index) {
-            wobblecognate_conc = std::strtod(tmp_str.c_str(), nullptr);
+            wobblecognate_conc = std::strtof(tmp_str.c_str(), nullptr);
         } else if (curr_index == nearcognate_conc_index) {
-            nearcognate_conc = std::strtod(tmp_str.c_str(), nullptr);
+            nearcognate_conc = std::strtof(tmp_str.c_str(), nullptr);
         }
         curr_index++;
       }

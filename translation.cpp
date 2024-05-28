@@ -11,6 +11,7 @@
 #include "translation.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <deque>
 #include <float.h>
 #include <numeric>
@@ -293,7 +294,7 @@ void Simulations::Translation::loadMRNA(const std::string &file_name, const std:
 }
 
 void Simulations::Translation::inputMRNA(std::string user_mRNA) {
-  mrna_input = user_mRNA;
+  mrna_input = std::move(user_mRNA);
   initializeMRNAReader();
 }
 
@@ -361,7 +362,7 @@ void Simulations::Translation::initializeMRNAReader() {
   }
 }
 
-void Simulations::Translation::setPropensities(std::vector<std::map<std::string, double>> prop) {
+void Simulations::Translation::setPropensities(std::vector<std::map<std::string, float>> prop) {
   changed_propensities = true;
   for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
     codons_vector[i]->setPropensities(prop[i]);
@@ -375,19 +376,19 @@ void Simulations::Translation::setNoNonCognate(bool noNonCog) {
   }
 }
 
-std::vector<std::map<std::string, double>>
+std::vector<std::map<std::string, float>>
 Simulations::Translation::getPropensities() {
-  auto result = std::vector<std::map<std::string, double>>();
-  result.push_back(std::map<std::string, double>()); // codon 0 will be empty.
+  auto result = std::vector<std::map<std::string, float>>();
+  result.push_back(std::map<std::string, float>()); // codon 0 will be empty.
   for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
     result.push_back(codons_vector[i]->getPropensities());
   }
-  result.push_back(std::map<std::string, double>()); // last codon will also be empty.
+  result.push_back(std::map<std::string, float>()); // last codon will also be empty.
 
   return result;
 }
 
-void Simulations::Translation::setInitiationRate(double ir) {
+void Simulations::Translation::setInitiationRate(float ir) {
   if (ir >= 0) {
     initiation_rate = ir;
   }
@@ -395,7 +396,7 @@ void Simulations::Translation::setInitiationRate(double ir) {
   initializeMRNAReader();
 }
 
-void Simulations::Translation::setTerminationRate(double tr) {
+void Simulations::Translation::setTerminationRate(float tr) {
   if (tr >= 0) {
     termination_rate = tr;
   }
@@ -431,7 +432,7 @@ void Simulations::Translation::setIterationLimit(int i) {
  * @param t time limit in seconds.
  */
 
-void Simulations::Translation::setTimeLimit(double t) {
+void Simulations::Translation::setTimeLimit(float t) {
   if (t > 0) {
     time_limit = t;
   }
@@ -474,7 +475,7 @@ void Simulations::Translation::getAlphas(utils::circular_buffer<std::vector<int>
          global_index++) {
       alphas[global_index] = codons_vector[0]->alphas[global_index];
       codon_index[global_index] = 0;
-      reaction_index[global_index] = codons_vector[0]->alphas[global_index];
+      reaction_index[global_index] = codons_vector[0]->reactions_index[global_index];
     }
   }
   for (auto ribosome_index : ribosome_positions_history_circ_buffer.peek_back()) {
@@ -508,7 +509,7 @@ void Simulations::Translation::insertRibosome(std::size_t position,
 }
 
 void Simulations::Translation::run() {
-  utils::circular_buffer<double> dt_history_circ_buffer(history_size);
+  utils::circular_buffer<float> dt_history_circ_buffer(history_size);
   utils::circular_buffer<std::vector<int>> ribosome_positions_history_circ_buffer(history_size);
   // initialize the random generator
   std::random_device
@@ -516,8 +517,8 @@ void Simulations::Translation::run() {
   std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
   std::uniform_real_distribution<> dis(DBL_MIN, 1);
 
-  double r1 = 0, r2 = 0;
-  double tau = 0, clock = 0.0;
+  float r1 = 0, r2 = 0;
+  float tau = 0, clock = 0.0;
   int i = 0;
 
   int finished_ribosomes = 0, pre_filled_ribosomes = 0;
@@ -609,7 +610,7 @@ void Simulations::Translation::run() {
   std::size_t moved_codon = 0, current_codon = 0;
   bool initiation = false, termination = false, moved = true;
 
-  double cumsum = 0, a0 = 0;
+  float cumsum = 0, a0 = 0;
   std::size_t selected_alpha_vector_index = 0;
   bool steady_state = false;
   bool steady_state_stop_condition_met = false;
@@ -627,9 +628,9 @@ void Simulations::Translation::run() {
     initiation = false;
     termination = false;
     // randomly generate parameter for calculating dt
-    r1 = dis(gen);
+    r1 = static_cast<float>(dis(gen));
     // randomly generate parameter for selecting reaction
-    r2 = dis(gen);
+    r2 = static_cast<float>(dis(gen));
     // calculate an
     getAlphas(ribosome_positions_history_circ_buffer);
     if (global_size == 0) {
@@ -637,7 +638,7 @@ void Simulations::Translation::run() {
       std::cout << "no available reactions. quitting.\n";
       break;
     }
-    a0 = std::accumulate(alphas.begin(), alphas.begin() + global_size, 0.0);
+    a0 = static_cast<float>(std::accumulate(alphas.begin(), alphas.begin() + static_cast<long>(global_size), 0.0));
     selected_alpha_vector_index = 0;
     // The commented code below is the vectorized version of the reaction
     // selection. upper_bound stops when it finds the first position that is
@@ -661,7 +662,7 @@ void Simulations::Translation::run() {
     codons_vector[current_codon]->executeReaction(
         static_cast<int>(reaction_index[selected_alpha_vector_index]));
     // Update time
-    tau = (1.0 / a0) * log(1.0 / r1);
+    tau = (1.0f / a0) * logf(1.0f / r1);
 
     if (current_codon == 0 && codons_vector[0]->getState() == 23) {
       // initiated.
@@ -748,7 +749,7 @@ void Simulations::Translation::run() {
       //check if termination condition is met.
       if (n_total_terminations > 2 && n_total_initiations >2) { // start checking from the 3rd initiation and termination onwards.
         if (!steady_state) {
-          float rate = (initiations/n_total_initiations)/(terminations/n_total_terminations);
+          float rate = (initiations/static_cast<float>(n_total_initiations))/(terminations/static_cast<float>(n_total_terminations));
           if (rate >=0.9 && rate <=1.1) { //average initiation rate =+- 90% termination rate.
             steady_state = true; // steady state achieved.
             if (steady_state_terminations < 0 && steady_state_time < 0) {
@@ -780,7 +781,7 @@ void Simulations::Translation::run() {
  * since it uses the positions_vector to do its job.
  *
  */
-std::tuple<std::vector<double>, std::vector<int>>
+std::tuple<std::vector<float>, std::vector<int>>
 Simulations::Translation::getElongationDuration() {
   if (elongations_durations.empty() && !ribosome_positions_history.empty()) {
     getInitiationElongationTermination();
@@ -919,7 +920,7 @@ void Simulations::Translation::setRibosomePositions(
 void Simulations::Translation::getAverageTimes() {
   std::size_t number_codons = codons_vector.size();
   // initialize the total_time vector.
-  total_time = std::vector<double>(number_codons);
+  total_time = std::vector<float>(number_codons);
   std::fill(total_time.begin(), total_time.end(), 0);
   // initialize the n_times_occupied vector.
   n_times_occupied = std::vector<int>(number_codons);
@@ -951,12 +952,12 @@ void Simulations::Translation::getAverageTimes() {
 
   // now we calculate the averages.
   codons_average_occupation_time.clear();
-  codons_average_occupation_time = std::vector<double>(number_codons);
+  codons_average_occupation_time = std::vector<float>(number_codons);
   for (std::size_t codon_position = 0; codon_position < number_codons;
        codon_position++) {
     codons_average_occupation_time[codon_position] =
         n_times_occupied[codon_position] > 0
-            ? total_time[codon_position] / n_times_occupied[codon_position]
+            ? total_time[codon_position] / static_cast<float>(n_times_occupied[codon_position])
             : 0;
   }
 }
@@ -965,11 +966,11 @@ void Simulations::Translation::setLogCodonStates(bool log) {
   is_logging_codon_state = log;
 }
 
-std::vector<std::tuple<std::vector<int>, std::vector<double>>>
+std::vector<std::tuple<std::vector<std::size_t>, std::vector<float>>>
 Simulations::Translation::getLogCodonStates() {
-  std::vector<std::tuple<std::vector<int>, std::vector<double>>> result(
+  std::vector<std::tuple<std::vector<std::size_t>, std::vector<float>>> result(
       codons_vector.size());
-  std::vector<int> state;
+  std::vector<std::size_t> state;
   std::vector<double> dt;
   for (std::size_t i = 0; i < codons_vector.size(); i++) result[i] = codons_vector[i]->getHistory();
   return result;

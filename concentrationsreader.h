@@ -18,9 +18,9 @@ namespace csv_utils {
 struct concentration_entry {
   std::string codon;
   std::string three_letter;
-  double wc_cognate_conc;
-  double wobblecognate_conc;
-  double nearcognate_conc;
+  float wc_cognate_conc;
+  float wobblecognate_conc;
+  float nearcognate_conc;
 };
 
 class ConcentrationsReader {

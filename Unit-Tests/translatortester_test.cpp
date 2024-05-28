@@ -91,15 +91,15 @@ TEST(TranslatorTester, simulateAAAx100xlowInitxHighTerm)
   ts.run();
   ts.getAverageTimes();
 
-  std::vector<double> enlongation_duration;
+  std::vector<float> enlongation_duration;
   std::vector<int> iteration_initiation;
   std::tie(enlongation_duration, iteration_initiation) =
       ts.getElongationDuration();
   ts.getInitiationElongationTermination();
-  double total = 0;
+  float total = 0;
   for (auto dur : ts.elongations_durations)
     total += dur;
-  double average = total / ts.elongations_durations.size();
+  float average = total / static_cast<float>(ts.elongations_durations.size());
   ASSERT_LE(average / 100, 0.052 * 1.1);
   ASSERT_GE(average / 100, 0.052 * 0.9);
   std::cerr << "\naverage enlongation: " << average;
@@ -107,7 +107,7 @@ TEST(TranslatorTester, simulateAAAx100xlowInitxHighTerm)
   for (unsigned int i = 1; i < ts.codons_average_occupation_time.size() - 1;
        i++)
     total += ts.codons_average_occupation_time[i];
-  average = total / ts.codons_average_occupation_time.size();
+  average = total / static_cast<float>(ts.codons_average_occupation_time.size());
   // 0.052+-10% tolerance is acceptable
   ASSERT_LE(average, 0.052 * 1.1);
   ASSERT_GE(average, 0.052 * 0.9);
@@ -157,15 +157,15 @@ TEST(TranslatorTester, loadConcentrationsFromString)
   ts.run();
   ts.getAverageTimes();
 
-  std::vector<double> enlongation_duration;
+  std::vector<float> enlongation_duration;
   std::vector<int> iteration_initiation;
   std::tie(enlongation_duration, iteration_initiation) =
       ts.getElongationDuration();
   ts.getInitiationElongationTermination();
-  double total = 0;
+  float total = 0;
   for (auto dur : ts.elongations_durations)
     total += dur;
-  double average = total / ts.elongations_durations.size();
+  float average = total / static_cast<float>(ts.elongations_durations.size());
   ASSERT_LE(average / 100, 0.052 * 1.1);
   ASSERT_GE(average / 100, 0.052 * 0.9);
   std::cerr << "\naverage enlongation: " << average;
@@ -173,7 +173,7 @@ TEST(TranslatorTester, loadConcentrationsFromString)
   for (unsigned int i = 1; i < ts.codons_average_occupation_time.size() - 1;
        i++)
     total += ts.codons_average_occupation_time[i];
-  average = total / ts.codons_average_occupation_time.size();
+  average = total / static_cast<float>(ts.codons_average_occupation_time.size());
   // 0.052+-10% tolerance is acceptable
   ASSERT_LE(average, 0.052 * 1.1);
   ASSERT_GE(average, 0.052 * 0.9);
