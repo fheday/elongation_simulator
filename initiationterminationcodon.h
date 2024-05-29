@@ -11,7 +11,7 @@
  *
  */
 
-#include <math.h>
+#include <cmath>
 #include "mrnaelement.h"
 
 namespace Simulations {
