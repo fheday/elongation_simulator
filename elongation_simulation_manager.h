@@ -16,6 +16,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <array>
 
 namespace Elongation_manager {
 enum stop_condition_enum { ITERATION, TIME, RIBOSOMES, STEADY_STATE_TIME, STEADY_STATE_RIBOSOMES };
@@ -50,7 +51,7 @@ private:
   std::size_t history_size;
   std::vector<std::future<Simulations::Translation>> simulations;
   std::map<std::string, float> reactions_modifiers;
-    std::array<std::string, 44> reactions_identifiers = {
+  std::array<std::string, 44> reactions_identifiers = {
       {"non1f",    "near1f",     "wobble1f", "WC1f",     "non1r",    "near1r",
        "near2f",   "near2r",     "near3f",   "near4f",   "near5f",   "neardiss",
        "near6f",   "wobble1r",   "wobble2f", "wobble2r", "wobble3f", "wobble4f",

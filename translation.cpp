@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <deque>
-#include <float.h>
+#include <cfloat>
 #include <numeric>
 
 #include "initiationterminationcodon.h"
@@ -22,6 +22,7 @@
 #include <iostream>
 #include <list>
 #include <random>
+#include "elongation_codon.h"
 
 
 #define RIBOSOME_SIZE 10

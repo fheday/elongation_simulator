@@ -18,6 +18,8 @@
 #include <tuple>
 #include <unistd.h>
 #include <vector>
+#include <numeric>
+#include <algorithm>
 
 #define EIGEN_NO_DEBUG // disables Eigen's assertions.
 

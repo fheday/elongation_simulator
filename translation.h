@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 #include "circularbuffer.h"
-#include "elongation_codon.h"
+#include "mrnaelement.h"
 
 namespace Simulations {
 
