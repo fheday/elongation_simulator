@@ -113,7 +113,7 @@ void csv_utils::ConcentrationsReader::readConcentratonsStream(std::istream& inpu
       }
       auto result = std::find(stop_codons.begin(), stop_codons.end(), codon);
       // only add if not a stop codon.
-      if (result == end(stop_codons)) {
+      if (result == end(stop_codons) && inputStream.good()) {
         contents.push_back(
             concentration_entry{codon, three_letter, wc_cognate_conc,
                                 wobblecognate_conc, nearcognate_conc});
