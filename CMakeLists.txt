@@ -28,6 +28,14 @@ include_directories("eigen-3.3.7/")
 include_directories("jsoncpp/")
 add_subdirectory("pybind11/")
 
+# Julia interface
+if(BUILD_JULIA)
+    find_package(JlCxx)
+    get_target_property(JlCxx_location JlCxx::cxxwrap_julia LOCATION)
+    get_filename_component(JlCxx_location ${JlCxx_location} DIRECTORY)
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${JlCxx_location}")
+endif(BUILD_JULIA)
+
 add_library(translation EXCLUDE_FROM_ALL MODULE translation.cpp elongation_simulation_manager.cpp elongation_simulation_processor.cpp mrna_reader.cpp initiationterminationcodon.cpp
 concentrationsreader.cpp ribosomesimulator.cpp mrnaelement.cpp elongation_codon.cpp)
 target_compile_definitions(translation PRIVATE -DCOMIPLE_PYTHON_MODULE) # enable python pathway in code.
@@ -36,7 +44,14 @@ set_target_properties(translation PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                           SUFFIX "${PYTHON_MODULE_EXTENSION}")
 
 add_library(ribosomesimulator EXCLUDE_FROM_ALL MODULE concentrationsreader.cpp ribosomesimulator.cpp)
-target_compile_definitions(ribosomesimulator PRIVATE -DCOMIPLE_PYTHON_MODULE) # enable python pathway in code.
+
+target_compile_definitions(ribosomesimulator PRIVATE -DCOMIPLE_PYTHON_MODULE ) # enable python pathway in code.
+# Julia interface
+if(BUILD_JULIA)
+    target_compile_definitions(ribosomesimulator PRIVATE -DCOMIPLE_JULIA_MODULE ) # enable Julia pathway in code.
+    target_link_libraries(ribosomesimulator PRIVATE JlCxx::cxxwrap_julia)
+endif(BUILD_JULIA)
+
 target_link_libraries(ribosomesimulator PRIVATE pybind11::module ${PYTHON_LIBRARIES})
 set_target_properties(ribosomesimulator PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                           SUFFIX "${PYTHON_MODULE_EXTENSION}")
