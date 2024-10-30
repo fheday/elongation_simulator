@@ -57,8 +57,8 @@ PYBIND11_MODULE(ribosomesimulator, mod)
       )docstr")
       .def("run_and_get_times",
            [](Simulations::RibosomeSimulator &rs) {
-             double d = 0.0;
-             double t = 0.0;
+             float d = 0.0;
+             float t = 0.0;
              rs.run_and_get_times(d, t);
              return std::make_tuple(d, t);
            }, R"docstr(
