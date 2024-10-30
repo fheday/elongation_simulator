@@ -896,3 +896,31 @@ void Simulations::RibosomeSimulator::getDecodingAlphas(
     }
   }
 }
+
+
+#if defined(COMIPLE_JULIA_MODULE)
+#include "jlcxx/jlcxx.hpp"
+
+JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
+{
+  mod.add_type<Simulations::RibosomeSimulator>("RibosomeSimulator")
+  .method("loadConcentrations", &Simulations::RibosomeSimulator::loadConcentrations)
+  .method("loadConcentrationsFromString", &Simulations::RibosomeSimulator::loadConcentrationsFromString)
+  .method("setCodonForSimulation", &Simulations::RibosomeSimulator::setCodonForSimulation)
+  .method("setState", &Simulations::RibosomeSimulator::setState)
+  .method("run_and_get_times",
+           [](Simulations::RibosomeSimulator &rs) {
+             double d = 0.0;
+             double t = 0.0;
+             rs.run_and_get_times(d, t);
+             return std::make_tuple(d, t);
+           })
+  .method("run_repeatedly_get_average_time",&Simulations::RibosomeSimulator::run_repeatedly_get_average_time)
+  // .method("setPropensities", &Simulations::RibosomeSimulator::setPropensities)
+  .method("setNonCognate", &Simulations::RibosomeSimulator::setNonCognate)
+  // .method("getPropensities", &Simulations::RibosomeSimulator::getPropensities)
+  .method("getPropensity", &Simulations::RibosomeSimulator::getPropensity)
+  .method("setPropensity", &Simulations::RibosomeSimulator::setPropensity);
+}
+
+#endif
