@@ -15,7 +15,7 @@
 #include "mrnaelement.h"
 
 namespace Simulations {
-class InitiationTerminationCodon : public mRNAElement {
+class InitiationTerminationCodon final : public mRNAElement {
  public:
   InitiationTerminationCodon(float, bool);
   void executeReaction(int r) override;
