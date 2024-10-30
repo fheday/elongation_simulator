@@ -21,7 +21,7 @@ target_link_libraries(calculateCodonsTimes PRIVATE ribosome_simulator_lib)
 add_executable(run_translation run_translation.cpp)
 target_link_libraries(run_translation PRIVATE elongation_simulator_lib)
 
-##python interface
+# #python interface
 # set (PYTHON_EXECUTABLE "python3.10")
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories("eigen-3.3.7/")
@@ -45,5 +45,5 @@ set_target_properties(ribosomesimulator PROPERTIES PREFIX "${PYTHON_MODULE_PREFI
 file(COPY concentrations/Saccharomyces_cerevisiae.csv DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/concentrations)
 
 if(BUILD_TESTS)
-    add_subdirectory(Unit-Tests)
+  add_subdirectory(Unit-Tests)
 endif(BUILD_TESTS)
