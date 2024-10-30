@@ -16,7 +16,7 @@
 
 namespace Simulations {
 
-class ElongationCodon : public mRNAElement {
+class ElongationCodon final : public mRNAElement {
  public:
   ElongationCodon();
   void setCodon(const std::string&);
