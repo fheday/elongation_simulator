@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include "../circularbuffer.h"
 TEST(CircularQueue_int_tester, basic_test) {
     utils::circular_buffer<int> queue(5);
-    for (int i = 0; i < (int) queue.size(); i++) queue.put(i);
-    for (int i = 0; i < (int) queue.size(); i++) ASSERT_EQ(queue.get(), i);
+    for (int i = 0; i < static_cast<int>(queue.size()); i++) queue.put(i);
+    for (int i = 0; i < static_cast<int>(queue.size()); i++) ASSERT_EQ(queue.get(), i);
 }
 
 TEST(CircularQueue_int_tester, peek_back_test) {
@@ -26,9 +26,9 @@ TEST(CircularQueue_int_tester, peek_back_test) {
 
 TEST(CircularQueue_int_tester, CircularQueue_int_to_vector) {
     utils::circular_buffer<int> queue(5);
-    for (int i = 0; i < (int) queue.size(); i++) queue.put(i);
+    for (int i = 0; i < static_cast<int>(queue.size()); i++) queue.put(i);
     auto queue_vector = queue.get_vector(false);
-    for (int i = 0; i < (int) queue.size(); i++) ASSERT_EQ(queue_vector[i], i);
+    for (int i = 0; i < static_cast<int>(queue.size()); i++) ASSERT_EQ(queue_vector[i], i);
 }
 
 TEST(CircularQueue_vector_tester, basic_test) {
@@ -40,7 +40,7 @@ TEST(CircularQueue_vector_tester, basic_test) {
     int count = 1;
     for (std::size_t i = 0; i < queue.size(); i++){
         std::vector<int> elem = queue.get();
-        for (std::size_t j = 0; j < elem.size(); j++) ASSERT_EQ(elem[j], count++);
+        for (int j : elem) ASSERT_EQ(j, count++);
     }
 }
 
@@ -54,6 +54,6 @@ TEST(CircularQueue_vector_tester, queue_vect_to_vect_of_vect_of_int) {
     auto queue_vector = queue.get_vector(false);
     for (std::size_t i = 0; i < queue.size(); i++){
         std::vector<int> elem = queue_vector[i];
-        for (std::size_t j = 0; j < elem.size(); j++) ASSERT_EQ(elem[j], count++);
+        for (int j : elem) ASSERT_EQ(j, count++);
     }
 }

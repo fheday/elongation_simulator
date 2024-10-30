@@ -10,12 +10,12 @@
 
 #include "initiationterminationcodon.h"
 
-Simulations::InitiationTerminationCodon::InitiationTerminationCodon(double prop,
+Simulations::InitiationTerminationCodon::InitiationTerminationCodon(float prop,
                                                                     bool init) {
   propensity = prop;
   is_initiation =
       init;  // boolean to mark if the codon  is initiation or termination.
-  alphas = std::vector<double>(1);
+  alphas = std::vector<float>(1);
   alphas[0] = propensity;
   reactions_index = std::vector<int>(1);
   reactions_index[0] = 0;
@@ -27,19 +27,19 @@ int Simulations::InitiationTerminationCodon::getState() { return state; }
 void Simulations::InitiationTerminationCodon::setState(int s) {
   state = s;
   if (state == 0) {
-    alphas = std::vector<double>(1);
+    alphas = std::vector<float>(1);
     alphas[0] = propensity;
     reactions_index = std::vector<int>(1);
     reactions_index[0] = 23;
   } else if (state == 23 &&
              (!is_initiation ||
               (is_initiation && next_mRNA_element->isAvailable()))) {
-    alphas = std::vector<double>(1);
+    alphas = std::vector<float>(1);
     alphas[0] = 10000;  // verify
     reactions_index = std::vector<int>(1);
     reactions_index[0] = 31;
   } else {
-    alphas = std::vector<double>(0);
+    alphas = std::vector<float>(0);
     reactions_index = std::vector<int>(0);
   }
 }

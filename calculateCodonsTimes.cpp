@@ -42,12 +42,12 @@ std::map<std::string, double> calculate_codons_times(
   ribosome.loadConcentrations(concentrations_file_name);
   csv_utils::ConcentrationsReader cr;
   cr.loadConcentrations(concentrations_file_name);
-  double decoding = 0, translocating = 0;
+  float decoding = 0, translocating = 0;
   std::vector<std::string> codons;
   std::map<std::string, double> codons_times;
   cr.getCodonsVector(codons);
 
-  double total_translocating = 0, codon_total_decoding = 0, n = 0;
+  float total_translocating = 0, codon_total_decoding = 0, n = 0;
   std::ofstream average_times_file;
   std::ofstream times_vector_file;
   // set numbers precision in the files.
@@ -74,7 +74,7 @@ std::map<std::string, double> calculate_codons_times(
     average_times_file << "\"" << codon << "\"";
     std::cout << "Starting codon: " << codon;
     if (!translocating_times) {
-      codon_total_decoding = ribosome.run_repeatedly_get_average_time(iterations) * iterations;
+      codon_total_decoding = ribosome.run_repeatedly_get_average_time(iterations) * static_cast<float>(iterations);
       codon_total_translocating = 0;
     } else {
       for (int i = 0; i < iterations; i++) {
@@ -87,15 +87,15 @@ std::map<std::string, double> calculate_codons_times(
         codon_total_translocating += translocating;
         n++;
         // save vector.
-        vector[static_cast<std::size_t>(i)] = decoding;
-        vector[static_cast<std::size_t>(iterations + i)] = translocating;
+        vector[i] = decoding;
+        vector[iterations + i] = translocating;
       }
     }
-    total_translocating += codon_total_translocating;
+    total_translocating += static_cast<float>(codon_total_translocating);
     // write times and vector to files.
     average_times_file << ", ";
     if (translocating_times) {
-      average_times_file << (codon_total_decoding) / iterations;
+      average_times_file << (codon_total_decoding) / static_cast<float>(iterations);
     } else {
       average_times_file << (codon_total_decoding + codon_total_translocating) /
                                 iterations;
@@ -110,7 +110,7 @@ std::map<std::string, double> calculate_codons_times(
     codons_times[codon] = decoding;
     std::cout << ". Finished. Average time: " ;
     if (translocating_times) {
-      std::cout << codon_total_decoding / iterations;
+      std::cout << codon_total_decoding / static_cast<float>(iterations);
     } else {
       std::cout << (codon_total_decoding + codon_total_translocating) /
                     iterations;

@@ -35,14 +35,18 @@ void init_simulation_processor(py::module &mod) {
 
 Simulations::SimulationProcessor::SimulationProcessor(std::string file_name) {
     configuration_file_name = file_name;
+    initiation_rate=0.0;
+    termination_rate = 0.0;
     std::ifstream config_doc(file_name, std::ifstream::binary);
     Json::Value root; // the json document.
     config_doc >> root;
     parseJson(root);
 }
 
-Simulations::SimulationProcessor::SimulationProcessor(Json::Value root, std::string file_name) {
-    configuration_file_name = file_name;    
+Simulations::SimulationProcessor::SimulationProcessor(Json::Value &root, std::string &file_name) {
+    configuration_file_name = file_name;
+    initiation_rate=0.0;
+    termination_rate = 0.0;
     parseJson(root);
 }
 
@@ -193,7 +197,7 @@ void Simulations::SimulationProcessor::save() {
     
     auto generate_json_vector_of_vector = [&](auto data_vector) {
         Json::Value json_value;
-        for (auto entry:data_vector){
+        for (auto &entry:data_vector){
             Json::Value entry_vector;
             for (auto element:entry) entry_vector.append(element);
             json_value.append(entry_vector);
@@ -217,5 +221,4 @@ void Simulations::SimulationProcessor::save() {
     std::ofstream config_doc_writer(configuration_file_name,
                                         std::ifstream::binary);
     writer->write(newjson, &config_doc_writer);
-    return;
 }

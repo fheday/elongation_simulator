@@ -31,7 +31,7 @@ void Simulations::ElongationCodon::loadConcentrationsFromString(const std::strin
 }
 
 void Simulations::ElongationCodon::setPropensities(
-    std::map<std::string, double> prop) {
+    std::map<std::string, float>& prop) {
   ribosome.setPropensities(prop);
   updateAlphas();
 }
@@ -43,7 +43,7 @@ void Simulations::ElongationCodon::setNoNonCognate(bool noNonCog) {
   updateAlphas();
 }
 
-std::map<std::string, double> Simulations::ElongationCodon::getPropensities() {
+std::map<std::string, float> Simulations::ElongationCodon::getPropensities() {
   return ribosome.getPropensities();
 }
 

@@ -8,7 +8,6 @@
  *
  */
 
-#include "concentrationsreader.h"
 #include "translation.h"
 #include <execinfo.h>
 #include <fstream>
@@ -19,6 +18,8 @@
 #include <tuple>
 #include <unistd.h>
 #include <vector>
+#include <numeric>
+#include <algorithm>
 
 #define EIGEN_NO_DEBUG // disables Eigen's assertions.
 
@@ -37,8 +38,8 @@
 
 void execute_translation(const std::string &concentrations_file,
                          const std::string &mrna_file, 
-                         const std::string &gene_name, double initiation_rate,
-                         double termination_rate, int time_limit,
+                         const std::string &gene_name, float initiation_rate,
+                         float termination_rate, int time_limit,
                          int number_iterations, int number_ribosomes,
                          bool pre_fill_mRNA, bool save_ribosomes_positions,
                          const std::string &output_file_name) {
@@ -63,7 +64,7 @@ void execute_translation(const std::string &concentrations_file,
   ts.setInitiationRate(initiation_rate);
   ts.setTerminationRate(termination_rate);
   if (time_limit > 0) {
-    ts.setTimeLimit(time_limit);
+    ts.setTimeLimit(static_cast<float>(time_limit));
   } else if (number_iterations > 0) {
     ts.setIterationLimit(number_iterations);
   } else if (number_ribosomes > 0) {
@@ -75,15 +76,15 @@ void execute_translation(const std::string &concentrations_file,
   ts.run();
   if (save_ribosomes_positions == false) {
     ts.getAverageTimes();
-    std::vector<double> elongation_duration;
+    std::vector<float> elongation_duration;
     std::vector<int> iteration_initiation;
     std::tie(elongation_duration, iteration_initiation) =
         ts.getElongationDuration();
     // save elongation data into csv file.
 
-    std::vector<double> clock(ts.dt_history.size()), clock_at_initiation(iteration_initiation.size());
+    std::vector<float> clock(ts.dt_history.size()), clock_at_initiation(iteration_initiation.size());
 
-    std::partial_sum(ts.dt_history.begin(), ts.dt_history.end(), clock.begin(), std::plus<double>());
+    std::partial_sum(ts.dt_history.begin(), ts.dt_history.end(), clock.begin(), std::plus<float>());
 
     // get the clock at the initiation of each terminating ribosome.
     std::transform(iteration_initiation.begin(), iteration_initiation.end(), clock_at_initiation.begin(), [&] (auto iteration){return clock[static_cast<std::size_t>(iteration)];});
@@ -164,7 +165,7 @@ int main(int argc, char **argv) {
       {"help", 0, nullptr, 'h'},          {nullptr, 0, nullptr, 0}};
 
   std::string concentration_file, mrna_file, gene_name, output_file;
-  double initiation = 0.0, termination = 0.0;
+  float initiation = 0.0, termination = 0.0;
   int yeast_time, ribosomes, iterations;
   bool stop_condition_passed = false, pre_fill_mRNA = true,
        ribosomes_positions = false;
@@ -193,10 +194,10 @@ int main(int argc, char **argv) {
         gene_name = std::string(optarg);
         break;
       case 'i':
-        initiation = std::stod(optarg);
+        initiation = std::stof(optarg);
         break;
       case 't':
-        termination = std::stod(optarg);
+        termination = std::stof(optarg);
         break;
       case 'y':
         if (!stop_condition_passed) {

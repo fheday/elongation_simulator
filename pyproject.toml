@@ -1,6 +1,6 @@
 [tool.cibuildwheel]
-skip = ["*musllinux*", "*pp*win*"]
+skip = ["*musllinux*", "*pp*win*", "pp*manylinux*"]
 
 [build-system]
-requires = ["setuptools", "pybind11", "numpy"]
+requires = ["setuptools", "numpy", "pyqt5"]
 build-backend = "setuptools.build_meta"

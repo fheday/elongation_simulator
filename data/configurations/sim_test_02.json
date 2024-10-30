@@ -138,5 +138,5 @@
     ],
     "history_size": 1300,
     "results": {},
-    "time_limit": 60.0
+    "time_limit": 600000000000.0
 }

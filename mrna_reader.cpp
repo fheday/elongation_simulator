@@ -17,7 +17,7 @@ mRNA_utils::mRNAReader::mRNAReader() {
   initiation_rate = 0;
 }
 
-void mRNA_utils::mRNAReader::post_process_sequence(std::string raw_sequence) {
+void mRNA_utils::mRNAReader::post_process_sequence(std::string& raw_sequence) {
   // replace all T's for U's.
     std::size_t found = raw_sequence.find('T');
     while (found != std::string::npos) {

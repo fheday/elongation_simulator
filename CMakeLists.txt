@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9.2)
 project(gillespie CXX)
 
 #-fopt-info-vec-missed -g -fno-inline
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -ffast-math -march=native -ftree-vectorize -Wall -DNDEBUG -flto -g")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -ffast-math -march=native -ftree-vectorize -Wall -DNDEBUG -flto=auto -g")
 set(CMAKE_CXX_FLAGS_DEFAULT "${CMAKE_CXX_FLAGS_DEFAULT} -O0 -g3 -Wall -Wextra -fsanitize=leak -fno-omit-frame-pointer -fsanitize=undefined,address")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -Wall -Wextra")
 
@@ -21,8 +21,8 @@ target_link_libraries(calculateCodonsTimes PRIVATE ribosome_simulator_lib)
 add_executable(run_translation run_translation.cpp)
 target_link_libraries(run_translation PRIVATE elongation_simulator_lib)
 
-##python interface
-set (PYTHON_EXECUTABLE "python3.10")
+# #python interface
+# set (PYTHON_EXECUTABLE "python3.10")
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories("eigen-3.3.7/")
 include_directories("jsoncpp/")
@@ -60,5 +60,5 @@ set_target_properties(ribosomesimulator PROPERTIES PREFIX "${PYTHON_MODULE_PREFI
 file(COPY concentrations/Saccharomyces_cerevisiae.csv DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/concentrations)
 
 if(BUILD_TESTS)
-    add_subdirectory(Unit-Tests)
+  add_subdirectory(Unit-Tests)
 endif(BUILD_TESTS)

@@ -16,22 +16,23 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <array>
 
 namespace Elongation_manager {
 enum stop_condition_enum { ITERATION, TIME, RIBOSOMES, STEADY_STATE_TIME, STEADY_STATE_RIBOSOMES };
 class SimulationManager {
 public:
   SimulationManager() = delete;   // no default constructor
-  SimulationManager(std::string); // constructor with configuration file name.
+  explicit SimulationManager(const std::string&); // constructor with configuration file name.
   std::string get_concentration_file_path();
   std::string get_configuration_file_path();
   std::map<std::string, float> get_reactions_modifiers();
-  bool get_pre_populate();
+  [[nodiscard]] bool get_pre_populate() const;
   std::vector<std::tuple<std::string, std::string, float, float, float>> &
   get_simulations_configurations();
-  stop_condition_enum get_stop_condition_type();
-  float get_stop_condition_value();
-  std::size_t get_history_size();
+  [[nodiscard]] stop_condition_enum get_stop_condition_type() const;
+  [[nodiscard]] float get_stop_condition_value() const;
+  [[nodiscard]] std::size_t get_history_size() const;
   bool start(bool verbose=false, unsigned int n_threads = std::thread::hardware_concurrency());
   void set_save_collisions(bool);
   void set_remove_ribosome_positions(bool);
@@ -50,7 +51,7 @@ private:
   std::size_t history_size;
   std::vector<std::future<Simulations::Translation>> simulations;
   std::map<std::string, float> reactions_modifiers;
-    std::array<std::string, 44> reactions_identifiers = {
+  std::array<std::string, 44> reactions_identifiers = {
       {"non1f",    "near1f",     "wobble1f", "WC1f",     "non1r",    "near1r",
        "near2f",   "near2r",     "near3f",   "near4f",   "near5f",   "neardiss",
        "near6f",   "wobble1r",   "wobble2f", "wobble2r", "wobble3f", "wobble4f",

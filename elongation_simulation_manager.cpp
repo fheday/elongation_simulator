@@ -10,11 +10,10 @@
 
 #include "elongation_simulation_manager.h"
 #include <string>
-#include <thread>
 #include <numeric>
 #include <iostream>
 #include <fstream>
-#include "json/json.h"
+#include "jsoncpp/json/json.h"
 #include "elongation_simulation_processor.h"
 #include "threadPool.h"
 
@@ -101,7 +100,7 @@ void init_simulation_manager(py::module &mod) {
 #endif
 
 
-Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
+Elongation_manager::SimulationManager::SimulationManager(const std::string &cfp) {
   configuration_file_path = cfp;
   // calculate directory of configuration file.
   const size_t last_slash_idx = cfp.rfind('/');
@@ -152,7 +151,7 @@ Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
     //there are modifiers.
     auto propensities_json_list = root["propensity_modifiers"].getMemberNames();
 
-    for (auto reaction_name : propensities_json_list)
+    for (auto &reaction_name : propensities_json_list)
       reactions_modifiers[reaction_name] = root["propensity_modifiers"][reaction_name].asFloat();
   }
 
@@ -162,7 +161,7 @@ Elongation_manager::SimulationManager::SimulationManager(std::string cfp) {
     std::cout << "Error in configuration\n";
 };
 
-bool file_exists(std::string file_path) {
+bool file_exists(const std::string &file_path) {
     // check if files exist and if numerical values are valid.
     std::ifstream conf_file_path{file_path};
 
@@ -224,7 +223,7 @@ Elongation_manager::SimulationManager::get_reactions_modifiers() {
   return reactions_modifiers;
 }
 
-bool Elongation_manager::SimulationManager::get_pre_populate() {
+bool Elongation_manager::SimulationManager::get_pre_populate() const {
   return pre_populate;
 }
 
@@ -234,15 +233,15 @@ Elongation_manager::SimulationManager::get_simulations_configurations() {
 }
 
 Elongation_manager::stop_condition_enum
-Elongation_manager::SimulationManager::get_stop_condition_type() {
+Elongation_manager::SimulationManager::get_stop_condition_type() const {
   return stop_condition_type;
 }
 
-float Elongation_manager::SimulationManager::get_stop_condition_value() {
+float Elongation_manager::SimulationManager::get_stop_condition_value() const {
   return stop_condition_value;
 }
 
-std::size_t Elongation_manager::SimulationManager::get_history_size() {
+std::size_t Elongation_manager::SimulationManager::get_history_size() const {
   return history_size;
 }
 
@@ -256,9 +255,9 @@ void Elongation_manager::SimulationManager::set_remove_ribosome_positions(bool r
 
 bool Elongation_manager::SimulationManager::start(bool verbose, unsigned int n_threads) {
   auto number_of_simulations = simulations_configurations.size();
-  auto do_simulation = [&](std::string concentration_file_path,
-                          bool pre_populate, std::string fasta_file,
-                          std::string gene, float init_rate, float term_rate,
+  auto do_simulation = [&](std::string &concentration_file_path,
+                          bool pre_populate, const std::string &fasta_file,
+                          const std::string &gene, float init_rate, float term_rate,
                           stop_condition_enum stop_condition, float stop_value,
                           std::size_t log_size) {
     if (verbose) std::cout<<" Simulating file: "<<fasta_file<<", gene = "<<gene<<"\n";
@@ -291,11 +290,11 @@ bool Elongation_manager::SimulationManager::start(bool verbose, unsigned int n_t
       //get reactions
 
       // auto original_reactions = ts.getPropensities();
-      std::vector<std::map<std::string, double>> changed_propensities_vector = ts.getPropensities();
+      std::vector<std::map<std::string, float>> changed_propensities_vector = ts.getPropensities();
       for (auto &codon : changed_propensities_vector){
         // std::map<std::string, double> new_propensities;
         
-        for (auto item : reactions_modifiers){
+        for (auto &item : reactions_modifiers){
           if ( codon.find(item.first) == codon.end() ) {
             continue; //not found. skip.
           } else {
@@ -374,7 +373,7 @@ bool Elongation_manager::SimulationManager::save_sim(Simulations::Translation& s
   Json::Value ribosomes_history;
   auto generate_json_vector_of_vector = [&](auto &data_vector) {
         Json::Value json_value;
-        for (auto entry:data_vector){
+        for (auto &entry:data_vector){
             Json::Value entry_vector;
             for (auto element:entry) entry_vector.append(element);
             json_value.append(entry_vector);

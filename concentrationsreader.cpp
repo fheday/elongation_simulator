@@ -1,6 +1,10 @@
 #include "concentrationsreader.h"
+// #include <cstddef>
+#include <cstdlib>
 #ifndef _MSC_VER
-#include <error.h>
+#ifndef __APPLE__
+// #include <error.h>
+#endif
 #endif
 
 /*
@@ -14,7 +18,7 @@
  */
 
 #include <algorithm>
-#include <fstream>
+#include <fstream> // IWYU pragma: keep
 #include <string>
 #include <sstream>
 
@@ -41,9 +45,9 @@ void csv_utils::ConcentrationsReader::readConcentratonsStream(std::istream& inpu
   contents.clear();
   std::string codon;
   std::string three_letter;
-  double wc_cognate_conc;
-  double wobblecognate_conc;
-  double nearcognate_conc;
+  float wc_cognate_conc;
+  float wobblecognate_conc;
+  float nearcognate_conc;
   int wc_cognate_conc_index = -1;
   int wobblecognate_conc_index = -1;
   int nearcognate_conc_index = -1;
@@ -99,17 +103,17 @@ void csv_utils::ConcentrationsReader::readConcentratonsStream(std::istream& inpu
         } else if (curr_index == three_letter_index) {
           three_letter = tmp_str;
         } else if (curr_index == wc_cognate_conc_index){
-            wc_cognate_conc = std::atof(tmp_str.c_str());
+            wc_cognate_conc = std::strtof(tmp_str.c_str(), nullptr);
         } else if (curr_index == wobblecognate_conc_index) {
-            wobblecognate_conc = std::atof(tmp_str.c_str());
+            wobblecognate_conc = std::strtof(tmp_str.c_str(), nullptr);
         } else if (curr_index == nearcognate_conc_index) {
-            nearcognate_conc = std::atof(tmp_str.c_str());
+            nearcognate_conc = std::strtof(tmp_str.c_str(), nullptr);
         }
         curr_index++;
       }
       auto result = std::find(stop_codons.begin(), stop_codons.end(), codon);
       // only add if not a stop codon.
-      if (result == end(stop_codons)) {
+      if (result == end(stop_codons) && inputStream.good()) {
         contents.push_back(
             concentration_entry{codon, three_letter, wc_cognate_conc,
                                 wobblecognate_conc, nearcognate_conc});
@@ -126,7 +130,7 @@ void csv_utils::ConcentrationsReader::getContents(
 void csv_utils::ConcentrationsReader::getCodonsVector(
     std::vector<std::string>& codons_vector) {
   codons_vector.clear();
-  for (concentration_entry entry : contents) {
+  for (concentration_entry &entry : contents) {
     codons_vector.push_back(entry.codon);
   }
 }

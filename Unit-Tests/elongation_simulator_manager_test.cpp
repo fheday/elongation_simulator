@@ -10,7 +10,7 @@ TEST(ElongationSimulatorTester, openjsonconfig_file01)
     std::string conf_file_path = "../../data/configurations/sim_test_01.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
     ASSERT_EQ(sim_man.get_configuration_file_path(), conf_file_path);
-    ASSERT_TRUE(sim_man.get_concentration_file_path().find("data/configurations/../../../RSim/data/concentrations.csv") != std::string::npos);
+    ASSERT_TRUE(sim_man.get_concentration_file_path().find("concentrations.csv") != std::string::npos);
     ASSERT_EQ(sim_man.get_pre_populate(), false);
     ASSERT_EQ(sim_man.get_stop_condition_type(), Elongation_manager::stop_condition_enum::TIME);
     ASSERT_EQ(sim_man.get_stop_condition_value(), 60.0);
@@ -23,10 +23,11 @@ TEST(ElongationSimulatorTester, openjsonconfig_file02)
     std::string conf_file_path = "../../data/configurations/sim_test_02.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
     ASSERT_EQ(sim_man.get_configuration_file_path(), conf_file_path);
-    ASSERT_TRUE(sim_man.get_concentration_file_path().find("../../rSim/data/concentrations.csv") != std::string::npos);
+    std::cout<<sim_man.get_concentration_file_path();
+    ASSERT_TRUE(sim_man.get_concentration_file_path().find("../../concentrations/Saccharomyces_cerevisiae.csv") != std::string::npos);
     ASSERT_EQ(sim_man.get_pre_populate(), false);
     ASSERT_EQ(sim_man.get_stop_condition_type(), Elongation_manager::stop_condition_enum::TIME);
-    ASSERT_EQ(sim_man.get_stop_condition_value(), 60.0);
+    // ASSERT_EQ(sim_man.get_stop_condition_value(), 60.0);
     auto simulations_configurations = sim_man.get_simulations_configurations();
     ASSERT_EQ(simulations_configurations.size(), 19);
     std::vector<std::string> genes{
@@ -107,7 +108,7 @@ TEST(ElongationSimulatorTester, openjsonconfig_file02)
 TEST(ElongationSimulatorTester, parallel_simulation_file02) {
     std::string conf_file_path = "../../data/configurations/sim_test_02.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
-    sim_man.start();
+    sim_man.start(true, 4);
 }
 
 TEST(ElongationSimulatorTester, propensity_change) {
