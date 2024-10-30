@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 #include "circularbuffer.h"
-#include "elongation_codon.h"
+#include "mrnaelement.h"
 
 namespace Simulations {
 
@@ -26,11 +26,11 @@ class Translation {
   void loadConcentrations(const std::string&);
   void loadConcentrationsFromString(const std::string&);
 
-  void setInitiationRate(double);
-  void setTerminationRate(double);
+  void setInitiationRate(float);
+  void setTerminationRate(float);
 
   void setIterationLimit(int);
-  void setTimeLimit(double);
+  void setTimeLimit(float);
   void setFinishedRibosomes(int);
   void setSimulateToSteadyState(bool);
   void setSteadyStateTime(float);
@@ -43,38 +43,38 @@ class Translation {
   void run();
 
   void getAverageTimes();
-  std::tuple<std::vector<double>, std::vector<int>> getElongationDuration();
+  std::tuple<std::vector<float>, std::vector<int>> getElongationDuration();
   void getInitiationElongationTermination();
 
   std::vector<int> getRibosomesPositions();
   void setRibosomePositions(std::vector<int>);
 
   void setLogCodonStates(bool log);
-  std::vector<std::tuple<std::vector<int>, std::vector<double>>>
+  std::vector<std::tuple<std::vector<std::size_t>, std::vector<float>>>
   getLogCodonStates();
 
   void getRibosomeCollisions();
 
-  std::vector<double> initiations_durations, elongations_durations,
+  std::vector<float> initiations_durations, elongations_durations,
       terminations_durations;
   std::vector<int> initiation_iteration, termination_iteration;
 
-  double termination_rate = -1;
-  double initiation_rate = -1;
+  float termination_rate = -1;
+  float initiation_rate = -1;
   int iteration_limit = -1;
 
   int finished_ribosomes_limit = -1;
-  double time_limit = -1;
+  float time_limit = -1;
   bool no_noCognate = false;
 
-  std::vector<double> alphas;  // reactions alphas - all available ones.
+  std::vector<float> alphas;  // reactions alphas - all available ones.
   std::vector<std::size_t> codon_index;  // indexes of the codon where the alpha belongs to.
   std::vector<std::size_t> reaction_index;  // in the codon, the index of the reaction.
   std::size_t global_size = 0; // written size of alphas, codon_index, reaction_index.
   std::vector<std::unique_ptr<Simulations::mRNAElement>> codons_vector;
   std::string mrna_file_name;
   std::string gene_name;
-  std::string mrna_input = "";
+  std::string mrna_input;
   std::string concentrations_file_name;
   std::string concentrations_string;
   std::string concentrations_source = "None";
@@ -83,19 +83,19 @@ class Translation {
     "concentrations/Saccharomyces_cerevisiae.csv";
 
 
-  std::vector<double> dt_history;
+  std::vector<float> dt_history;
   std::vector<std::vector<int>> ribosome_positions_history;
 
-  void setPropensities(std::vector<std::map<std::string, double>> prop);
+  void setPropensities(std::vector<std::map<std::string, float>> prop);
   void setNoNonCognate(bool noNonCog);
-  std::vector<std::map<std::string, double>> getPropensities();
+  std::vector<std::map<std::string, float>> getPropensities();
 
   // array with the total times the ribosomes spent in the codons
-  std::vector<double> total_time;
+  std::vector<float> total_time;
   // number of times a codon was occupied
   std::vector<int> n_times_occupied;
   // average occupation time
-  std::vector<double> codons_average_occupation_time;
+  std::vector<float> codons_average_occupation_time;
   // ribosomes colliding
   std::vector<std::vector<int>> colliding_ribosomes;
   //stalled ribosomes (blocking others to elongate)

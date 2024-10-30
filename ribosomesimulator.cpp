@@ -57,8 +57,8 @@ PYBIND11_MODULE(ribosomesimulator, mod)
       )docstr")
       .def("run_and_get_times",
            [](Simulations::RibosomeSimulator &rs) {
-             double d = 0.0;
-             double t = 0.0;
+             float d = 0.0;
+             float t = 0.0;
              rs.run_and_get_times(d, t);
              return std::make_tuple(d, t);
            }, R"docstr(
@@ -168,21 +168,21 @@ void Simulations::RibosomeSimulator::buildReactionsMap()
     if (result == end(stop_codons))
     {
       // Not a stop codon. Proceed.
-      double nonconc = totalconc - entry.wc_cognate_conc -
+      float nonconc = totalconc - entry.wc_cognate_conc -
                        entry.wobblecognate_conc - entry.nearcognate_conc;
       // constants for WCcognate interaction in 1/sec
-      WC1f[entry.codon] = 1.4e8 * entry.wc_cognate_conc;
+      WC1f[entry.codon] = 1.4e8f * entry.wc_cognate_conc;
 
       // constants for wobblecognate interaction in 1/sec
-      wobble1f[entry.codon] = 1.4e8 * entry.wobblecognate_conc;
+      wobble1f[entry.codon] = 1.4e8f * entry.wobblecognate_conc;
 
       // constants for nearcognate interaction in 1/sec
-      near1f[entry.codon] = 1.4e8 * entry.nearcognate_conc;
+      near1f[entry.codon] = 1.4e8f * entry.nearcognate_conc;
 
       // constants for noncognate interaction in 1/sec.
       // Non-cognates are assumed to not undergo any significant
       // interaction but to simply dissociate quickly.
-      non1f[entry.codon] = 1.4e8 * nonconc;
+      non1f[entry.codon] = 1.4e8f * nonconc;
 
       reactions_map[entry.codon] = createReactionsGraph(entry);
     }
@@ -194,7 +194,7 @@ void Simulations::RibosomeSimulator::buildReactionsMap()
 }
 
 void Simulations::RibosomeSimulator::setPropensities(
-    std::map<std::string, double>& prop)
+    std::map<std::string, float>& prop)
 {
   for (auto& it : prop)
   {
@@ -245,26 +245,26 @@ void Simulations::RibosomeSimulator::setPropensities(
 }
 
 void Simulations::RibosomeSimulator::setPropensity(std::string &reaction,
-                                                   const double &propensity)
+                                                   const float &propensity)
 {
   *propensities_map.at(reaction) = propensity;
 }
 
-void Simulations::RibosomeSimulator::setNonCognate(double noNonCog)
+void Simulations::RibosomeSimulator::setNonCognate(float noNonCog)
 {
   non1f[simulation_codon_3_letters] = noNonCog;
 }
 
-double Simulations::RibosomeSimulator::getPropensity(std::string& reaction)
+float Simulations::RibosomeSimulator::getPropensity(std::string& reaction)
 {
   return *propensities_map.at(reaction);
 }
 
-std::map<std::string, double>
+std::map<std::string, float>
 Simulations::RibosomeSimulator::getPropensities()
 {
-  std::map<std::string, double> result;
-  std::vector<double> ks = {non1f[simulation_codon_3_letters],
+  std::map<std::string, float> result;
+  std::vector<float> ks = {non1f[simulation_codon_3_letters],
                             near1f[simulation_codon_3_letters],
                             wobble1f[simulation_codon_3_letters],
                             WC1f[simulation_codon_3_letters],
@@ -362,7 +362,7 @@ void Simulations::RibosomeSimulator::setCodonForSimulation(
 }
 
 void Simulations::RibosomeSimulator::run_and_get_times(
-    double &decoding_time, double &translocation_time)
+    float &decoding_time, float &translocation_time)
 {
   dt_history.clear();
   ribosome_state_history.clear();
@@ -374,9 +374,9 @@ void Simulations::RibosomeSimulator::run_and_get_times(
   std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
   std::uniform_real_distribution<> dis(0, 1);
 
-  double r1 = 0, r2 = 0;
-  double tau = 0;
-  std::vector<double> alphas;
+  float r1 = 0, r2 = 0;
+  float tau = 0;
+  std::vector<float> alphas;
   std::vector<int> next_state;
   while (true)
   {
@@ -384,10 +384,10 @@ void Simulations::RibosomeSimulator::run_and_get_times(
     dt_history.push_back(tau);
     ribosome_state_history.push_back(getState());
     // randomly generate parameter for calculating dt
-    r1 = dis(gen) + DBL_MIN; // adding minumum double value in order to avoid
+    r1 = static_cast<float>(dis(gen)) + FLT_MIN; // adding minumum double value in order to avoid
                              // division by zero and infinities.
     // randomly generate parameter for selecting reaction
-    r2 = dis(gen) + DBL_MIN; // adding minumum double value in order to avoid
+    r2 = static_cast<float>(dis(gen)) + FLT_MIN; // adding minumum double value in order to avoid
                              // division by zero and infinities.
     // calculate an
     getAlphas(alphas, next_state);
@@ -416,14 +416,14 @@ void Simulations::RibosomeSimulator::run_and_get_times(
       // however, if quitting because there is no more reactions, time is infinity
       if (ribosome_state_history.size() == 0)
       {
-        translocation_time = std::numeric_limits<double>::infinity();
-        decoding_time = std::numeric_limits<double>::infinity();
+        translocation_time = std::numeric_limits<float>::infinity();
+        decoding_time = std::numeric_limits<float>::infinity();
       }
       return;
     }
-    double a0 = std::accumulate(alphas.begin(), alphas.end(), 0.0);
+    float a0 = std::accumulate(alphas.begin(), alphas.end(), 0.0f);
     // select next reaction to execute
-    double cumsum = 0;
+    float cumsum = 0;
     int selected_alpha_vector_index = -1;
     // TODO(Heday): vectorization of this loop would increase performance
     do
@@ -434,20 +434,20 @@ void Simulations::RibosomeSimulator::run_and_get_times(
     // Apply reaction
     setState(next_state[static_cast<std::size_t>(selected_alpha_vector_index)]);
     // Update time
-    tau = (1.0 / a0) * log(1.0 / r1);
+    tau = (1.0f / a0) * logf(1.0f / r1);
   }
 }
 
-double Simulations::RibosomeSimulator::run_repeatedly_get_average_time(const int& repetitions)
+float Simulations::RibosomeSimulator::run_repeatedly_get_average_time(const int& repetitions)
 {
 
-  double r1 = 0.0, r2 = 0.0, a0 = 0.0;
-  double cumsum = 0.0;
-  double tau = 0.0, clock = 0.0;
+  float r1 = 0.0, r2 = 0.0, a0 = 0.0;
+  float cumsum = 0.0;
+  float tau = 0.0, clock = 0.0;
   std::size_t selected_alpha_vector_index = 0;
-  std::array<double, 4> alphas{};
+  std::array<float, 4> alphas{};
   std::array<int, 4> next_state{};
-  double k;      // get alphas
+  float k;      // get alphas
   int index, ii; //get alphas
   for (std::size_t i = 0; i < static_cast<std::size_t>(repetitions); i++)
   {
@@ -455,10 +455,10 @@ double Simulations::RibosomeSimulator::run_repeatedly_get_average_time(const int
     while (current_state < 32)
     {
       // randomly generate parameter for calculating dt
-      r1 = dis(gen) + DBL_MIN; // adding minumum double value in order to avoid
+      r1 = static_cast<float>(dis(gen)) + FLT_MIN; // adding minumum double value in order to avoid
                                // division by zero and infinities.
       // randomly generate parameter for selecting reaction
-      r2 = dis(gen) + DBL_MIN; // adding minumum double value in order to avoid
+      r2 = static_cast<float>(dis(gen)) + FLT_MIN; // adding minumum double value in order to avoid
                                // division by zero and infinities.
       // calculate an
       auto &alphas_and_indexes = reactions_graph[static_cast<std::size_t>(
@@ -490,18 +490,18 @@ double Simulations::RibosomeSimulator::run_repeatedly_get_average_time(const int
       // Apply reaction
       setState(next_state[selected_alpha_vector_index - 1]);
       // Update time
-      tau = (1.0 / a0) * log(1.0 / r1);
+      tau = (1.0f / a0) * logf(1.0f / r1);
       clock += tau;
     }
   }
-  return clock / repetitions;
+  return clock / static_cast<float>(repetitions);
 }
 
-std::vector<std::vector<std::tuple<std::reference_wrapper<double>, int>>>
+std::vector<std::vector<std::tuple<std::reference_wrapper<float>, int>>>
 Simulations::RibosomeSimulator::createReactionsGraph(
     const csv_utils::concentration_entry &codon)
 {
-  std::array<std::reference_wrapper<double>, 40> ks = {{non1f[codon.codon],
+  std::array<std::reference_wrapper<float>, 40> ks = {{non1f[codon.codon],
                                                         near1f[codon.codon],
                                                         wobble1f[codon.codon],
                                                         WC1f[codon.codon],
@@ -821,10 +821,10 @@ Simulations::RibosomeSimulator::createReactionsGraph(
   reactionMatrix[39](31, 0) = 1;
 
   int ii = 0;
-  std::vector<std::vector<std::tuple<std::reference_wrapper<double>, int>>> r_g;
+  std::vector<std::vector<std::tuple<std::reference_wrapper<float>, int>>> r_g;
   r_g.resize(32);
   std::fill(r_g.begin(), r_g.end(),
-            std::vector<std::tuple<std::reference_wrapper<double>, int>>());
+            std::vector<std::tuple<std::reference_wrapper<float>, int>>());
   // the vector reactions_graph (I know, not a good name. needs to be changed
   // at some point.), have the following format: reactions_graph[current
   // ribisome state] = [vector of tuples(reaction propensity, ribosome state)]
@@ -857,7 +857,7 @@ int Simulations::RibosomeSimulator::getState() const { return current_state; }
 void Simulations::RibosomeSimulator::setState(int s) { current_state = s; }
 
 void Simulations::RibosomeSimulator::getAlphas(
-    std::vector<double> &as, std::vector<int> &reactions_index)
+    std::vector<float> &as, std::vector<int> &reactions_index)
 {
   as.clear();
   reactions_index.clear();
@@ -865,7 +865,7 @@ void Simulations::RibosomeSimulator::getAlphas(
       current_state)]; // go the possible
                        // reactions of that
                        // state.
-  double k;
+  float k;
   int index;
   for (auto element : alphas_and_indexes)
   {
@@ -876,7 +876,7 @@ void Simulations::RibosomeSimulator::getAlphas(
 }
 
 void Simulations::RibosomeSimulator::getDecodingAlphas(
-    std::vector<double> &as, std::vector<int> &reactions_index)
+    std::vector<float> &as, std::vector<int> &reactions_index)
 {
   as.clear();
   reactions_index.clear();
@@ -884,7 +884,7 @@ void Simulations::RibosomeSimulator::getDecodingAlphas(
       current_state)]; // go the possible
                        // reactions of that
                        // state.
-  double k;
+  float k;
   int index;
   for (auto element : alphas_and_indexes)
   {

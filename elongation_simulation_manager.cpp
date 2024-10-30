@@ -290,7 +290,7 @@ bool Elongation_manager::SimulationManager::start(bool verbose, unsigned int n_t
       //get reactions
 
       // auto original_reactions = ts.getPropensities();
-      std::vector<std::map<std::string, double>> changed_propensities_vector = ts.getPropensities();
+      std::vector<std::map<std::string, float>> changed_propensities_vector = ts.getPropensities();
       for (auto &codon : changed_propensities_vector){
         // std::map<std::string, double> new_propensities;
         

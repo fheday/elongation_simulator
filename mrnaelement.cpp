@@ -9,6 +9,7 @@
  */
 
 #include "mrnaelement.h"
+#include <cstddef>
 
 Simulations::mRNAElement::mRNAElement() {
   index = -1;
@@ -44,12 +45,12 @@ bool Simulations::mRNAElement::isAvailable() const { return is_available; }
 
 bool Simulations::mRNAElement::isOccupied() const { return is_occupied; }
 
-void Simulations::mRNAElement::addReactionToHistory(int state, double dt) {
+void Simulations::mRNAElement::addReactionToHistory(std::size_t state, float dt) {
   state_history.push_back(state);
   dt_history.push_back(dt);
 }
 
-std::pair<std::vector<int>, std::vector<double>>
+std::pair<std::vector<std::size_t>, std::vector<float>>
 Simulations::mRNAElement::getHistory() {
   return {state_history, dt_history};
 }

@@ -3,8 +3,8 @@
 #include "../circularbuffer.h"
 TEST(CircularQueue_int_tester, basic_test) {
     utils::circular_buffer<int> queue(5);
-    for (int i = 0; i < (int) queue.size(); i++) queue.put(i);
-    for (int i = 0; i < (int) queue.size(); i++) ASSERT_EQ(queue.get(), i);
+    for (int i = 0; i < static_cast<int>(queue.size()); i++) queue.put(i);
+    for (int i = 0; i < static_cast<int>(queue.size()); i++) ASSERT_EQ(queue.get(), i);
 }
 
 TEST(CircularQueue_int_tester, peek_back_test) {
@@ -26,9 +26,9 @@ TEST(CircularQueue_int_tester, peek_back_test) {
 
 TEST(CircularQueue_int_tester, CircularQueue_int_to_vector) {
     utils::circular_buffer<int> queue(5);
-    for (int i = 0; i < (int) queue.size(); i++) queue.put(i);
+    for (int i = 0; i < static_cast<int>(queue.size()); i++) queue.put(i);
     auto queue_vector = queue.get_vector(false);
-    for (int i = 0; i < (int) queue.size(); i++) ASSERT_EQ(queue_vector[i], i);
+    for (int i = 0; i < static_cast<int>(queue.size()); i++) ASSERT_EQ(queue_vector[i], i);
 }
 
 TEST(CircularQueue_vector_tester, basic_test) {

@@ -11,21 +11,21 @@
  *
  */
 
-#include <math.h>
+#include <cmath>
 #include "mrnaelement.h"
 
 namespace Simulations {
-class InitiationTerminationCodon : public mRNAElement {
+class InitiationTerminationCodon final : public mRNAElement {
  public:
-  InitiationTerminationCodon(double, bool);
+  InitiationTerminationCodon(float, bool);
   void executeReaction(int r) override;
   int getState() override;
   void setState(int s) override;
   void updateAlphas() override;
 
  private:
-  double propensity;
-  double a0;
+  float propensity;
+  float a0;
   int state = 0;
   bool is_initiation;
 };

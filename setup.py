@@ -10,11 +10,11 @@ import os
 import sys
 import sysconfig
 from setuptools import setup
+DIR = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(DIR, "pybind11/"))
+#del sys.path[-1]
 from pybind11.setup_helpers import Pybind11Extension,\
                             build_ext, ParallelCompile, naive_recompile  # noqa:E402
-DIR = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(os.path.join(DIR, "pybind11"))
-del sys.path[-1]
 
 
 WIN = sys.platform.startswith("win32") and "mingw" not in sysconfig.get_platform()
