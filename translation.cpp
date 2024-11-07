@@ -1,6 +1,6 @@
 /*
  * @file  translation.cpp
- * 
+ *
  * @brief class implementing the translation process
  *
  * @author Fabio Hedayioglu
@@ -11,19 +11,18 @@
 #include "translation.h"
 
 #include <algorithm>
+#include <cfloat>
 #include <cstddef>
 #include <deque>
-#include <cfloat>
 #include <numeric>
 
+#include "elongation_codon.h"
 #include "initiationterminationcodon.h"
 #include "mrna_reader.h"
 #include <fstream>
 #include <iostream>
 #include <list>
 #include <random>
-#include "elongation_codon.h"
-
 
 #define RIBOSOME_SIZE 10
 
@@ -33,11 +32,11 @@
 #include "pybind11/stl.h"
 namespace py = pybind11;
 
-void init_simulation_manager(py::module &); // declare simulation manager
-void init_simulation_processor(py::module &); //declare simulation processor
+void init_simulation_manager(py::module &);   // declare simulation manager
+void init_simulation_processor(py::module &); // declare simulation processor
 
 PYBIND11_MODULE(translation, mod) {
-    mod.doc() = R"pbdoc(
+  mod.doc() = R"pbdoc(
     Module for simulating mRNA translation. 
     This module simulates elongation, given a tRNA concentration, initation rate, termination rate and a stop condition.
     After a simulation has been run, logs and statistics are also available.
@@ -46,11 +45,18 @@ PYBIND11_MODULE(translation, mod) {
       .def(py::init<>(), R"docstr(
         Creates an empty simulator.
       )docstr") // constructor
-      .def("loadMRNA", (void (Simulations::Translation::*) (const std::string &)) &Simulations::Translation::loadMRNA, R"docstr(
+      .def("loadMRNA",
+           (void(Simulations::Translation::*)(const std::string &)) &
+               Simulations::Translation::loadMRNA,
+           R"docstr(
         Reads a Fasta file. Assumes there is only one gene in the file.
         file_name: string with the FASTA file to be read. All occurrences of 'T' will be replaced by 'U'.
       )docstr")
-      .def("loadMRNA", (void (Simulations::Translation::*) (const std::string &, const std::string &)) &Simulations::Translation::loadMRNA, R"docstr(
+      .def("loadMRNA",
+           (void(Simulations::Translation::*)(const std::string &,
+                                              const std::string &)) &
+               Simulations::Translation::loadMRNA,
+           R"docstr(
         Reads a specific gene in a Fasta file.
         file_name: string with the FASTA file to be read. All occurrences of 'T' will be replaced by 'U'.
         gene_name: name of the gene to be read.
@@ -59,23 +65,28 @@ PYBIND11_MODULE(translation, mod) {
         Allows to pass the mRNA to be simulated as a string.
         user_mrna: String with the gene sequence. All occurrences of 'T' will be replaced by 'U'.
       )docstr")
-      .def("loadConcentrations", &Simulations::Translation::loadConcentrations, R"docstr(
+      .def("loadConcentrations", &Simulations::Translation::loadConcentrations,
+           R"docstr(
         Loads a csv file containing the concentrations to be used in this simulation.
         file_name: string with the path to the file containing the concentrations.
       )docstr")
-      .def("loadConcentrationsFromString", &Simulations::Translation::loadConcentrationsFromString, R"docstr(
+      .def("loadConcentrationsFromString",
+           &Simulations::Translation::loadConcentrationsFromString, R"docstr(
         Loads a csv string containing the concentrations to be used in this simulation.
         data: string containing the concentrations. this could be the content of the csv concentrations file.
       )docstr")
-      .def("setInitiationRate", &Simulations::Translation::setInitiationRate, R"docstr(
+      .def("setInitiationRate", &Simulations::Translation::setInitiationRate,
+           R"docstr(
         Sets the initiation rate in initations/sec.
         init_rate: float with the initiation rate.
       )docstr")
-      .def("setTerminationRate", &Simulations::Translation::setTerminationRate, R"docstr(
+      .def("setTerminationRate", &Simulations::Translation::setTerminationRate,
+           R"docstr(
         Sets the termination rate in initations/sec.
         term_rate: float with the termination rate.
       )docstr")
-      .def("setIterationLimit", &Simulations::Translation::setIterationLimit, R"docstr(
+      .def("setIterationLimit", &Simulations::Translation::setIterationLimit,
+           R"docstr(
         Stop condition. Only one can be set.
         Sets number of iterations (ribosome movements) wich will halt the simulation.
         i: integer with the maximum number of iterations to simulate.
@@ -91,21 +102,25 @@ PYBIND11_MODULE(translation, mod) {
              Set the maximum number of terminating ribosomes. The simulation will halt when this number of ribosomes finishes.
              n_ribosomes: integer with the maximum number of terminating ribosomes to simualte.
            )docstr")
-      .def("setSimulateToSteadyState", &Simulations::Translation::setSimulateToSteadyState, R"docstr(
+      .def("setSimulateToSteadyState",
+           &Simulations::Translation::setSimulateToSteadyState, R"docstr(
         Stop condition. This one has to be set with one of these: setSteadyStateTime or setSteadyStateTerminations.
         When setSimulateToSteadyState is set to True, the simulator will first have to reach a steady state situation.
         A steady state situation is when (rate of observed initiations/rate of observed terminations) is between 0.9 and 1.1
         It is worth noticing that depending on the parameters set for the simulation, this could be unreacheable.
       )docstr")
-      .def("setSteadyStateTime", &Simulations::Translation::setSteadyStateTime, R"docstr(
+      .def("setSteadyStateTime", &Simulations::Translation::setSteadyStateTime,
+           R"docstr(
         Once the simulation enters the steady state, it will run for at most the time set in this method.
         time: float with the time (in seconds) the simulation will run after reaching steady state.
       )docstr")
-      .def("setSteadyStateTerminations", &Simulations::Translation::setSteadyStateTerminations, R"docstr(
+      .def("setSteadyStateTerminations",
+           &Simulations::Translation::setSteadyStateTerminations, R"docstr(
         Once the simulation enters the steady state, it will run for at most the number of ribosomes informed in this method terminates.
         terminations: integer with the max number of ribosomes to terminate after reaching steady state.
       )docstr")
-      .def("setHistorySize", &Simulations::Translation::setHistorySize, R"docstr(
+      .def("setHistorySize", &Simulations::Translation::setHistorySize,
+           R"docstr(
         Sets the maximum size of the history log (ribosome positions and time) in entries (lines). If the simulation generates more entries, the old ones
         will be removed. Default size = 100000 entries.
         size: integer with the maximum size of the log in number of entries.
@@ -128,7 +143,8 @@ PYBIND11_MODULE(translation, mod) {
              the first list contains the durations
              the second contains the indexes in dt_history and ribosome_positions_history when the ribosome initiated
            )docstr")
-      .def("setPrepopulate", &Simulations::Translation::setPrepopulate, R"docstr(
+      .def("setPrepopulate", &Simulations::Translation::setPrepopulate,
+           R"docstr(
         This is an optional method to be called BEFORE the simulation.
         It tries to create an approximated configuration where ribosomes would be located in the mRNA
         in a steady state, and use this configutation as the starting state for the simulation. 
@@ -143,43 +159,52 @@ PYBIND11_MODULE(translation, mod) {
              simulation.
              positions: list of integers with the positions of the ribosomes in the mRNA.
            )docstr")
-      .def("setLogCodonStates", &Simulations::Translation::setLogCodonStates, R"docstr(
+      .def("setLogCodonStates", &Simulations::Translation::setLogCodonStates,
+           R"docstr(
         If set to true, in addition to logging the ribosome positions in the mRNA, it also log the ribosome's internal states.
       )docstr")
-      .def("getLogCodonStates", &Simulations::Translation::getLogCodonStates, R"docstr(
+      .def("getLogCodonStates", &Simulations::Translation::getLogCodonStates,
+           R"docstr(
         This method returns a list of lists with the states of the ribosomes in each codon as follows:
         Each element of the list represents a codon in the mRNA.
         For each codon there will be two lists: 
         - the first one with the state, 
         - the second one, with the total time spent in that state.
       )docstr")
-      .def("setPropensities", &Simulations::Translation::setPropensities, R"docstr(
+      .def("setPropensities", &Simulations::Translation::setPropensities,
+           R"docstr(
         This method changes the reactions propensities of all codons.
         prop: a vector with the same size as the mRNA where each entry consists of a dictionary 
         with new propensities. The original propensities vector can obtained by calling getPropensities().
       )docstr")
-      .def("setNonCognate", &Simulations::Translation::setNoNonCognate, R"docstr(
+      .def("setNonCognate", &Simulations::Translation::setNoNonCognate,
+           R"docstr(
         Optimization: this option will disable the non-cognate pathway in the ribosomes.
       )docstr")
-      .def("getPropensities", &Simulations::Translation::getPropensities, R"docstr(
+      .def("getPropensities", &Simulations::Translation::getPropensities,
+           R"docstr(
         This method returns a vector with the same size as the mRNA where each entry consists of 
         a dictionary with the reactions labels and their propensities.
         The vector of dictionaries returned by this method can be changed and used as an input parameter for 
         setPropensities, in order to change a specific reaction's propensity.
       )docstr")
 
-      .def_readonly("mrna_file_name", &Simulations::Translation::mrna_file_name, R"docstr(
+      .def_readonly("mrna_file_name", &Simulations::Translation::mrna_file_name,
+                    R"docstr(
         Atribute: string with the path to mRNA file, set with loadMRNA.
       )docstr")
       .def_readonly("concentrations_file_name",
-                    &Simulations::Translation::concentrations_file_name, R"docstr(
+                    &Simulations::Translation::concentrations_file_name,
+                    R"docstr(
                       Atribute: string with the path to the concentrations file, set with loadConcentrations.
                     )docstr")
-      .def_readonly("dt_history", &Simulations::Translation::dt_history, R"docstr(
+      .def_readonly("dt_history", &Simulations::Translation::dt_history,
+                    R"docstr(
         Attribute: The time taken by each reaction. This numpy array is filled after a simulation has been run.
       )docstr")
       .def_readonly("ribosome_positions_history",
-                    &Simulations::Translation::ribosome_positions_history, R"docstr(
+                    &Simulations::Translation::ribosome_positions_history,
+                    R"docstr(
                       Attribute: List of lists where each entry is created when a ribosome moves, inititates or terminates elongation.
                       each entry constitutes of the positions of all ribosomes in the mRNA. 
                       All codons are zero-based. Each entry in this list has a corresponding dt_history with the time taken between 
@@ -193,60 +218,77 @@ PYBIND11_MODULE(translation, mod) {
                     &Simulations::Translation::termination_rate, R"docstr(
                       Attribute: the termination rate set by setInitiationRate.
                     )docstr")
-      .def_property_readonly("elongations_durations",[](Simulations::Translation &sim){
-                      return sim.getElongationDuration();
-                    }, R"docstr(
+      .def_property_readonly(
+          "elongations_durations",
+          [](Simulations::Translation &sim) {
+            return sim.getElongationDuration();
+          },
+          R"docstr(
                       Attribute: Durations of each completed elongation. The first list contains the duration in seconds of the time
                       taken by a ribosome from initiation to termination, the second list contains the entry number where the ribosome
                       initiated. This attribute is only populated AFTER getElongationDuration method is run.
                     )docstr")
-      .def_readonly("total_time", &Simulations::Translation::total_time, R"docstr(
+      .def_readonly("total_time", &Simulations::Translation::total_time,
+                    R"docstr(
         Attribute: total time ribosomes spent in each codon. Populated after calling getAverageTimes method.
       )docstr")
       .def_readonly("n_times_occupied",
                     &Simulations::Translation::n_times_occupied, R"docstr(
                       Attribute: vector with number of times each codon is occupied. Populated after calling getAverageTimes method.
                     )docstr")
-      .def_property_readonly("average_times", [](Simulations::Translation &sim) {
-             if (sim.codons_average_occupation_time.empty() && !sim.ribosome_positions_history.empty()) sim.getAverageTimes();
-             return sim.codons_average_occupation_time;
-           }
-          , R"docstr(
+      .def_property_readonly(
+          "average_times",
+          [](Simulations::Translation &sim) {
+            if (sim.codons_average_occupation_time.empty() &&
+                !sim.ribosome_positions_history.empty())
+              sim.getAverageTimes();
+            return sim.codons_average_occupation_time;
+          },
+          R"docstr(
             Attribute: vector with average time each codon is occupied by a ribosome. Populated after calling getAverageTimes method.
           )docstr")
-      .def_property_readonly("colliding_ribosomes", [](Simulations::Translation &sim) {
-             sim.getRibosomeCollisions();
-             return sim.colliding_ribosomes;
-           }
-          , R"docstr(
+      .def_property_readonly(
+          "colliding_ribosomes",
+          [](Simulations::Translation &sim) {
+            sim.getRibosomeCollisions();
+            return sim.colliding_ribosomes;
+          },
+          R"docstr(
             Attribute: vector with the positions of the colliding ribosomes. By definition a ribosome is only colliding if another one is stopping it moving forward.
           )docstr")
-      .def_property_readonly("stalled_ribosomes", [](Simulations::Translation &sim) {
-             sim.getRibosomeCollisions();
-             return sim.stalled_ribosomes;
-           }
-          , R"docstr(
+      .def_property_readonly(
+          "stalled_ribosomes",
+          [](Simulations::Translation &sim) {
+            sim.getRibosomeCollisions();
+            return sim.stalled_ribosomes;
+          },
+          R"docstr(
             Attribute: vector with the positions of stalling ribosomes. By definition a stalled ribosome can move forward but is blocking another ribosome to move forward.
           )docstr")
-          .def_property_readonly("saccharomyces_cerevisiae_concentrations",
-                             [](py::object) {
-                               py::object conc_path = py::module::import("concentrations"); // load module
-                               std::string file_name = "/Saccharomyces_cerevisiae.csv";     // file name
-                               std::string conc_path_string;
-                               for (auto item : conc_path.attr("__path__"))
-                               { // iterate the path list
-                                 //cast to string and concatenate with file to form proper path.
-                                 conc_path_string = std::string(item.cast<py::str>());
-                                 break;
-                               }
-                               return conc_path_string + file_name;
-                             }, R"docstr(
+      .def_property_readonly(
+          "saccharomyces_cerevisiae_concentrations",
+          [](py::object) {
+            py::object conc_path =
+                py::module::import("concentrations"); // load module
+            std::string file_name =
+                "/Saccharomyces_cerevisiae.csv"; // file name
+            std::string conc_path_string;
+            for (auto item :
+                 conc_path.attr("__path__")) { // iterate the path list
+              // cast to string and concatenate with file to form proper path.
+              conc_path_string = std::string(item.cast<py::str>());
+              break;
+            }
+            return conc_path_string + file_name;
+          },
+          R"docstr(
                                This attribute can be use as a parameter when setting the concentrations file to the saccharomyces cerevisiae.
                                E.g: sim.loadConcentrations(sim.saccharomyces_cerevisiae_concentrations)
-                             )docstr");;
+                             )docstr");
+  ;
 
-    init_simulation_manager(mod); //include simulation manager to package
-    init_simulation_processor(mod); //include simulation processor to package
+  init_simulation_manager(mod);   // include simulation manager to package
+  init_simulation_processor(mod); // include simulation processor to package
 }
 
 #endif
@@ -264,12 +306,12 @@ void Simulations::Translation::loadConcentrations(
   }
 }
 
-void Simulations::Translation::loadConcentrationsFromString(const std::string & data) {
+void Simulations::Translation::loadConcentrationsFromString(
+    const std::string &data) {
   concentrations_string = data;
   concentrations_source = "string";
-	initializeMRNAReader();
+  initializeMRNAReader();
 }
-
 
 void Simulations::Translation::loadMRNA(const std::string &file_name) {
   std::ifstream ist{file_name};
@@ -282,7 +324,8 @@ void Simulations::Translation::loadMRNA(const std::string &file_name) {
   }
 }
 
-void Simulations::Translation::loadMRNA(const std::string &file_name, const std::string &g_n) {
+void Simulations::Translation::loadMRNA(const std::string &file_name,
+                                        const std::string &g_n) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -299,21 +342,21 @@ void Simulations::Translation::inputMRNA(std::string user_mRNA) {
   initializeMRNAReader();
 }
 
-
 void Simulations::Translation::initializeMRNAReader() {
-  if (concentrations_source != "None" && (!mrna_file_name.empty() || !mrna_input.empty() ) &&
-      is_initiation_set && is_termination_set) {
+  if (concentrations_source != "None" &&
+      (!mrna_file_name.empty() || !mrna_input.empty()) && is_initiation_set &&
+      is_termination_set) {
     // we have the concentrations and mrna file names. we can proceed.
     mRNA_utils::mRNAReader mrr;
-    if (gene_name.empty() && !mrna_file_name.empty()){ 
+    if (gene_name.empty() && !mrna_file_name.empty()) {
       mrr.loadmRNAFile(mrna_file_name);
-    } else if (!gene_name.empty() && !mrna_file_name.empty()){
+    } else if (!gene_name.empty() && !mrna_file_name.empty()) {
       mrr.loadGene(mrna_file_name, gene_name);
     } else {
       mrr.readMRNA(mrna_input);
     }
     std::vector<std::string> stop_codons = {"UAG", "UAA",
-                                          "UGA"};  // list of stop codons.
+                                            "UGA"}; // list of stop codons.
     // fill codon vector.
     int n_codons = mrr.sizeInCodons();
     std::unique_ptr<Simulations::InitiationTerminationCodon> initiation_codon(
@@ -323,21 +366,23 @@ void Simulations::Translation::initializeMRNAReader() {
     initiation_codon->setState(0);
     codons_vector.push_back(std::move(initiation_codon));
     for (int i = 1; i < n_codons - 1; i++) {
-      //check if codon is a stop codon.
-      if(std::find(stop_codons.begin(), stop_codons.end(), mrr.getCodon(i)) != stop_codons.end()) {
-        //stop codon found. we shouldn't have it here.
-        std::cout<<"Stop codon found before the end of gene. Not simulating.\n";
-        is_mRNA_valid =false;
+      // check if codon is a stop codon.
+      if (std::find(stop_codons.begin(), stop_codons.end(), mrr.getCodon(i)) !=
+          stop_codons.end()) {
+        // stop codon found. we shouldn't have it here.
+        std::cout
+            << "Stop codon found before the end of gene. Not simulating.\n";
+        is_mRNA_valid = false;
         break;
       }
       std::unique_ptr<Simulations::ElongationCodon> c(
           new Simulations::ElongationCodon());
-      if (concentrations_source == "file_name"){
+      if (concentrations_source == "file_name") {
         c->loadConcentrations(concentrations_file_name);
       } else if (concentrations_source == "string") {
         c->loadConcentrationsFromString(concentrations_string);
       }
-      
+
       c->codon = mrr.getCodon(i);
       c->setCodon(c->codon);
       c->index = i;
@@ -363,7 +408,8 @@ void Simulations::Translation::initializeMRNAReader() {
   }
 }
 
-void Simulations::Translation::setPropensities(std::vector<std::map<std::string, float>> prop) {
+void Simulations::Translation::setPropensities(
+    std::vector<std::map<std::string, float>> prop) {
   changed_propensities = true;
   for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
     codons_vector[i]->setPropensities(prop[i]);
@@ -380,11 +426,11 @@ void Simulations::Translation::setNoNonCognate(bool noNonCog) {
 std::vector<std::map<std::string, float>>
 Simulations::Translation::getPropensities() {
   auto result = std::vector<std::map<std::string, float>>();
-  result.push_back(std::map<std::string, float>()); // codon 0 will be empty.
+  result.emplace_back(); // codon 0 will be empty.
   for (std::size_t i = 1; i < codons_vector.size() - 1; i++) {
     result.push_back(codons_vector[i]->getPropensities());
   }
-  result.push_back(std::map<std::string, float>()); // last codon will also be empty.
+  result.emplace_back(); // last codon will also be empty.
 
   return result;
 }
@@ -458,15 +504,19 @@ void Simulations::Translation::setSimulateToSteadyState(bool ss) {
 
 void Simulations::Translation::setSteadyStateTime(float t) {
   // only add this condition if terminations is not set.
-  if (t >= 0 && steady_state_terminations < 0) steady_state_time = t;
+  if (t >= 0 && steady_state_terminations < 0)
+    steady_state_time = t;
 }
 
 void Simulations::Translation::setSteadyStateTerminations(int t) {
   // only add this condition if time is not set.
-  if (t >= 0 && steady_state_time < 0) steady_state_terminations = t;
+  if (t >= 0 && steady_state_time < 0)
+    steady_state_terminations = t;
 }
 
-void Simulations::Translation::getAlphas(utils::circular_buffer<std::vector<int>>& ribosome_positions_history_circ_buffer) {
+void Simulations::Translation::getAlphas(
+    utils::circular_buffer<std::vector<int>>
+        &ribosome_positions_history_circ_buffer) {
   std::size_t global_index = 0;
 
   // add initiation if needed.
@@ -476,10 +526,12 @@ void Simulations::Translation::getAlphas(utils::circular_buffer<std::vector<int>
          global_index++) {
       alphas[global_index] = codons_vector[0]->alphas[global_index];
       codon_index[global_index] = 0;
-      reaction_index[global_index] = codons_vector[0]->reactions_index[global_index];
+      reaction_index[global_index] =
+          codons_vector[0]->reactions_index[global_index];
     }
   }
-  for (auto ribosome_index : ribosome_positions_history_circ_buffer.peek_back()) {
+  for (auto ribosome_index :
+       ribosome_positions_history_circ_buffer.peek_back()) {
     for (std::size_t index = 0;
          index < codons_vector[ribosome_index]->alphas.size(); index++) {
       alphas[global_index] = codons_vector[ribosome_index]->alphas[index];
@@ -511,7 +563,8 @@ void Simulations::Translation::insertRibosome(std::size_t position,
 
 void Simulations::Translation::run() {
   utils::circular_buffer<float> dt_history_circ_buffer(history_size);
-  utils::circular_buffer<std::vector<int>> ribosome_positions_history_circ_buffer(history_size);
+  utils::circular_buffer<std::vector<int>>
+      ribosome_positions_history_circ_buffer(history_size);
   // initialize the random generator
   std::random_device
       rd; // Will be used to obtain a seed for the random number engine
@@ -530,14 +583,15 @@ void Simulations::Translation::run() {
   codon_index.resize(4 * max_ribosomes);
   reaction_index.resize(4 * max_ribosomes);
 
-  //check if the mRNA is greater than 2 ribosomes. if not, print error. do not simulate.
+  // check if the mRNA is greater than 2 ribosomes. if not, print error. do not
+  // simulate.
   if (codons_vector.size() < 2 * RIBOSOME_SIZE) {
-    std::cout<<"mRNA too short. not simulating.\n";
+    std::cout << "mRNA too short. not simulating.\n";
     return;
   }
-  //check if mRNA is valid
+  // check if mRNA is valid
   if (is_mRNA_valid == false) {
-    std::cout<<"Can't elongate invalid mRNA. Quitting.\n";
+    std::cout << "Can't elongate invalid mRNA. Quitting.\n";
     return;
   }
 
@@ -548,9 +602,9 @@ void Simulations::Translation::run() {
     std::size_t last_index = 0;
     double time_sum = 0;
     std::map<std::string, double> estimated_codon_time{
-        {"AAA", 0.033433631062507}, {"AAC", 0.076520502567291}, 
+        {"AAA", 0.033433631062507}, {"AAC", 0.076520502567291},
         {"AAG", 0.213781446218490}, {"AAU", 0.795929551124572},
-        {"ACA", 0.507978320121765}, {"ACC", 0.791741490364074},  
+        {"ACA", 0.507978320121765}, {"ACC", 0.791741490364074},
         {"ACG", 0.631365478038787}, {"ACU", 0.231777504086494},
         {"AGA", 0.032752707600593}, {"AGC", 0.159446164965629},
         {"AGG", 0.687197327613830}, {"AGU", 0.927559494972229},
@@ -578,11 +632,11 @@ void Simulations::Translation::run() {
         {"UGC", 0.170239016413689}, {"UGG", 0.174226880073547},
         {"UGU", 0.944100022315979}, {"UUA", 0.187631607055664},
         {"UUC", 0.131067156791687}, {"UUG", 0.287777960300446},
-        {"UUU", 0.882003247737884}
-    };
+        {"UUU", 0.882003247737884}};
     double initiation_time = 0;
-    for (std::size_t i = 0; i < 10; ++i) initiation_time += estimated_codon_time[codons_vector[i]->codon];
-    
+    for (std::size_t i = 0; i < 10; ++i)
+      initiation_time += estimated_codon_time[codons_vector[i]->codon];
+
     insertRibosome(last_index, true);
     for (std::size_t i = RIBOSOME_SIZE; i < codons_vector.size(); ++i) {
       if (i - last_index < RIBOSOME_SIZE)
@@ -607,7 +661,7 @@ void Simulations::Translation::run() {
   dt_history_circ_buffer.put(0.0);
   finished_ribosomes -=
       pre_filled_ribosomes; // we should ignore these ribosomes.
-      
+
   std::size_t moved_codon = 0, current_codon = 0;
   bool initiation = false, termination = false, moved = true;
 
@@ -624,7 +678,7 @@ void Simulations::Translation::run() {
          (time_limit > 0 && clock < time_limit) ||
          (finished_ribosomes_limit > 0 &&
           finished_ribosomes_limit > finished_ribosomes) ||
-          (simulate_to_steady_state && !steady_state_stop_condition_met)) {
+         (simulate_to_steady_state && !steady_state_stop_condition_met)) {
     moved = false;
     initiation = false;
     termination = false;
@@ -639,7 +693,8 @@ void Simulations::Translation::run() {
       std::cout << "no available reactions. quitting.\n";
       break;
     }
-    a0 = static_cast<float>(std::accumulate(alphas.begin(), alphas.begin() + static_cast<long>(global_size), 0.0));
+    a0 = static_cast<float>(std::accumulate(
+        alphas.begin(), alphas.begin() + static_cast<long>(global_size), 0.0));
     selected_alpha_vector_index = 0;
     // The commented code below is the vectorized version of the reaction
     // selection. upper_bound stops when it finds the first position that is
@@ -711,11 +766,13 @@ void Simulations::Translation::run() {
         // initiated.
         rib_positions.put(0);
       } else {
-        rib_positions.replace(static_cast<int>(moved_codon) - 1, static_cast<int>(moved_codon));
+        rib_positions.replace(static_cast<int>(moved_codon) - 1,
+                              static_cast<int>(moved_codon));
       }
       // ribosome movement detected. create new entry in the history.
       dt_history_circ_buffer.put(tau);
-      ribosome_positions_history_circ_buffer.put(rib_positions.get_vector(true));
+      ribosome_positions_history_circ_buffer.put(
+          rib_positions.get_vector(true));
     } else {
       // no ribosome movement. just update dt_history.
       dt_history_circ_buffer.peek_back() += tau;
@@ -726,32 +783,41 @@ void Simulations::Translation::run() {
           reaction_index[selected_alpha_vector_index], tau);
     }
     clock += tau;
-    
-    if ( simulate_to_steady_state ) {
-      if (steady_state) steady_state_elapsed_time += tau; // if steady state enabled, add to stady state time.
-      if ( initiation ) {
-        if ( last_initiation > 0 ) {
-          initiations +=1 / (clock - last_initiation);
+
+    if (simulate_to_steady_state) {
+      if (steady_state)
+        steady_state_elapsed_time +=
+            tau; // if steady state enabled, add to stady state time.
+      if (initiation) {
+        if (last_initiation > 0) {
+          initiations += 1 / (clock - last_initiation);
           n_total_initiations++;
         }
         last_initiation = clock;
-      } else if ( termination ) {
-        if ( last_termination > 0 ) {
+      } else if (termination) {
+        if (last_termination > 0) {
           if (!steady_state) {
-            terminations += 1/(clock - last_termination); // update termination rate
+            terminations +=
+                1 / (clock - last_termination); // update termination rate
           } else {
-            //add terminations in steady state.
+            // add terminations in steady state.
             steady_state_performed_terminations++;
           }
           n_total_terminations++;
         }
         last_termination = clock;
       }
-      //check if termination condition is met.
-      if (n_total_terminations > 2 && n_total_initiations >2) { // start checking from the 3rd initiation and termination onwards.
+      // check if termination condition is met.
+      if (n_total_terminations > 2 &&
+          n_total_initiations > 2) { // start checking from the 3rd initiation
+                                     // and termination onwards.
         if (!steady_state) {
-          float rate = (initiations/static_cast<float>(n_total_initiations))/(terminations/static_cast<float>(n_total_terminations));
-          if (rate >=0.9 && rate <=1.1) { //average initiation rate =+- 90% termination rate.
+          float rate =
+              (initiations / static_cast<float>(n_total_initiations)) /
+              (terminations / static_cast<float>(n_total_terminations));
+          if (rate >= 0.9 &&
+              rate <=
+                  1.1) { // average initiation rate =+- 90% termination rate.
             steady_state = true; // steady state achieved.
             if (steady_state_terminations < 0 && steady_state_time < 0) {
               // there is no additional stop conditions. done.
@@ -760,8 +826,10 @@ void Simulations::Translation::run() {
           }
         } else {
           // steady state already achieved. check next condition
-          if (steady_state_terminations == steady_state_performed_terminations || (steady_state_time > 0 && 
-              (steady_state_elapsed_time > steady_state_time))) {
+          if (steady_state_terminations ==
+                  steady_state_performed_terminations ||
+              (steady_state_time > 0 &&
+               (steady_state_elapsed_time > steady_state_time))) {
             steady_state_stop_condition_met = true;
           }
         }
@@ -770,8 +838,9 @@ void Simulations::Translation::run() {
     i++; // update iteration number.
   }
   // copy log data to the object-wide log system.
-  dt_history = dt_history_circ_buffer.get_vector(false); 
-  ribosome_positions_history = ribosome_positions_history_circ_buffer.get_vector(false);
+  dt_history = dt_history_circ_buffer.get_vector(false);
+  ribosome_positions_history =
+      ribosome_positions_history_circ_buffer.get_vector(false);
 }
 
 /**
@@ -812,7 +881,7 @@ void Simulations::Translation::getInitiationElongationTermination() {
   for (std::size_t i = 1; i < ribosome_positions_history.size(); i++) {
     std::vector<int> &rib_positions = ribosome_positions_history[i];
     for (std::size_t j = 0; j < rib_positions.size(); j++) {
-      std::size_t pos = static_cast<std::size_t>(rib_positions[j]);
+      auto pos = static_cast<std::size_t>(rib_positions[j]);
       if (pos == 0) {
         // initiating.
         if (rib_positions.size() > previous_size) {
@@ -893,7 +962,7 @@ std::vector<int> Simulations::Translation::getRibosomesPositions() {
 void Simulations::Translation::setRibosomePositions(
     std::vector<int> positions) {
   // validate: did the user passed ribosomes?
-  if (positions.size() == 0) {
+  if (positions.empty()) {
     throw std::out_of_range("No ribosomes in the vector...");
   }
   // validate: check if all ribosomes are inside mRNA
@@ -930,7 +999,7 @@ void Simulations::Translation::getAverageTimes() {
   std::vector<int> last_index_occupied(number_codons);
   std::fill(last_index_occupied.begin(), last_index_occupied.end(), -1);
   int iteration_number = 0;
-  for (auto& ribosome_vector : ribosome_positions_history) {
+  for (auto &ribosome_vector : ribosome_positions_history) {
     for (int position : ribosome_vector) {
       total_time[static_cast<std::size_t>(position)] +=
           dt_history[static_cast<std::size_t>(iteration_number)];
@@ -958,7 +1027,8 @@ void Simulations::Translation::getAverageTimes() {
        codon_position++) {
     codons_average_occupation_time[codon_position] =
         n_times_occupied[codon_position] > 0
-            ? total_time[codon_position] / static_cast<float>(n_times_occupied[codon_position])
+            ? total_time[codon_position] /
+                  static_cast<float>(n_times_occupied[codon_position])
             : 0;
   }
 }
@@ -973,37 +1043,33 @@ Simulations::Translation::getLogCodonStates() {
       codons_vector.size());
   std::vector<std::size_t> state;
   std::vector<double> dt;
-  for (std::size_t i = 0; i < codons_vector.size(); i++) result[i] = codons_vector[i]->getHistory();
+  for (std::size_t i = 0; i < codons_vector.size(); i++)
+    result[i] = codons_vector[i]->getHistory();
   return result;
 }
 
-void Simulations::Translation::getRibosomeCollisions()
-{
-  if (!is_collisions_calculated && !ribosome_positions_history.empty())
-  {
+void Simulations::Translation::getRibosomeCollisions() {
+  if (!is_collisions_calculated && !ribosome_positions_history.empty()) {
     // calculate collisions
-    for (auto ribosomes_positions : ribosome_positions_history)
-    {
+    for (auto ribosomes_positions : ribosome_positions_history) {
       std::vector<int> collision_entry;
       std::vector<int> stall_entry;
-      if (ribosomes_positions.size() == 0) continue;
-      for (std::size_t i = 0; i < ribosomes_positions.size() - 1; i++)
-      {
-        if (ribosomes_positions[i + 1] - ribosomes_positions[i] == 10)
-        {
+      if (ribosomes_positions.empty())
+        continue;
+      for (std::size_t i = 0; i < ribosomes_positions.size() - 1; i++) {
+        if (ribosomes_positions[i + 1] - ribosomes_positions[i] == 10) {
           // colliding ribosome: collision with the next ribosome detected.
           collision_entry.emplace_back(ribosomes_positions[i]);
-        }
-        else if (!collision_entry.empty() && ribosomes_positions[i] - collision_entry.back() == 10)
-        {
+        } else if (!collision_entry.empty() &&
+                   ribosomes_positions[i] - collision_entry.back() == 10) {
           // stalled ribosome: no collision with next ribosome,
           // but collision with previous ribosome detected.
           stall_entry.emplace_back(ribosomes_positions[i]);
         }
       }
       // check last entry. it can only stall.
-      if (!collision_entry.empty() && ribosomes_positions.back() - collision_entry.back() == 10)
-      {
+      if (!collision_entry.empty() &&
+          ribosomes_positions.back() - collision_entry.back() == 10) {
         // stalled ribosome: no collision with next ribosome,
         // but collision with previous ribosome detected.
         stall_entry.emplace_back(ribosomes_positions.back());
