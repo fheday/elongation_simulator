@@ -37,7 +37,7 @@ void init_simulation_processor(py::module &mod) {
 }
 #endif
 
-Simulations::SimulationProcessor::SimulationProcessor(std::string file_name) {
+Simulations::SimulationProcessor::SimulationProcessor(std::string file_name) { //NOLINT performance-unnecessary-value-param¶
   configuration_file_name = file_name;
   initiation_rate = 0.0;
   termination_rate = 0.0;
