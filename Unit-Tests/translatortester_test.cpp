@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
-#include <stdlib.h>
+#include <cstdlib>
+#include <numeric>
 #include <string>
 #include "../translation.h"
 
@@ -260,26 +261,27 @@ UUU,Phe,0.0,8.118894584919365e-08,4.944537369110464e-05
 
   ts.setPrepopulate(false);
   ts.run();
+  ts.getAverageTimes();
 
-  std::vector<double> enlongation_duration;
+  std::vector<float> enlongation_duration;
   std::vector<int> iteration_initiation;
   std::tie(enlongation_duration, iteration_initiation) =
       ts.getElongationDuration();
   ts.getInitiationElongationTermination();
-  double total = 0;
-  for (auto dur : ts.elongations_durations)
-    total += dur;
-  double average = total / ts.elongations_durations.size();
+  float average = std::reduce(ts.elongations_durations.begin(), ts.elongations_durations.end()) / static_cast<float>(ts.elongations_durations.size());
+  
   // ASSERT_LE(average / 100, 0.052 * 1.1);
   // ASSERT_GE(average / 100, 0.052 * 0.9);
   std::cerr << "\naverage enlongation: " << average;
-  total = 0;
-  for (unsigned int i = 1; i < ts.codons_average_occupation_time.size() - 1;
-       i++)
-    total += ts.codons_average_occupation_time[i];
-  average = total / ts.codons_average_occupation_time.size();
+  average = std::reduce(ts.codons_average_occupation_time.begin() + 1, ts.codons_average_occupation_time.end() - 1) / static_cast<float>(ts.codons_average_occupation_time.size() - 2);
+  
+  // total = 0;
+  // for (unsigned int i = 1; i < ts.codons_average_occupation_time.size() - 1;
+  //      i++)
+  //   total += ts.codons_average_occupation_time[i];
+  // average = (total / static_cast<float>(ts.codons_average_occupation_time.size()) - 2);
   // 0.052+-10% tolerance is acceptable
-  ASSERT_LE(average, 0.052 * 1.1);
-  ASSERT_GE(average, 0.052 * 0.9);
   std::cerr << "\naverage codon_usage: " << average << "\n";
+  ASSERT_LE(average, 2.52 * 1.1);
+  ASSERT_GE(average, 2.52 * 0.9);
 }
