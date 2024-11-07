@@ -1,6 +1,6 @@
 /*
  * @file  elongation_codon.cpp
- * 
+ *
  * @brief implementation of general representation of codon
  *
  * @author Fabio Hedayioglu
@@ -11,10 +11,10 @@
 #include "elongation_codon.h"
 #include <fstream>
 
-Simulations::ElongationCodon::ElongationCodon() {}
+Simulations::ElongationCodon::ElongationCodon() = default;
 
 void Simulations::ElongationCodon::loadConcentrations(
-    const std::string& file_name) {
+    const std::string &file_name) {
   std::ifstream ist{file_name};
 
   if (!ist) {
@@ -26,12 +26,13 @@ void Simulations::ElongationCodon::loadConcentrations(
   }
 }
 
-void Simulations::ElongationCodon::loadConcentrationsFromString(const std::string& data) {
+void Simulations::ElongationCodon::loadConcentrationsFromString(
+    const std::string &data) {
   ribosome.loadConcentrationsFromString(data);
 }
 
 void Simulations::ElongationCodon::setPropensities(
-    std::map<std::string, float>& prop) {
+    std::map<std::string, float> &prop) {
   ribosome.setPropensities(prop);
   updateAlphas();
 }
@@ -47,12 +48,11 @@ std::map<std::string, float> Simulations::ElongationCodon::getPropensities() {
   return ribosome.getPropensities();
 }
 
-void Simulations::ElongationCodon::setCodon(const std::string& cdn) {
+void Simulations::ElongationCodon::setCodon(const std::string &cdn) {
   ribosome.setCodonForSimulation(cdn);
   // update reactions.
   ribosome.getAlphas(alphas, reactions_index);
 }
-
 
 void Simulations::ElongationCodon::executeReaction(int r) {
   // execute reaction.
