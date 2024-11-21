@@ -4,3 +4,13 @@ skip = ["*musllinux*", "*pp*win*", "pp*manylinux*"]
 [build-system]
 requires = ["setuptools", "numpy", "pyqt5"]
 build-backend = "setuptools.build_meta"
+
+[tool.pylint.format]
+max-line-length = 120
+[tool.pylint.DESIGN]
+# Maximum number of statements in function / method body.
+max-statements = 60
+# Maximum number of branch for function / method body.
+max-branches = 31
+max-args = 6
+max-positional-arguments = 6
