@@ -4,13 +4,13 @@ Gui module to build and save a simulation set
 '''
 
 import os
+import json
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QLabel, QPushButton,\
     QFileDialog, QSpinBox, QDoubleSpinBox, QCheckBox, QListWidget, QTableWidget,\
     QHeaderView, QTableWidgetItem, QGroupBox, QRadioButton
 from PyQt5 import QtCore
 from Bio import SeqIO
 import pandas as pd
-import json
 
 class Gui():
     """
