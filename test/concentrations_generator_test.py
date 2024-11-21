@@ -1,8 +1,8 @@
-from concentrations import concentrations_generator
-import pandas as pd
-import unittest   # The test framework
 import tempfile
+import unittest   # The test framework
 import json
+import pandas as pd
+from concentrations import concentrations_generator
 
 class Test_concentrations_generator_pairings(unittest.TestCase):
 
