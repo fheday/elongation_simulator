@@ -57,7 +57,7 @@ set_target_properties(ribosomesimulator PROPERTIES PREFIX "${PYTHON_MODULE_PREFI
                                           SUFFIX "${PYTHON_MODULE_EXTENSION}")
 
 
-file(COPY concentrations/Saccharomyces_cerevisiae.csv DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/concentrations)
+file(COPY ../concentrations/Saccharomyces_cerevisiae.csv DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/concentrations)
 
 if(BUILD_TESTS)
   add_subdirectory(Unit-Tests)

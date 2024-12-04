@@ -11,7 +11,7 @@ import sys
 import sysconfig
 from setuptools import setup
 DIR = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(os.path.join(DIR, "pybind11/"))
+sys.path.append(os.path.join(DIR, "src/pybind11/"))
 #del sys.path[-1]
 from pybind11.setup_helpers import Pybind11Extension,\
                             build_ext, ParallelCompile, naive_recompile  # noqa:E402
@@ -42,18 +42,18 @@ else:
 ext_modules = [
     Pybind11Extension(
         "translation",
-        ["concentrationsreader.cpp", "mrna_reader.cpp", "elongation_codon.cpp",
-         "initiationterminationcodon.cpp", "mrnaelement.cpp", "translation.cpp",
-         "ribosomesimulator.cpp", "elongation_simulation_manager.cpp",
-         "elongation_simulation_processor.cpp", "./jsoncpp/jsoncpp.cpp"],
-        include_dirs=["./jsoncpp/", "./eigen-3.3.7/", "./pybind11/"],
+        ["src/concentrationsreader.cpp", "src/mrna_reader.cpp", "src/elongation_codon.cpp",
+         "src/initiationterminationcodon.cpp", "src/mrnaelement.cpp", "src/translation.cpp",
+         "src/ribosomesimulator.cpp", "src/elongation_simulation_manager.cpp",
+         "src/elongation_simulation_processor.cpp", "./src/jsoncpp/jsoncpp.cpp"],
+        include_dirs=["./src/jsoncpp/", "./src/eigen-3.3.7/", "./src/pybind11/"],
         extra_compile_args=EXTRA_COMPILE_ARGS
     ),
     Pybind11Extension(
         "ribosomesimulator",
-        ["concentrationsreader.cpp", "mrna_reader.cpp", "ribosomesimulator.cpp",
-         "./jsoncpp/jsoncpp.cpp"],
-        include_dirs=["./jsoncpp/", "./eigen-3.3.7/", "./pybind11/"],
+        ["src/concentrationsreader.cpp", "src/mrna_reader.cpp", "src/ribosomesimulator.cpp",
+         "./src/jsoncpp/jsoncpp.cpp"],
+        include_dirs=["./src/jsoncpp/", "./src/eigen-3.3.7/", "./src/pybind11/"],
         extra_compile_args=EXTRA_COMPILE_ARGS
     )
 ]
