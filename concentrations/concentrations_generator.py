@@ -219,7 +219,7 @@ def make_concentrations(matrices_dict: dict, t_rnas: pd.DataFrame, codons: pd.Da
     nearcognate = matrices_dict["nearcognate.matrix"]
 
     # construct empty results dataframe
-    trna_concentrations = pd.DataFrame(codons[[codons.columns[0]]])
+    trna_concentrations = pd.DataFrame(codons[[codons.columns[0], codons.columns[1]]])
     trna_concentrations["WCcognate.conc"] = 0.0
     trna_concentrations["wobblecognate.conc"] = 0.0
     trna_concentrations["nearcognate.conc"] = 0.0
