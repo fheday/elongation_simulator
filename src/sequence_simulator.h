@@ -1,5 +1,5 @@
-#ifndef TRANSLATION_H
-#define TRANSLATION_H
+#ifndef SEQUENCESIMULATOR_H
+#define SEQUENCESIMULATOR_H
 /*
  * @file  translation.h
  * 
@@ -17,7 +17,7 @@
 
 namespace Simulations {
 
-class Translation {
+class SequenceSimulator {
  public:
   void loadMRNA(const std::string&);
   void loadMRNA(const std::string&, const std::string&);
@@ -118,4 +118,4 @@ class Translation {
   void getAlphas(utils::circular_buffer<std::vector<int>>&);
 };
 }  // namespace Simulations
-#endif  // TRANSLATION_H
+#endif  // SEQUENCESIMULATOR_H

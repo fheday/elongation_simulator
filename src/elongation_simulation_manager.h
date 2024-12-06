@@ -11,7 +11,7 @@
  *
  */
 
-#include "translation.h"
+#include "sequence_simulator.h"
 #include <future>
 #include <string>
 #include <tuple>
@@ -49,7 +49,7 @@ private:
   stop_condition_enum stop_condition_type;
   float stop_condition_value;
   std::size_t history_size;
-  std::vector<std::future<Simulations::Translation>> simulations;
+  std::vector<std::future<Simulations::SequenceSimulator>> simulations;
   std::map<std::string, float> reactions_modifiers;
   std::array<std::string, 44> reactions_identifiers = {
       {"non1f",    "near1f",     "wobble1f", "WC1f",     "non1r",    "near1r",
@@ -61,7 +61,7 @@ private:
        "trans6",   "trans7",     "trans8",   "trans9"}};
 
   bool is_simulation_valid();
-  bool save_sim(Simulations::Translation&);
+  bool save_sim(Simulations::SequenceSimulator&);
 };
 } // namespace Elongation_manager
 #endif // ELONGATION_MANAGER_ELONGATIONSIMULATIONMANAGER_H

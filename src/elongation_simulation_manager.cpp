@@ -17,7 +17,7 @@
 #include "elongation_simulation_processor.h"
 #include "threadPool.h"
 
-#if defined(COMIPLE_PYTHON_MODULE) || defined(TRANSLATIONSIMULATOR)
+#if defined(COMIPLE_PYTHON_MODULE) || defined(SEQUENCESIMULATOR)
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -262,7 +262,7 @@ bool Elongation_manager::SimulationManager::start(bool verbose, unsigned int n_t
                           std::size_t log_size) {
     if (verbose) std::cout<<" Simulating file: "<<fasta_file<<", gene = "<<gene<<"\n";
     // prepare and run the simulation.
-    Simulations::Translation ts;
+    Simulations::SequenceSimulator ts;
     ts.loadConcentrations(concentration_file_path);
     ts.loadMRNA(fasta_file, gene);
     ts.setInitiationRate(init_rate);
@@ -362,7 +362,7 @@ bool Elongation_manager::SimulationManager::start(bool verbose, unsigned int n_t
   return true;
 }
 
-bool Elongation_manager::SimulationManager::save_sim(Simulations::Translation& sim) {
+bool Elongation_manager::SimulationManager::save_sim(Simulations::SequenceSimulator& sim) {
   Json::Value newjson;
   newjson["fasta_file"] = sim.mrna_file_name;
   newjson["initiation_rate"] = sim.initiation_rate;

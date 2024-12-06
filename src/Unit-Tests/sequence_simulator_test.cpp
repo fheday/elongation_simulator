@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <numeric>
 #include <string>
-#include "../translation.h"
+#include "../sequence_simulator.h"
 
 std::string concentrationsString = R"(codon,three.letter,WCcognate.conc,wobblecognate.conc,nearcognate.conc
 AAA,Lys,4.90774907749077E-06,0,1.40221402214022E-06
@@ -73,9 +73,9 @@ UUU,Phe,7.01107011070111E-06,0,1.68265682656827E-05
 
 std::string mRNA_aaa = "AUGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUGA";
 
-TEST(TranslatorTester, simulateAAAx100xlowInitxHighTerm)
+TEST(SequenceSimulatorTester, simulateAAAx100xlowInitxHighTerm)
 {
-  Simulations::Translation ts;
+  Simulations::SequenceSimulator ts;
   char const *home_dir;
   home_dir = getenv("HOME");
   if (home_dir == nullptr) {
@@ -115,9 +115,9 @@ TEST(TranslatorTester, simulateAAAx100xlowInitxHighTerm)
   std::cerr << "\naverage codon_usage: " << average << "\n";
 }
 
-TEST(TranslatorTester, checkSpaceBetweenRibosomes)
+TEST(SequenceSimulatorTester, checkSpaceBetweenRibosomes)
 {
-  Simulations::Translation ts;
+  Simulations::SequenceSimulator ts;
   char const *home_dir;
   home_dir = getenv("HOME");
   if (home_dir == nullptr) {
@@ -141,9 +141,9 @@ TEST(TranslatorTester, checkSpaceBetweenRibosomes)
   }
 }
 
-TEST(TranslatorTester, loadConcentrationsFromString)
+TEST(SequenceSimulatorTester, loadConcentrationsFromString)
 {
-  Simulations::Translation ts;
+  Simulations::SequenceSimulator ts;
   
   ts.loadConcentrationsFromString(concentrationsString);
   ts.inputMRNA(mRNA_aaa);
@@ -181,9 +181,9 @@ TEST(TranslatorTester, loadConcentrationsFromString)
   std::cerr << "\naverage codon_usage: " << average << "\n";
 }
 
-TEST(TranslatorTester, testStopAfter5kRibosomesFinished)
+TEST(SequenceSimulatorTester, testStopAfter5kRibosomesFinished)
 {
-  Simulations::Translation ts;
+  Simulations::SequenceSimulator ts;
   std::string mRNA = "ATGAAATGGGTCACCTTTATATCCTTATTATTTTTATTTTCCTCCGCCTACTCCGTCTTTACCTTAGAGGATTTTGTCGGTGATTGGCGCCAGACCGCCGGTTACAATTTAGATCAGGTCTTAGAGCAGGGTGGTGTCTCCTCCTTATTTCAGAATTTAGGTGTCTCCGTCACCCCCATACAGCGCATAGTCTTATCCGGTGAGAATGGTTTAAAAATAGATATACATGTCATAATACCCTACGAGGGTTTATCCGGTGATCAGATGGGTCAGATAGAGAAAATATTTAAAGTCGTCTACCCCGTCGATGATCATCATTTTAAAGTCATATTACATTACGGTACCTTAGTCATAGATGGTGTCACCCCCAATATGATAGATTACTTTGGTCGCCCCTACGAGGGTATAGCCGTCTTTGATGGTAAAAAAATAACCGTCACCGGTACCTTATGGAATGGTAATAAAATAATAGATGAGCGCTTAATAAATCCCGATGGTTCCTTATTATTTCGCGTCACCATAAATGGTGTCACCGGTTGGCGCTTATGTGAGCGCATATTAGCCTAA";
   std::string SKMC_concentration= R"(codon,three.letter,WCcognate.conc,wobblecognate.conc,nearcognate.conc
 AAA,Lys,2.799655413453454e-07,0.0,0.0

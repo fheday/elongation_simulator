@@ -38,9 +38,9 @@ else:
 
 ext_modules = [
     Pybind11Extension(
-        "translation",
+        "sequence_simulator",
         ["src/concentrationsreader.cpp", "src/mrna_reader.cpp", "src/elongation_codon.cpp",
-         "src/initiationterminationcodon.cpp", "src/mrnaelement.cpp", "src/translation.cpp",
+         "src/initiationterminationcodon.cpp", "src/mrnaelement.cpp", "src/sequence_simulator.cpp",
          "src/codonsimulator.cpp", "src/elongation_simulation_manager.cpp",
          "src/elongation_simulation_processor.cpp", "./src/jsoncpp/jsoncpp.cpp"],
         include_dirs=["./src/jsoncpp/", "./src/eigen-3.3.7/", "./src/pybind11/"],

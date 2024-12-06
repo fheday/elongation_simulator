@@ -11,7 +11,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC")
 
 set(common_sources concentrationsreader.cpp mrna_reader.cpp)
 set(codon_simulator_sources codonsimulator.cpp ${common_sources})
-set(elongation_simulator_sources   elongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.cpp ${codon_simulator_sources} elongation_simulation_manager.cpp elongation_simulation_processor.cpp)
+set(elongation_simulator_sources   elongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp sequence_simulator.cpp ${codon_simulator_sources} elongation_simulation_manager.cpp elongation_simulation_processor.cpp)
 add_library(util_lib STATIC ${common_sources})
 add_library(codon_simulator_lib STATIC ${codon_simulator_sources})
 add_library(elongation_simulator_lib STATIC  ${elongation_simulator_sources})
@@ -36,11 +36,11 @@ if(BUILD_JULIA)
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${JlCxx_location}")
 endif(BUILD_JULIA)
 
-add_library(translation EXCLUDE_FROM_ALL MODULE translation.cpp elongation_simulation_manager.cpp elongation_simulation_processor.cpp mrna_reader.cpp initiationterminationcodon.cpp
+add_library(sequence_simulator EXCLUDE_FROM_ALL MODULE sequence_simulator.cpp elongation_simulation_manager.cpp elongation_simulation_processor.cpp mrna_reader.cpp initiationterminationcodon.cpp
 concentrationsreader.cpp codonsimulator.cpp mrnaelement.cpp elongation_codon.cpp)
-target_compile_definitions(translation PRIVATE -DCOMIPLE_PYTHON_MODULE) # enable python pathway in code.
-target_link_libraries(translation PRIVATE pybind11::module ${PYTHON_LIBRARIES} jsoncpp)
-set_target_properties(translation PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
+target_compile_definitions(sequence_simulator PRIVATE -DCOMIPLE_PYTHON_MODULE) # enable python pathway in code.
+target_link_libraries(sequence_simulator PRIVATE pybind11::module ${PYTHON_LIBRARIES} jsoncpp)
+set_target_properties(sequence_simulator PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                           SUFFIX "${PYTHON_MODULE_EXTENSION}")
 
 add_library(codonsimulator EXCLUDE_FROM_ALL MODULE concentrationsreader.cpp codonsimulator.cpp)

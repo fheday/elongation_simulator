@@ -13,7 +13,7 @@
 #include <fstream>
 #include <iostream>
 
-#if defined(COMIPLE_PYTHON_MODULE) || defined(TRANSLATIONSIMULATOR)
+#if defined(COMIPLE_PYTHON_MODULE) || defined(SEQUENCESIMULATOR)
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
