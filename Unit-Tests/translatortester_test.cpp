@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <numeric>
 #include <string>
-#include "../translation.h"
+#include "../src/translation.h"
 
 std::string concentrationsString = R"(codon,three.letter,WCcognate.conc,wobblecognate.conc,nearcognate.conc
 AAA,Lys,4.90774907749077E-06,0,1.40221402214022E-06
