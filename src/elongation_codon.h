@@ -12,7 +12,7 @@
  */
 
 #include "mrnaelement.h"
-#include "ribosomesimulator.h"
+#include "codonsimulator.h"
 
 namespace Simulations {
 
@@ -33,7 +33,7 @@ class ElongationCodon final : public mRNAElement {
 
  private:
   // std::string concentrations_file_name;
-  RibosomeSimulator ribosome;
+  CodonSimulator ribosome;
 };
 }  // namespace Simulations
 

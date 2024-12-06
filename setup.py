@@ -6,15 +6,16 @@
 # :Copyright: © 2020 Fabio Hedayioglu
 #
 
-import os
+#import os
 import sys
 import sysconfig
 from setuptools import setup
-DIR = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(os.path.join(DIR, "src/pybind11/"))
+from setuptools.command.build_ext import build_ext
+#DIR = os.path.abspath(os.path.dirname(__file__))
+#sys.path.append(os.path.join(DIR, "src/pybind11/"))
 #del sys.path[-1]
 from pybind11.setup_helpers import Pybind11Extension,\
-                            build_ext, ParallelCompile, naive_recompile  # noqa:E402
+                            ParallelCompile  # noqa:E402
 
 
 WIN = sys.platform.startswith("win32") and "mingw" not in sysconfig.get_platform()
@@ -37,21 +38,21 @@ if WIN:
     EXTRA_COMPILE_ARGS = ["/O2", "/Ot", "/GL", "/DCOMIPLE_PYTHON_MODULE", "/I./eigen-3.3.7/eigen3/"]
 else:
     EXTRA_COMPILE_ARGS = ["-O3", "-ffast-math", "-ftree-vectorize", "-Wall",
-                          "-g2", "-flto", "-DCOMIPLE_PYTHON_MODULE"]
+                          "-g2", "-flto=auto", "-DCOMIPLE_PYTHON_MODULE"]
 
 ext_modules = [
     Pybind11Extension(
         "translation",
         ["src/concentrationsreader.cpp", "src/mrna_reader.cpp", "src/elongation_codon.cpp",
          "src/initiationterminationcodon.cpp", "src/mrnaelement.cpp", "src/translation.cpp",
-         "src/ribosomesimulator.cpp", "src/elongation_simulation_manager.cpp",
+         "src/codonsimulator.cpp", "src/elongation_simulation_manager.cpp",
          "src/elongation_simulation_processor.cpp", "./src/jsoncpp/jsoncpp.cpp"],
         include_dirs=["./src/jsoncpp/", "./src/eigen-3.3.7/", "./src/pybind11/"],
         extra_compile_args=EXTRA_COMPILE_ARGS
     ),
     Pybind11Extension(
-        "ribosomesimulator",
-        ["src/concentrationsreader.cpp", "src/mrna_reader.cpp", "src/ribosomesimulator.cpp",
+        "codon_simulator",
+        ["src/concentrationsreader.cpp", "src/mrna_reader.cpp", "src/codonsimulator.cpp",
          "./src/jsoncpp/jsoncpp.cpp"],
         include_dirs=["./src/jsoncpp/", "./src/eigen-3.3.7/", "./src/pybind11/"],
         extra_compile_args=EXTRA_COMPILE_ARGS
@@ -73,7 +74,7 @@ with open('CHANGES.rst', encoding='utf-8') as f:
     CHANGES = f.read()
 
 # Optional multithreaded build
-ParallelCompile(default=0, needs_recompile=naive_recompile).install()
+ParallelCompile("NPY_NUM_BUILD_JOBS").install()
 
 CMDCLASS = {}
 if not WIN:
