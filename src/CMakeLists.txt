@@ -27,11 +27,6 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories("eigen-3.3.7/")
 include_directories("jsoncpp/")
 
-execute_process(COMMAND pybind11-config --cmakedir RESULT_VARIABLE pybind11_DIR)
-# include(CMakePrintHelpers)
-# cmake_print_variables(pybind11_DIR)
-
-# add_subdirectory(execute_process(COMMAND pybind11-config --cmakedir))
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
 
