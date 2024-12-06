@@ -6,14 +6,10 @@
 # :Copyright: © 2020 Fabio Hedayioglu
 #
 
-#import os
 import sys
 import sysconfig
 from setuptools import setup
 from setuptools.command.build_ext import build_ext
-#DIR = os.path.abspath(os.path.dirname(__file__))
-#sys.path.append(os.path.join(DIR, "src/pybind11/"))
-#del sys.path[-1]
 from pybind11.setup_helpers import Pybind11Extension,\
                             ParallelCompile  # noqa:E402
 
