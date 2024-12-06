@@ -12,7 +12,7 @@
  */
 
 #include "mrnaelement.h"
-#include "codonsimulator.h"
+#include "codon_simulator.h"
 
 namespace Simulations {
 

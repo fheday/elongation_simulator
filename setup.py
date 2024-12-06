@@ -41,14 +41,14 @@ ext_modules = [
         "sequence_simulator",
         ["src/concentrationsreader.cpp", "src/mrna_reader.cpp", "src/elongation_codon.cpp",
          "src/initiationterminationcodon.cpp", "src/mrnaelement.cpp", "src/sequence_simulator.cpp",
-         "src/codonsimulator.cpp", "src/elongation_simulation_manager.cpp",
+         "src/codon_simulator.cpp", "src/elongation_simulation_manager.cpp",
          "src/elongation_simulation_processor.cpp", "./src/jsoncpp/jsoncpp.cpp"],
         include_dirs=["./src/jsoncpp/", "./src/eigen-3.3.7/", "./src/pybind11/"],
         extra_compile_args=EXTRA_COMPILE_ARGS
     ),
     Pybind11Extension(
         "codon_simulator",
-        ["src/concentrationsreader.cpp", "src/mrna_reader.cpp", "src/codonsimulator.cpp",
+        ["src/concentrationsreader.cpp", "src/mrna_reader.cpp", "src/codon_simulator.cpp",
          "./src/jsoncpp/jsoncpp.cpp"],
         include_dirs=["./src/jsoncpp/", "./src/eigen-3.3.7/", "./src/pybind11/"],
         extra_compile_args=EXTRA_COMPILE_ARGS

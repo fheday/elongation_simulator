@@ -4,7 +4,7 @@
 #include <iostream>
 #include "concentrationsreader.h"
 #include <map>
-#include "codonsimulator.h"
+#include "codon_simulator.h"
 
 
 /**

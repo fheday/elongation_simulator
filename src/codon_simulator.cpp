@@ -1,5 +1,5 @@
 /*
- * @file  codonsimulator.cpp
+ * @file  codon_simulator.cpp
  * 
  * @brief class where a codon is represented and could be individually simulated
  *
@@ -8,7 +8,7 @@
  *
  */
 
-#include "codonsimulator.h"
+#include "codon_simulator.h"
 #include <float.h>
 #include <algorithm>
 #ifndef _MSC_VER
