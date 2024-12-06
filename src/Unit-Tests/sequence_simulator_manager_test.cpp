@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string>
 #include "../elongation_simulation_manager.h"
-#include "../translation.h"
+#include "../sequence_simulator.h"
 
 
-TEST(ElongationSimulatorTester, openjsonconfig_file01)
+TEST(SequenceSimulatorManagerTester, openjsonconfig_file01)
 {
     std::string conf_file_path = "../../data/configurations/sim_test_01.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
@@ -18,7 +18,7 @@ TEST(ElongationSimulatorTester, openjsonconfig_file01)
     ASSERT_EQ(simulations_configurations.size(), 0);
 }
 
-TEST(ElongationSimulatorTester, openjsonconfig_file02)
+TEST(SequenceSimulatorManagerTester, openjsonconfig_file02)
 {
     std::string conf_file_path = "../../data/configurations/sim_test_02.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
@@ -105,13 +105,13 @@ TEST(ElongationSimulatorTester, openjsonconfig_file02)
         i++;
     }
 }
-TEST(ElongationSimulatorTester, parallel_simulation_file02) {
+TEST(SequenceSimulatorManagerTester, parallel_simulation_file02) {
     std::string conf_file_path = "../../data/configurations/sim_test_02.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
     sim_man.start(true, 4);
 }
 
-TEST(ElongationSimulatorTester, propensity_change) {
+TEST(SequenceSimulatorManagerTester, propensity_change) {
     std::string conf_file_path = "../../data/configurations/sim_test_03.json";
     Elongation_manager::SimulationManager sim_man(conf_file_path);
     for (const auto &item : sim_man.get_reactions_modifiers()) {

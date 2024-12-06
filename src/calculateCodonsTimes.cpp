@@ -4,7 +4,7 @@
 #include <iostream>
 #include "concentrationsreader.h"
 #include <map>
-#include "ribosomesimulator.h"
+#include "codon_simulator.h"
 
 
 /**
@@ -38,7 +38,7 @@ std::map<std::string, double> calculate_codons_times(
     const std::string& average_times_file_name,
     const std::string& times_vector_file_name,
     const std::string& sates_file_name, bool translocating_times) {
-  Simulations::RibosomeSimulator ribosome;
+  Simulations::CodonSimulator ribosome;
   ribosome.loadConcentrations(concentrations_file_name);
   csv_utils::ConcentrationsReader cr;
   cr.loadConcentrations(concentrations_file_name);

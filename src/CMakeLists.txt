@@ -10,14 +10,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC")
 
 
 set(common_sources concentrationsreader.cpp mrna_reader.cpp)
-set(ribosome_simulator_sources ribosomesimulator.cpp ${common_sources})
-set(elongation_simulator_sources   elongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp translation.cpp ${ribosome_simulator_sources} elongation_simulation_manager.cpp elongation_simulation_processor.cpp)
+set(codon_simulator_sources codon_simulator.cpp ${common_sources})
+set(elongation_simulator_sources   elongation_codon.cpp initiationterminationcodon.cpp mrnaelement.cpp sequence_simulator.cpp ${codon_simulator_sources} elongation_simulation_manager.cpp elongation_simulation_processor.cpp)
 add_library(util_lib STATIC ${common_sources})
-add_library(ribosome_simulator_lib STATIC ${ribosome_simulator_sources})
+add_library(codon_simulator_lib STATIC ${codon_simulator_sources})
 add_library(elongation_simulator_lib STATIC  ${elongation_simulator_sources})
 
 add_executable(calculateCodonsTimes calculateCodonsTimes.cpp)
-target_link_libraries(calculateCodonsTimes PRIVATE ribosome_simulator_lib)
+target_link_libraries(calculateCodonsTimes PRIVATE codon_simulator_lib)
 add_executable(run_translation run_translation.cpp)
 target_link_libraries(run_translation PRIVATE elongation_simulator_lib)
 
@@ -36,24 +36,24 @@ if(BUILD_JULIA)
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${JlCxx_location}")
 endif(BUILD_JULIA)
 
-add_library(translation EXCLUDE_FROM_ALL MODULE translation.cpp elongation_simulation_manager.cpp elongation_simulation_processor.cpp mrna_reader.cpp initiationterminationcodon.cpp
-concentrationsreader.cpp ribosomesimulator.cpp mrnaelement.cpp elongation_codon.cpp)
-target_compile_definitions(translation PRIVATE -DCOMIPLE_PYTHON_MODULE) # enable python pathway in code.
-target_link_libraries(translation PRIVATE pybind11::module ${PYTHON_LIBRARIES} jsoncpp)
-set_target_properties(translation PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
+add_library(sequence_simulator EXCLUDE_FROM_ALL MODULE sequence_simulator.cpp elongation_simulation_manager.cpp elongation_simulation_processor.cpp mrna_reader.cpp initiationterminationcodon.cpp
+concentrationsreader.cpp codon_simulator.cpp mrnaelement.cpp elongation_codon.cpp)
+target_compile_definitions(sequence_simulator PRIVATE -DCOMIPLE_PYTHON_MODULE) # enable python pathway in code.
+target_link_libraries(sequence_simulator PRIVATE pybind11::module ${PYTHON_LIBRARIES} jsoncpp)
+set_target_properties(sequence_simulator PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                           SUFFIX "${PYTHON_MODULE_EXTENSION}")
 
-add_library(ribosomesimulator EXCLUDE_FROM_ALL MODULE concentrationsreader.cpp ribosomesimulator.cpp)
+add_library(codon_simulator EXCLUDE_FROM_ALL MODULE concentrationsreader.cpp codon_simulator.cpp)
 
-target_compile_definitions(ribosomesimulator PRIVATE -DCOMIPLE_PYTHON_MODULE ) # enable python pathway in code.
+target_compile_definitions(codon_simulator PRIVATE -DCOMIPLE_PYTHON_MODULE ) # enable python pathway in code.
 # Julia interface
 if(BUILD_JULIA)
-    target_compile_definitions(ribosomesimulator PRIVATE -DCOMIPLE_JULIA_MODULE ) # enable Julia pathway in code.
-    target_link_libraries(ribosomesimulator PRIVATE JlCxx::cxxwrap_julia)
+    target_compile_definitions(codon_simulator PRIVATE -DCOMIPLE_JULIA_MODULE ) # enable Julia pathway in code.
+    target_link_libraries(codon_simulator PRIVATE JlCxx::cxxwrap_julia)
 endif(BUILD_JULIA)
 
-target_link_libraries(ribosomesimulator PRIVATE pybind11::module ${PYTHON_LIBRARIES})
-set_target_properties(ribosomesimulator PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
+target_link_libraries(codon_simulator PRIVATE pybind11::module ${PYTHON_LIBRARIES})
+set_target_properties(codon_simulator PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                           SUFFIX "${PYTHON_MODULE_EXTENSION}")
 
 

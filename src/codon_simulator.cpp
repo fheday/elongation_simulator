@@ -1,5 +1,5 @@
 /*
- * @file  ribosomesimulator.cpp
+ * @file  codon_simulator.cpp
  * 
  * @brief class where a codon is represented and could be individually simulated
  *
@@ -8,7 +8,7 @@
  *
  */
 
-#include "ribosomesimulator.h"
+#include "codon_simulator.h"
 #include <float.h>
 #include <algorithm>
 #ifndef _MSC_VER
@@ -19,44 +19,44 @@
 #include <numeric>
 #include "concentrationsreader.h"
 
-#if defined(COMIPLE_PYTHON_MODULE) || defined(RIBOSOMESIMULATOR)
+#if defined(COMIPLE_PYTHON_MODULE) || defined(CODONSIMULATOR)
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(ribosomesimulator, mod)
+PYBIND11_MODULE(codon_simulator, mod)
 {
   mod.doc() = R"pbdoc(
     Module for simulating ribosomes outside a mRNA contruct. 
     This module simulates ribosomes decoding a given codon using a given concentration.
     )pbdoc";
-  py::class_<Simulations::RibosomeSimulator>(mod, "ribosomesimulator")
+  py::class_<Simulations::CodonSimulator>(mod, "CodonSimulator")
       .def(py::init<>(),"Creates an empty simulator") // constructor
       .def("loadConcentrations",
-           &Simulations::RibosomeSimulator::loadConcentrations, py::arg("file_name"),R"docstr(
+           &Simulations::CodonSimulator::loadConcentrations, py::arg("file_name"),R"docstr(
              Loads a csv file containing the concentrations to be used in this simulation.
              
              file_name: string with the path to the file containing the concentrations.
              )docstr")
       .def("loadConcentrationsFromString",
-           &Simulations::RibosomeSimulator::loadConcentrationsFromString, py::arg("string"),R"docstr(
+           &Simulations::CodonSimulator::loadConcentrationsFromString, py::arg("string"),R"docstr(
              Loads a string similar to the csv file containing the concentrations to be used in this simulation.
              string: string with the csv values of the concentrations.
              )docstr")
       .def("setCodonForSimulation",
-           &Simulations::RibosomeSimulator::setCodonForSimulation, R"docstr(
+           &Simulations::CodonSimulator::setCodonForSimulation, R"docstr(
              Select the codon to be simulated. A simulator can simulate the decoding of only one codon.
              codon: 3-letter string with codon to be simulated. 
            )docstr")
-      .def("setState", &Simulations::RibosomeSimulator::setState,py::arg("target_state"), R"docstr(
+      .def("setState", &Simulations::CodonSimulator::setState,py::arg("target_state"), R"docstr(
         Optional method: Set the ribosome's state accordingly to the reactions map.
         When creating a simaultion, the state is zero.
         target_state: State to set the ribosome.
       )docstr")
       .def("run_and_get_times",
-           [](Simulations::RibosomeSimulator &rs) {
+           [](Simulations::CodonSimulator &rs) {
              float d = 0.0;
              float t = 0.0;
              rs.run_and_get_times(d, t);
@@ -66,41 +66,41 @@ PYBIND11_MODULE(ribosomesimulator, mod)
              First term: total decoding time in seconds.
              Second term: total translocation time in seconds.
            )docstr")
-      .def("run_repeatedly_get_average_time",&Simulations::RibosomeSimulator::run_repeatedly_get_average_time, R"docstr(
+      .def("run_repeatedly_get_average_time",&Simulations::CodonSimulator::run_repeatedly_get_average_time, R"docstr(
           Runs a simulation a given number of times and return the average translation time.
           repetitions: the number of times the simulation is being run.
           return: the average translation time of the simulations.
       )docstr")
-      .def("setPropensities", &Simulations::RibosomeSimulator::setPropensities, py::arg("prop"), R"docstr(
+      .def("setPropensities", &Simulations::CodonSimulator::setPropensities, py::arg("prop"), R"docstr(
         This method changes the reactions propensities of the codon selected for simulation.
         prop: dictionary with new propensities. An initial dictionary can be acquired by calling getPropensities().
       )docstr")
-      .def("setNonCognate", &Simulations::RibosomeSimulator::setNonCognate, py::arg("nonCognatePropensity"), R"docstr(
+      .def("setNonCognate", &Simulations::CodonSimulator::setNonCognate, py::arg("nonCognatePropensity"), R"docstr(
         Set the propensity of non-cognates for the selected codon.
         To use this function correctly, we must have set the codon for simulation.
         nonCognatePropensity: the propensity of non-coganates in reactions/sec 
       )docstr")
-      .def("getPropensities", &Simulations::RibosomeSimulator::getPropensities, R"docstr(
+      .def("getPropensities", &Simulations::CodonSimulator::getPropensities, R"docstr(
         This method returns a dictionary with the reactions labels and their propensities.
         This method should be used after the setCodonForSimulation.
         The dictionary returned by this method can be changed and used as an input parameter for 
         setPropensities, in order to change a specific reaction's propensity. 
       )docstr")
-      .def("getPropensity", &Simulations::RibosomeSimulator::getPropensity, py::arg("reaction"), R"docstr(
+      .def("getPropensity", &Simulations::CodonSimulator::getPropensity, py::arg("reaction"), R"docstr(
         This method returns the propensity of the given reaction label.
         reaction: string with the propensity label.
         return: reaction's propensity in reactions/sec.
       )docstr")
-      .def("setPropensity", &Simulations::RibosomeSimulator::setPropensity, R"docstr(
+      .def("setPropensity", &Simulations::CodonSimulator::setPropensity, R"docstr(
         given a reaction, sets its propensity.
         reaction: string with the reaction label
         propensity: float with new propensity value.
       )docstr")
-      .def_readonly("dt_history", &Simulations::RibosomeSimulator::dt_history, R"docstr(
+      .def_readonly("dt_history", &Simulations::CodonSimulator::dt_history, R"docstr(
         Attribute with the time taken by each reaction. This numpy array is filled after a simulation has been run.
       )docstr")
       .def_readonly("ribosome_state_history",
-                    &Simulations::RibosomeSimulator::ribosome_state_history, R"docstr(
+                    &Simulations::CodonSimulator::ribosome_state_history, R"docstr(
                       Attribute with the current state of the ribosome at each point in the simulation.
                       Each entry in this numpy array corresponds to an entry on dt_history at the same line.
                     )docstr")
@@ -123,7 +123,7 @@ PYBIND11_MODULE(ribosomesimulator, mod)
 }
 #endif
 
-Simulations::RibosomeSimulator::RibosomeSimulator() : gen(rd()), dis(0, 1)
+Simulations::CodonSimulator::CodonSimulator() : gen(rd()), dis(0, 1)
 {
   // set initial state to 0
   current_state = 0;
@@ -144,19 +144,19 @@ Simulations::RibosomeSimulator::RibosomeSimulator() : gen(rd()), dis(0, 1)
  * @param file_name string with the path to the file containing the concentrations.
  * @return void
  */
-void Simulations::RibosomeSimulator::loadConcentrations(
+void Simulations::CodonSimulator::loadConcentrations(
     const std::string &file_name)
 {
   concentrations_reader.loadConcentrations(file_name);
   buildReactionsMap();
 }
 
-void Simulations::RibosomeSimulator::loadConcentrationsFromString(const std::string& data) {
+void Simulations::CodonSimulator::loadConcentrationsFromString(const std::string& data) {
   concentrations_reader.loadConcentrationsFromString(data);
   buildReactionsMap();
 }
 
-void Simulations::RibosomeSimulator::buildReactionsMap()
+void Simulations::CodonSimulator::buildReactionsMap()
 {
   std::vector<csv_utils::concentration_entry> codons_concentrations;
   concentrations_reader.getContents(codons_concentrations);
@@ -193,7 +193,7 @@ void Simulations::RibosomeSimulator::buildReactionsMap()
   }
 }
 
-void Simulations::RibosomeSimulator::setPropensities(
+void Simulations::CodonSimulator::setPropensities(
     std::map<std::string, float>& prop)
 {
   for (auto& it : prop)
@@ -244,24 +244,24 @@ void Simulations::RibosomeSimulator::setPropensities(
   }
 }
 
-void Simulations::RibosomeSimulator::setPropensity(std::string &reaction,
+void Simulations::CodonSimulator::setPropensity(std::string &reaction,
                                                    const float &propensity)
 {
   *propensities_map.at(reaction) = propensity;
 }
 
-void Simulations::RibosomeSimulator::setNonCognate(float noNonCog)
+void Simulations::CodonSimulator::setNonCognate(float noNonCog)
 {
   non1f[simulation_codon_3_letters] = noNonCog;
 }
 
-float Simulations::RibosomeSimulator::getPropensity(std::string& reaction)
+float Simulations::CodonSimulator::getPropensity(std::string& reaction)
 {
   return *propensities_map.at(reaction);
 }
 
 std::map<std::string, float>
-Simulations::RibosomeSimulator::getPropensities()
+Simulations::CodonSimulator::getPropensities()
 {
   std::map<std::string, float> result;
   std::vector<float> ks = {non1f[simulation_codon_3_letters],
@@ -312,7 +312,7 @@ Simulations::RibosomeSimulator::getPropensities()
   return result;
 }
 
-void Simulations::RibosomeSimulator::setCodonForSimulation(
+void Simulations::CodonSimulator::setCodonForSimulation(
     const std::string &codon)
 {
   simulation_codon_3_letters = codon;
@@ -361,7 +361,7 @@ void Simulations::RibosomeSimulator::setCodonForSimulation(
   propensities_map.emplace("trans9", &trans9);
 }
 
-void Simulations::RibosomeSimulator::run_and_get_times(
+void Simulations::CodonSimulator::run_and_get_times(
     float &decoding_time, float &translocation_time)
 {
   dt_history.clear();
@@ -438,7 +438,7 @@ void Simulations::RibosomeSimulator::run_and_get_times(
   }
 }
 
-float Simulations::RibosomeSimulator::run_repeatedly_get_average_time(const int& repetitions)
+float Simulations::CodonSimulator::run_repeatedly_get_average_time(const int& repetitions)
 {
 
   float r1 = 0.0, r2 = 0.0, a0 = 0.0;
@@ -498,7 +498,7 @@ float Simulations::RibosomeSimulator::run_repeatedly_get_average_time(const int&
 }
 
 std::vector<std::vector<std::tuple<std::reference_wrapper<float>, int>>>
-Simulations::RibosomeSimulator::createReactionsGraph(
+Simulations::CodonSimulator::createReactionsGraph(
     const csv_utils::concentration_entry &codon)
 {
   std::array<std::reference_wrapper<float>, 40> ks = {{non1f[codon.codon],
@@ -853,10 +853,10 @@ Simulations::RibosomeSimulator::createReactionsGraph(
   return r_g;
 }
 
-int Simulations::RibosomeSimulator::getState() const { return current_state; }
-void Simulations::RibosomeSimulator::setState(int s) { current_state = s; }
+int Simulations::CodonSimulator::getState() const { return current_state; }
+void Simulations::CodonSimulator::setState(int s) { current_state = s; }
 
-void Simulations::RibosomeSimulator::getAlphas(
+void Simulations::CodonSimulator::getAlphas(
     std::vector<float> &as, std::vector<int> &reactions_index)
 {
   as.clear();
@@ -875,7 +875,7 @@ void Simulations::RibosomeSimulator::getAlphas(
   }
 }
 
-void Simulations::RibosomeSimulator::getDecodingAlphas(
+void Simulations::CodonSimulator::getDecodingAlphas(
     std::vector<float> &as, std::vector<int> &reactions_index)
 {
   as.clear();
@@ -903,24 +903,24 @@ void Simulations::RibosomeSimulator::getDecodingAlphas(
 
 JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 {
-  mod.add_type<Simulations::RibosomeSimulator>("RibosomeSimulator")
-  .method("loadConcentrations", &Simulations::RibosomeSimulator::loadConcentrations)
-  .method("loadConcentrationsFromString", &Simulations::RibosomeSimulator::loadConcentrationsFromString)
-  .method("setCodonForSimulation", &Simulations::RibosomeSimulator::setCodonForSimulation)
-  .method("setState", &Simulations::RibosomeSimulator::setState)
+  mod.add_type<Simulations::CodonSimulator>("CodonSimulator")
+  .method("loadConcentrations", &Simulations::CodonSimulator::loadConcentrations)
+  .method("loadConcentrationsFromString", &Simulations::CodonSimulator::loadConcentrationsFromString)
+  .method("setCodonForSimulation", &Simulations::CodonSimulator::setCodonForSimulation)
+  .method("setState", &Simulations::CodonSimulator::setState)
   .method("run_and_get_times",
-           [](Simulations::RibosomeSimulator &rs) {
+           [](Simulations::CodonSimulator &rs) {
              double d = 0.0;
              double t = 0.0;
              rs.run_and_get_times(d, t);
              return std::make_tuple(d, t);
            })
-  .method("run_repeatedly_get_average_time",&Simulations::RibosomeSimulator::run_repeatedly_get_average_time)
-  // .method("setPropensities", &Simulations::RibosomeSimulator::setPropensities)
-  .method("setNonCognate", &Simulations::RibosomeSimulator::setNonCognate)
-  // .method("getPropensities", &Simulations::RibosomeSimulator::getPropensities)
-  .method("getPropensity", &Simulations::RibosomeSimulator::getPropensity)
-  .method("setPropensity", &Simulations::RibosomeSimulator::setPropensity);
+  .method("run_repeatedly_get_average_time",&Simulations::CodonSimulator::run_repeatedly_get_average_time)
+  // .method("setPropensities", &Simulations::CodonSimulator::setPropensities)
+  .method("setNonCognate", &Simulations::CodonSimulator::setNonCognate)
+  // .method("getPropensities", &Simulations::CodonSimulator::getPropensities)
+  .method("getPropensity", &Simulations::CodonSimulator::getPropensity)
+  .method("setPropensity", &Simulations::CodonSimulator::setPropensity);
 }
 
 #endif

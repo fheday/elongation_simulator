@@ -1,8 +1,8 @@
-#ifndef SIMULATIONS_RIBOSOMESIMULATOR_H
-#define SIMULATIONS_RIBOSOMESIMULATOR_H
+#ifndef SIMULATIONS_CODONSIMULATOR_H
+#define SIMULATIONS_CODONSIMULATOR_H
 
 /*
- * @file  ribosomesimulator.h
+ * @file  codonsimulator.h
  * 
  * @brief class where a codon is represented and could be individually simulated
  *
@@ -21,9 +21,9 @@
 
 namespace Simulations {
 
-class RibosomeSimulator {
+class CodonSimulator {
  public:
-  RibosomeSimulator();
+  CodonSimulator();
   [[nodiscard]] int getState() const;
   void setState(int);
   void getAlphas(std::vector<float>&, std::vector<int>&);
@@ -142,4 +142,4 @@ class RibosomeSimulator {
 
 }  // namespace Simulations
 
-#endif  // SIMULATIONS_RIBOSOMESIMULATOR_H
+#endif  // SIMULATIONS_CODONSIMULATOR_H

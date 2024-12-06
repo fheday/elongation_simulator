@@ -8,7 +8,7 @@
  *
  */
 
-#include "translation.h"
+#include "sequence_simulator.h"
 #include <execinfo.h>
 #include <fstream>
 #include <getopt.h>
@@ -54,7 +54,7 @@ void execute_translation(const std::string &concentrations_file,
   }
 
   // prepare and run the simulation.
-  Simulations::Translation ts;
+  Simulations::SequenceSimulator ts;
   ts.loadConcentrations(concentrations_file);
   if (gene_name.empty()){
     ts.loadMRNA(mrna_file);

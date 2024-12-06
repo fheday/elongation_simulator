@@ -2,7 +2,7 @@
 skip = ["*musllinux*", "*pp*win*", "pp*manylinux*"]
 
 [build-system]
-requires = ["setuptools", "numpy", "pyqt5"]
+requires = ["setuptools", "numpy", "pyqt5", "pybind11"]
 build-backend = "setuptools.build_meta"
 
 [tool.pylint.MASTER]
