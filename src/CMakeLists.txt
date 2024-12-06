@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9.2)
+cmake_minimum_required(VERSION 3.10)
 project(gillespie CXX)
 
 #-fopt-info-vec-missed -g -fno-inline
@@ -26,7 +26,14 @@ target_link_libraries(run_translation PRIVATE elongation_simulator_lib)
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories("eigen-3.3.7/")
 include_directories("jsoncpp/")
-add_subdirectory("pybind11/")
+
+execute_process(COMMAND pybind11-config --cmakedir RESULT_VARIABLE pybind11_DIR)
+# include(CMakePrintHelpers)
+# cmake_print_variables(pybind11_DIR)
+
+# add_subdirectory(execute_process(COMMAND pybind11-config --cmakedir))
+set(PYBIND11_FINDPYTHON ON)
+find_package(pybind11 CONFIG REQUIRED)
 
 # Julia interface
 if(BUILD_JULIA)
