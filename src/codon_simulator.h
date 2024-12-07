@@ -77,39 +77,39 @@ class CodonSimulator {
   std::vector<std::string> stop_codons = {"UAG", "UAA", "UGA"};
   // constants for WCcognate interaction in 1/sec
   std::map<std::string, float> WC1f;
-  float WC1r = 85;
-  float WC2f = 190;
-  float WC2r = 0.23;
-  float WC3f = 260;
-  float WC4f = 1000;
-  float WC5f = 1000;
-  float WCdiss = 60;
-  float WC6f = 1000;
-  float dec7f = 200;
+  float WC1r = 85.f;
+  float WC2f = 190.f;
+  float WC2r = 0.23f;
+  float WC3f = 260.f;
+  float WC4f = 1000.f;
+  float WC5f = 1000.f;
+  float WCdiss = 60.f;
+  float WC6f = 1000.f;
+  float dec7f = 200.f;
 
   // constants for wobblecognate interaction in 1/sec
   std::map<std::string, float> wobble1f;
-  float wobble1r = 85;
-  float wobble2f = 190;
-  float wobble2r = 1;
-  float wobble3f = 25;
-  float wobble4f = 1000;
-  float wobble5f = 1000;
-  float wobblediss = 1.1;
-  float wobble6f = 6.4;
+  float wobble1r = 85.f;
+  float wobble2f = 190.f;
+  float wobble2r = 1.f;
+  float wobble3f = 25.f;
+  float wobble4f = 1000.f;
+  float wobble5f = 1000.f;
+  float wobblediss = 1.1f;
+  float wobble6f = 6.4f;
 
   // constants for nearcognate interaction in 1/sec
   std::map<std::string, float> near1f;
-  float near1r = 85;
-  float near2f = 190;
-  float near2r = 80;
-  float near3f = 0.4;
-  float near4f = 1000;
-  float near5f = 1000;
-  float neardiss = 1000;
-  float near6f = 60;
+  float near1r = 85.f;
+  float near2f = 190.f;
+  float near2r = 80.f;
+  float near3f = 0.4f;
+  float near4f = 1000.f;
+  float near5f = 1000.f;
+  float neardiss = 1000.f;
+  float near6f = 60.f;
 
-  float totalconc = 1.9e-4;
+  float totalconc = 1.9e-4f;
 
   // constants for noncognate interaction in 1/sec.
   // Non-cognates are assumed to not undergo any significant
