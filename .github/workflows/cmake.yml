@@ -35,15 +35,15 @@ jobs:
     - name: Checkout submodules
       run: git submodule update --init --recursive
 
-    - name: Configure CMake
+    #- name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: pip install pybind11[global] && cd src && cmake -B ${{github.workspace}}/build -Dpybind11_DIR=`pybind11-config --cmake` -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} 
+    #  run: pip install pybind11[global] && cd src && cmake -B ${{github.workspace}}/build -Dpybind11_DIR=`pybind11-config --cmake` -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} 
 
-    - name: Build
+    #- name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-
+      #run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      
     - name: Test
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.  
@@ -51,7 +51,7 @@ jobs:
       run: ctest -C ${{env.BUILD_TYPE}}
       
     - name: Build wheels
-      uses: pypa/cibuildwheel@v2.21.3
+      uses: pypa/cibuildwheel@v2.22.0
       env:
         CIBW_ARCHS: "${{ matrix.arch }}"
         CIBW_PRERELEASE_PYTHONS: True
