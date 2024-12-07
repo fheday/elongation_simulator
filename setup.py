@@ -31,7 +31,7 @@ class BuildExt(build_ext):
 
 EXTRA_COMPILE_ARGS = None
 if WIN:
-    EXTRA_COMPILE_ARGS = ["/O2", "/Ot", "/GL", "/DCOMIPLE_PYTHON_MODULE", "/I./eigen-3.3.7/eigen3/"]
+    EXTRA_COMPILE_ARGS = ["/O2", "/Ot", "/GL", "/DCOMIPLE_PYTHON_MODULE", "/I./src/eigen-3.3.7/eigen3/"]
 else:
     EXTRA_COMPILE_ARGS = ["-O3", "-ffast-math", "-ftree-vectorize", "-Wall",
                           "-g2", "-flto=auto", "-DCOMIPLE_PYTHON_MODULE"]
@@ -43,14 +43,14 @@ ext_modules = [
          "src/initiationterminationcodon.cpp", "src/mrnaelement.cpp", "src/sequence_simulator.cpp",
          "src/codon_simulator.cpp", "src/elongation_simulation_manager.cpp",
          "src/elongation_simulation_processor.cpp", "./src/jsoncpp/jsoncpp.cpp"],
-        include_dirs=["./src/jsoncpp/", "./src/eigen-3.3.7/", "./src/pybind11/"],
+        include_dirs=["./src/jsoncpp/", "./src/eigen-3.3.7/"],
         extra_compile_args=EXTRA_COMPILE_ARGS
     ),
     Pybind11Extension(
         "codon_simulator",
         ["src/concentrationsreader.cpp", "src/mrna_reader.cpp", "src/codon_simulator.cpp",
          "./src/jsoncpp/jsoncpp.cpp"],
-        include_dirs=["./src/jsoncpp/", "./src/eigen-3.3.7/", "./src/pybind11/"],
+        include_dirs=["./src/jsoncpp/", "./src/eigen-3.3.7/"],
         extra_compile_args=EXTRA_COMPILE_ARGS
     )
 ]
