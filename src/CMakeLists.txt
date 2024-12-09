@@ -23,12 +23,14 @@ target_link_libraries(run_translation PRIVATE elongation_simulator_lib)
 
 # #python interface
 # set (PYTHON_EXECUTABLE "python3.10")
-include_directories(${PYTHON_INCLUDE_DIRS})
+find_package(Python REQUIRED COMPONENTS Interpreter Development NumPy)
+find_package(pybind11 CONFIG REQUIRED)
+
+
+include_directories(${PYTHON_LIBRARIES})
 include_directories("eigen-3.3.7/")
 include_directories("jsoncpp/")
 
-set(PYBIND11_FINDPYTHON ON)
-find_package(pybind11 CONFIG REQUIRED)
 
 # Julia interface
 if(BUILD_JULIA)
