@@ -78,7 +78,7 @@ if not WIN:
 
 
 setup(
-    name='elongation_simulators',
+    name='elongation_simulator',
     version=VERSION,
     description='High-performance Ribosome simulator"\
      " and elongation simulator for eukaryotic organism',
@@ -103,9 +103,10 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Programming Language :: Python',
     ],
-    install_requires=['pybind11', 'pytest', 'numpy', 'pyqt5'],
+    install_requires=['setuptools', 'pybind11', 'pytest', 'numpy', 'pyqt5'],
     packages=["concentrations", "elongation"],
     package_dir={"concentrations": "concentrations", "elongation": "elongation"},
     scripts=['concentrations/basepairingeditor.py', 'elongation/simulationbuilder.py'],
