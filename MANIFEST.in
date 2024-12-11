@@ -1,14 +1,13 @@
 exclude .gitmodules .travis.yml .appveyor.yml
 exclude Unit-Tests
 
-include LICENSE MANIFEST.in *.cfg *.py *.rst *.txt
-include *.cpp *.h
+include LICENSE MANIFEST.in *.py *.rst *.txt
+include src/*.cpp src/*.h
 
-include docs CMake* *.rst
+include *.rst
 
-graft pybind11/*
-graft eigen-3.3.7/*
-graft jsoncpp/*
+graft src/eigen-3.3.7/*
+graft src/jsoncpp/*
 include concentrations/*.csv
 include elongation/simulationbuilder.py
 include elongation/utils.py
