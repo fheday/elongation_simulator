@@ -24,4 +24,4 @@ jobs:
         shell: pwsh
         run: |
           conda install -n base conda-build
-          conda build installers/anaconda/elongation_simulator/meta.yaml
+          conda build .
