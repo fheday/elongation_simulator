@@ -8,7 +8,7 @@ on:
     
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
     - name: publish-to-conda
@@ -22,5 +22,5 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
-        path: ./wheelhouse/*.whl
+        name: conda-${{ matrix.os }}
+        path: /opt/conda/conda-bld/*
