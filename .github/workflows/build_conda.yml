@@ -23,5 +23,5 @@ jobs:
       - name: Build Conda
         shell: pwsh
         run: |
-          conda install -y -n base conda-build
+          conda install -y conda-build
           conda build .
