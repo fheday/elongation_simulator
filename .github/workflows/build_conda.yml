@@ -16,7 +16,7 @@ jobs:
       with:
         subDir: 'installers/anaconda/elongation_simulator/'
         #AnacondaToken: ${{ secrets.ANACONDA_TOKEN }}
-        platforms: 'all'
+        platforms: ['win-64', 'win-32']
         override: true
         dry_run: true
 
