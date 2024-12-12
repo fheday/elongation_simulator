@@ -17,9 +17,9 @@ jobs:
         with:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-      - name: Build Conda package
+      - name: Conda info
         shell: bash -el {0}
-        run: conda build installers/anaconda/elongation_simulator/meta.yaml
-      - name: Conda list
+        run: conda info 
+      - name: Build Conda
         shell: pwsh
-        run: conda list
+        run: conda build installers/anaconda/elongation_simulator/meta.yaml
