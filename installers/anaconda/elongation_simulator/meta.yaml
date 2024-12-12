@@ -1,0 +1,52 @@
+{% set name = "elongation_simulator" %}
+{% set version = "1.0.5" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  path: ../../../
+#  url: file:///home/heday/Projects/elongation_simulator/dist/elongation_simulator-1.0.5.tar.gz
+# sha256: b507babadbcb8cf71cdf7729bb87ae37e39220a54e92297fabbeb3826f274fc4
+
+build:
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  number: 0
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+  host:
+    - python
+    - setuptools
+    - numpy
+    - pyqt
+    - pybind11
+    - pip
+  run:
+    - python
+    - pybind11
+    - pytest
+    - pyqt
+    - {{ pin_compatible('numpy') }}
+
+test:
+  imports:
+    - concentrations
+    - elongation
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/fheday/elongation_simulator/
+  summary: High-performance Ribosome simulator"     " and elongation simulator for eukaryotic organism
+  license: MIT
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - fheday
