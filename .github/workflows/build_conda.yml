@@ -13,6 +13,14 @@ jobs:
         os: ["windows-latest"]
         python-version: ["3.11", "3.12"]
     steps:
+      - name: Get version
+        # id must be specified to retrieve the output of the step
+        id: version-step
+        uses: michmich112/extract-version@main
+        with:
+          # specify here the path to your version file (e.g. package.json, pom.xml...)
+          version-file: version.txt
+          schema: major.minor.build
     - uses: actions/checkout@v4
     - uses: ilammy/msvc-dev-cmd@v1
     - uses: conda-incubator/setup-miniconda@v3
@@ -21,10 +29,6 @@ jobs:
         auto-update-conda: true
         conda-remove-defaults: true
         python-version: ${{ matrix.python-version }}
-    - name: Set variables
-      run: |
-        VER=$(cat version.txt)
-        echo "VERSION=$VER" >> $GITHUB_ENV
     - name: install pybind11
       shell: pwsh
       run:  conda install conda-forge::pybind11
@@ -39,7 +43,7 @@ jobs:
       run: conda install -c conda-forge greyskull
     - name: generate recipe
       shell: pwsh
-      run: grayskull pypi dist/elongation_simulator-${{env.VERSION}}.tar.gz
+      run: grayskull pypi dist/elongation_simulator-${{steps.version-step.outputs.version}}.tar.gz
     - name: build package
       shell: pwsh
       run: conda build elongation_simulator
