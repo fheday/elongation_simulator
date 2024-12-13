@@ -15,6 +15,7 @@ jobs:
     steps:
     - uses: conda-incubator/setup-miniconda@v3
     - uses: actions/checkout@v4
+    - uses: ilammy/msvc-dev-cmd@v1
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
