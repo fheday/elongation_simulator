@@ -13,14 +13,6 @@ jobs:
         os: ["windows-latest"]
         python-version: ["3.11", "3.12"]
     steps:
-      - name: Get version
-        # id must be specified to retrieve the output of the step
-        id: version-step
-        uses: michmich112/extract-version@main
-        with:
-          # specify here the path to your version file (e.g. package.json, pom.xml...)
-          version-file: version.txt
-          schema: major.minor.build
     - uses: actions/checkout@v4
     - uses: ilammy/msvc-dev-cmd@v1
     - uses: conda-incubator/setup-miniconda@v3
@@ -29,6 +21,14 @@ jobs:
         auto-update-conda: true
         conda-remove-defaults: true
         python-version: ${{ matrix.python-version }}
+      uses: michmich112/extract-version@main
+      with:
+        # specify here the path to your version file (e.g. package.json, pom.xml...)
+        version-file: version.txt
+        schema: major.minor.build
+    - name: Get version
+      # id must be specified to retrieve the output of the step
+      id: version-step
     - name: install pybind11
       shell: pwsh
       run:  conda install conda-forge::pybind11
