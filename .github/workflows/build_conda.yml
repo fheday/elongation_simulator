@@ -23,8 +23,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Set variables
       run: |
-      VER=$(cat version.txt)
-      echo "VERSION=$VER" >> $GITHUB_ENV
+        VER=$(cat version.txt)
+        echo "VERSION=$VER" >> $GITHUB_ENV
     - name: install pybind11
       shell: pwsh
       run:  conda install conda-forge::pybind11
