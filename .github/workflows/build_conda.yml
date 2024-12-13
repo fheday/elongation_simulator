@@ -21,7 +21,7 @@ jobs:
         auto-update-conda: true
         conda-remove-defaults: true
         python-version: ${{ matrix.python-version }}
-      uses: michmich112/extract-version@main
+    - uses: michmich112/extract-version@main
       with:
         # specify here the path to your version file (e.g. package.json, pom.xml...)
         version-file: version.txt
