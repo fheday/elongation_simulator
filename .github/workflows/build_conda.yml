@@ -19,7 +19,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: create sdist
       shell: pwsh
-      run: python setup.py sdist
+      run: python ../setup.py sdist
     - name: Conda install build-tools
       shell: bash -el {0}
       run: conda install -y conda-build grayskull
