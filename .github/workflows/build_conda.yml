@@ -26,6 +26,6 @@ jobs:
     - name: generate recipe
       shell: pwsh
       run: grayskull pypi dist/elongation_simulator-*
-    -name: build package
+    - name: build package
       shell: pwsh
       run: conda build elongation_simulator
