@@ -21,7 +21,7 @@ jobs:
         auto-update-conda: true
         conda-remove-defaults: true
         python-version: ${{ matrix.python-version }}
-    - name get release version
+    - name: get release version
       shell: pwsh
       run: set /p VERSION=<version.txt 
     - name: install pybind11
