@@ -13,9 +13,9 @@ jobs:
         os: ["windows-latest"]
         python-version: ["3.11", "3.12"]
     steps:
-    - uses: conda-incubator/setup-miniconda@v3
     - uses: actions/checkout@v4
     - uses: ilammy/msvc-dev-cmd@v1
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         conda-solver: "classic"
         auto-update-conda: true
