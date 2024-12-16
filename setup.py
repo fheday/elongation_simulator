@@ -31,7 +31,7 @@ class BuildExt(build_ext):
 
 EXTRA_COMPILE_ARGS = None
 if WIN:
-    EXTRA_COMPILE_ARGS = ["/O2", "/Ot", "/GL", "/DCOMIPLE_PYTHON_MODULE", "/I./src/eigen-3.3.7/eigen3/"]
+    EXTRA_COMPILE_ARGS = ["/std:c++17", "/O2", "/Ot", "/GL", "/DCOMIPLE_PYTHON_MODULE", "/I./src/eigen-3.3.7/eigen3/"]
 else:
     EXTRA_COMPILE_ARGS = ["-O3", "-ffast-math", "-ftree-vectorize", "-Wall",
                           "-g2", "-flto=auto", "-DCOMIPLE_PYTHON_MODULE"]
