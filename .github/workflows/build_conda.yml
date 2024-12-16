@@ -43,4 +43,4 @@ jobs:
         grayskull pypi dist/elongation_simulator-${VERSION}.tar.gz
     - name: build package
       shell: pwsh
-      run: conda build installers/anaconda/elongation_simulator/meta.yaml
+      run: conda build .
