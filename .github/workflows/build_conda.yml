@@ -23,7 +23,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: get release version
       shell: pwsh
-      run: set p/ VERSION=<version.txt 
+      run: $VERSION = Get-Content .\version.txt -Raw 
     - name: install pybind11
       shell: pwsh
       run:  conda install conda-forge::pybind11
