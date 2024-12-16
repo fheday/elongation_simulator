@@ -30,14 +30,14 @@ jobs:
     - name: Conda install build-tools
       shell: bash -el {0}
       run: conda install -y conda-build
-    - name: install greyskull
-      shell: pwsh
-      run: conda install -c conda-forge greyskull
-    - name: generate recipe
-      shell: pwsh
-      run: |
-        $VERSION = Get-Content .\version.txt -Raw 
-        grayskull pypi dist/elongation_simulator-${VERSION}.tar.gz
+    #- name: install greyskull
+    #  shell: pwsh
+    #  run: conda install -c conda-forge greyskull
+    #- name: generate recipe
+    #  shell: pwsh
+    #  run: |
+    #    $VERSION = Get-Content .\version.txt -Raw 
+    #    grayskull pypi dist/elongation_simulator-${VERSION}.tar.gz
     - name: build package
       shell: pwsh
-      run: conda build .
+      run: conda build installers/anaconda/elongation_simulator/
