@@ -23,7 +23,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: get release version
       shell: pwsh
-      run: set /p VERSION=<version.txt 
+      run: $VERSION = <version.txt 
     - name: install pybind11
       shell: pwsh
       run:  conda install conda-forge::pybind11
@@ -38,7 +38,7 @@ jobs:
       run: conda install -c conda-forge greyskull
     - name: generate recipe
       shell: pwsh
-      run: grayskull pypi dist/elongation_simulator-%VERSION%.tar.gz
+      run: grayskull pypi dist/elongation_simulator-"$VERSION".tar.gz
     - name: build package
       shell: pwsh
       run: conda build installers/anaconda/elongation_simulator/meta.yaml
