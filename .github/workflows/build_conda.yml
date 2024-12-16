@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     #- uses: ilammy/msvc-dev-cmd@v1
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda
       with:
         conda-solver: "classic"
         auto-update-conda: true
