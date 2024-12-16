@@ -14,7 +14,7 @@ jobs:
         python-version: ["3.12"]
     steps:
     - uses: actions/checkout@v4
-    - uses: ilammy/msvc-dev-cmd@v1
+    #- uses: ilammy/msvc-dev-cmd@v1
     - uses: conda-incubator/setup-miniconda@v3
       with:
         conda-solver: "classic"
