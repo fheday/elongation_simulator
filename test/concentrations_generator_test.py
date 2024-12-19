@@ -153,17 +153,6 @@ class TestConcentrationsGeneratorPairings(unittest.TestCase):
         assert concentrations_generator.is_near_cognate(["X", "WC", "WC"], rule)
 
     def test(self):
-        # tRNAs = pd.read_csv('/home/heday/Projects/R_concentrations/cerevisiae_2023/tRNAs.csv')
-        # codons = pd.read_csv('/home/heday/Projects/R_concentrations/cerevisiae_2023/codons.csv')
-        # del codons["decoding.time"]
-        # concentrations_df = concentrations_generator.make_concentrations(concentrations_generator.make_matrix(tRNAs, codons, verbose=False, settings_file_name=file), tRNAs, codons)
-        # concentrations_df["three.letter"] = codons["three.letter"]
-        # concentrations_df = concentrations_df.reindex(columns=['codon', "three.letter", 'WCcognate.conc', 'wobblecognate.conc', 'nearcognate.conc'])
-        #data = json.loads(
-        #    Path(
-        #        "/home/heday/experiments/R3/pairing_experiment_sensitivity_analysis/10-10-23/additive_experiment/cerevisiae/two-rules/minimal_basepairing.json"
-        #    ).read_text()
-        #)
         assert concentrations_generator.identify_3_base_pairing(
             "CCA", "AGG", basepairing_rules=self.basepairing_rules
         ) == ["WC", "WC", "Wo"]
