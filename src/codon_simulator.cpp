@@ -9,7 +9,7 @@
  */
 
 #include "codon_simulator.h"
-#include <float.h>
+#include <cfloat>
 #include <algorithm>
 #ifndef _MSC_VER
 #include <eigen3/Eigen/Dense>
