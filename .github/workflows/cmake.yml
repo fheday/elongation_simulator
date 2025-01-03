@@ -12,17 +12,6 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-
-  #build_wheels:
-  #  name: Build wheels on ${{matrix.os}}
-  #  runs-on: ${{matrix.os}}
-  #  strategy:
-  #    fail-fast: false
-  #    matrix:
-  #      include:
-  #        - {os: ubuntu-latest, arch: x86_64}
-  #        # - {os: windows-latest, arch: AMD64}
-  #        # - {os: macos-latest, arch: arm64}
   build:
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
@@ -32,7 +21,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
     - name: Checkout submodules
       run: git submodule update --init --recursive
 
@@ -41,7 +32,7 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: pip install pybind11[global] && cd src && cmake -B ${{github.workspace}}/build -Dpybind11_DIR=`pybind11-config --cmake` -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} 
 
-    - name: Build
+    - name: run cmake
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
       
