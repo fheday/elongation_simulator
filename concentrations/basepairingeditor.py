@@ -28,12 +28,12 @@ class PairingRelationship:
     @classmethod
     def load_dict_one_position(cls, json_file_name: str, pairing_type: str) -> list['PairingRelationship']:
         result = []
-        with open(json_file_name) as json_file:
+        with open(json_file_name, encoding="utf-8") as json_file:
             data = json.load(json_file)
             for codon in data[pairing_type]:
                 result.append(cls(codon, data[pairing_type][codon]))
             return result
-    
+
     @classmethod
     def convert_one_position_from_dict(cls, data: dict, pairing_type: str) -> list['PairingRelationship']:
         result = []
@@ -46,13 +46,13 @@ class PairingRelationship:
         result = {}
         if os.path.isfile(json_file_name) and os.path.exists(json_file_name):
             # this is an existing file. Edit:
-            with open(json_file_name) as json_file:
+            with open(json_file_name, encoding="utf-8") as json_file:
                 data = json.load(json_file)
-                for pairing in data.keys():
-                    if pairing == "Pairing Rules":
-                        result[pairing] = data[pairing]
+                for pairing_type in data.keys():
+                    if pairing_type == "Pairing Rules":
+                        result[pairing_type] = data[pairing_type]
                     else:
-                        result[pairing] = cls.load_dict_one_position(json_file_name, pairing)
+                        result[pairing_type] = cls.load_dict_one_position(json_file_name, pairing_type)
         else:
             # need to create a new file.
             data = {"Watson-Crick": {"A": ["U", "&", "3", "1", "~", "N", "S", ")", "{", "V", "}", "P"],
@@ -68,11 +68,11 @@ class PairingRelationship:
                         }
                     }
                     }
-            for pairing in data.keys():
-                if pairing == "Pairing Rules":
-                    result[pairing] = data[pairing]
+            for pairing_type, pairing_data in data.items():
+                if pairing_type == "Pairing Rules":
+                    result[pairing_type] = pairing_data
                 else:
-                    result[pairing] = cls.convert_one_position_from_dict(data, pairing)
+                    result[pairing_type] = cls.convert_one_position_from_dict(data, pairing_type)
         return result
 
 
@@ -85,6 +85,7 @@ class ClassificationRules:
 class Window(QMainWindow):
 
     def __init__(self, pairings, file_name):
+        # pylint: disable=invalid-name
         super().__init__()
         self.file_name = file_name
         self.setWindowTitle("Base pairing editor: " + os.path.basename(self.file_name))
@@ -124,7 +125,7 @@ class Window(QMainWindow):
             self.wobble_pairing_widgetItem.addChild(node)
 
         tree.itemDoubleClicked.connect(self.edit_rule)
-        
+
         layout.addWidget(tree, 0, 0)
 
         self.save_button = QPushButton("Save")
@@ -146,39 +147,37 @@ class Window(QMainWindow):
             if self.near_cognate.child(child_number) == clicked_obj:
                 return "Near Cognate"
         return None
-        
+
     def edit_rule(self, clicked_obj: QTreeWidgetItem):
         pairing_type = self.identify_click(clicked_obj)
-        if pairing_type == "Watson-Crick" or pairing_type == "Wobble":
+        if pairing_type in ["Watson-Crick", "Wobble"]:
             self.edit_pairing(clicked_obj, pairing_type)
         elif pairing_type == "Near Cognate":
             self.edit_near_cognate_definition(clicked_obj)
-        return
-        
+
     def edit_pairing(self, clicked_obj: QTreeWidgetItem, pairing_type: str):
         # open dialog for changing data.
         selected_pairing = PairingRelationship(clicked_obj.data(0, 0), clicked_obj.data(1, 0))
         pairing_dialog = EditPairingDialog(self)
         pairing_dialog.set_pair(selected_pairing)
-        
+
         pairing_dialog.exec_()
         if pairing_dialog.pairing_relationship.codon == selected_pairing.codon and\
            pairing_dialog.pairing_relationship.anticodons == selected_pairing.anticodons:
             # nothing changed.
             return
+        # we need to update the tree.abs
+        pairing_node = None
+        if pairing_type == "Watson-Crick":
+            pairing_node = self.watson_crick_pairing_widgetItem
         else:
-            # we need to update the tree.abs
-            pairing_node = None
-            if pairing_type == "Watson-Crick":
-                pairing_node = self.watson_crick_pairing_widgetItem
-            else:
-                pairing_node = self.wobble_pairing_widgetItem
-            for child_no in range(pairing_node.childCount()):
-                item = pairing_node.child(child_no)
-                if pairing_dialog.pairing_relationship.codon == item.data(0, 0):
-                    # update
-                    item.setData(0, 0, pairing_dialog.pairing_relationship.codon)
-                    item.setData(1, 0, pairing_dialog.pairing_relationship.anticodons)
+            pairing_node = self.wobble_pairing_widgetItem
+        for child_no in range(pairing_node.childCount()):
+            item = pairing_node.child(child_no)
+            if pairing_dialog.pairing_relationship.codon == item.data(0, 0):
+                # update
+                item.setData(0, 0, pairing_dialog.pairing_relationship.codon)
+                item.setData(1, 0, pairing_dialog.pairing_relationship.anticodons)
 
     def edit_near_cognate_definition(self, clicked_obj):
         # open dialog for changing data.
@@ -187,8 +186,6 @@ class Window(QMainWindow):
         near_cognate_def_dialog.exec_()
         item = self.near_cognate.child(0)
         item.setData(1, 0, near_cognate_def_dialog.rules)
-
-        return
 
     def save(self):
         # recreate the dictionary
@@ -199,14 +196,14 @@ class Window(QMainWindow):
             data['Watson-Crick'][item.data(0, 0)] = [
                 k for k in item.data(1, 0).replace(' ', '').split(',')
             ]
-        
+
         # Wobble
         for child_no in range(self.wobble_pairing_widgetItem.childCount()):
             item = self.wobble_pairing_widgetItem.child(child_no)
             data['Wobble'][item.data(0, 0)] = [
                 k for k in item.data(1, 0).replace(' ', '').split(',')
             ]
-        
+
         # Near cognate definition
         near_cognate_definition_str = self.near_cognate.child(0).data(1, 0)
         near_cognate_definition = (near_cognate_definition_str.replace('[', '').replace(']', '')
@@ -220,7 +217,7 @@ class Window(QMainWindow):
         ret = qm.question(self, '', "Are you sure to save the file?", qm.Yes | qm.No)
         if ret == qm.Yes:
             # do save it
-            with open(self.file_name, "w") as outfile:
+            with open(self.file_name, "w", encoding="utf-8") as outfile:
                 outfile.write(json.dumps(data, indent=4))
 
 
@@ -257,7 +254,7 @@ class EditPairingDialog(QDialog):
         else:
             QMessageBox.about(self, "Invalid input", "The input is invalid: Either there is a codon with a relationship"
                               "or the list of anitcodons is not comma separated. Please review your input.")
-        
+
     def clicked_cancel(self):
         self.close()
 
