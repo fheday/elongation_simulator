@@ -21,13 +21,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
     - name: Checkout submodules
       run: git submodule update --init --recursive
 
     - name: Configure CMake
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: pip install pybind11[global] && cd src && cmake -B ${{github.workspace}}/build -Dpybind11_DIR=`pybind11-config --cmake` -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} 
