@@ -34,23 +34,23 @@ PYBIND11_MODULE(codon_simulator, mod)
     )pbdoc";
   py::class_<Simulations::CodonSimulator>(mod, "CodonSimulator")
       .def(py::init<>(),"Creates an empty simulator") // constructor
-      .def("loadConcentrations",
+      .def("load_concentrations",
            &Simulations::CodonSimulator::loadConcentrations, py::arg("file_name"),R"docstr(
              Loads a csv file containing the concentrations to be used in this simulation.
              
              file_name: string with the path to the file containing the concentrations.
              )docstr")
-      .def("loadConcentrationsFromString",
+      .def("load_concentrations_from_string",
            &Simulations::CodonSimulator::loadConcentrationsFromString, py::arg("string"),R"docstr(
              Loads a string similar to the csv file containing the concentrations to be used in this simulation.
              string: string with the csv values of the concentrations.
              )docstr")
-      .def("setCodonForSimulation",
+      .def("set_codon_for_simulation",
            &Simulations::CodonSimulator::setCodonForSimulation, R"docstr(
              Select the codon to be simulated. A simulator can simulate the decoding of only one codon.
              codon: 3-letter string with codon to be simulated. 
            )docstr")
-      .def("setState", &Simulations::CodonSimulator::setState,py::arg("target_state"), R"docstr(
+      .def("set_state", &Simulations::CodonSimulator::setState,py::arg("target_state"), R"docstr(
         Optional method: Set the ribosome's state accordingly to the reactions map.
         When creating a simaultion, the state is zero.
         target_state: State to set the ribosome.
@@ -71,27 +71,27 @@ PYBIND11_MODULE(codon_simulator, mod)
           repetitions: the number of times the simulation is being run.
           return: the average translation time of the simulations.
       )docstr")
-      .def("setPropensities", &Simulations::CodonSimulator::setPropensities, py::arg("prop"), R"docstr(
+      .def("set_propensities", &Simulations::CodonSimulator::setPropensities, py::arg("prop"), R"docstr(
         This method changes the reactions propensities of the codon selected for simulation.
         prop: dictionary with new propensities. An initial dictionary can be acquired by calling getPropensities().
       )docstr")
-      .def("setNonCognate", &Simulations::CodonSimulator::setNonCognate, py::arg("nonCognatePropensity"), R"docstr(
+      .def("set_nonCognate", &Simulations::CodonSimulator::setNonCognate, py::arg("nonCognatePropensity"), R"docstr(
         Set the propensity of non-cognates for the selected codon.
         To use this function correctly, we must have set the codon for simulation.
         nonCognatePropensity: the propensity of non-coganates in reactions/sec 
       )docstr")
-      .def("getPropensities", &Simulations::CodonSimulator::getPropensities, R"docstr(
+      .def("get_propensities", &Simulations::CodonSimulator::getPropensities, R"docstr(
         This method returns a dictionary with the reactions labels and their propensities.
         This method should be used after the setCodonForSimulation.
         The dictionary returned by this method can be changed and used as an input parameter for 
         setPropensities, in order to change a specific reaction's propensity. 
       )docstr")
-      .def("getPropensity", &Simulations::CodonSimulator::getPropensity, py::arg("reaction"), R"docstr(
+      .def("get_propensity", &Simulations::CodonSimulator::getPropensity, py::arg("reaction"), R"docstr(
         This method returns the propensity of the given reaction label.
         reaction: string with the propensity label.
         return: reaction's propensity in reactions/sec.
       )docstr")
-      .def("setPropensity", &Simulations::CodonSimulator::setPropensity, R"docstr(
+      .def("set_propensity", &Simulations::CodonSimulator::setPropensity, R"docstr(
         given a reaction, sets its propensity.
         reaction: string with the reaction label
         propensity: float with new propensity value.

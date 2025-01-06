@@ -45,14 +45,14 @@ PYBIND11_MODULE(sequence_simulator, mod) {
       .def(py::init<>(), R"docstr(
         Creates an empty simulator.
       )docstr") // constructor
-      .def("loadMRNA",
+      .def("load_MRNA",
            (void(Simulations::SequenceSimulator::*)(const std::string &)) &
                Simulations::SequenceSimulator::loadMRNA,
            R"docstr(
         Reads a Fasta file. Assumes there is only one gene in the file.
         file_name: string with the FASTA file to be read. All occurrences of 'T' will be replaced by 'U'.
       )docstr")
-      .def("loadMRNA",
+      .def("load_MRNA",
            (void(Simulations::SequenceSimulator::*)(const std::string &,
                                               const std::string &)) &
                Simulations::SequenceSimulator::loadMRNA,
@@ -61,55 +61,55 @@ PYBIND11_MODULE(sequence_simulator, mod) {
         file_name: string with the FASTA file to be read. All occurrences of 'T' will be replaced by 'U'.
         gene_name: name of the gene to be read.
       )docstr")
-      .def("inputMRNA", &Simulations::SequenceSimulator::inputMRNA, R"docstr(
+      .def("input_MRNA", &Simulations::SequenceSimulator::inputMRNA, R"docstr(
         Allows to pass the mRNA to be simulated as a string.
         user_mrna: String with the gene sequence. All occurrences of 'T' will be replaced by 'U'.
       )docstr")
-      .def("loadConcentrations", &Simulations::SequenceSimulator::loadConcentrations,
+      .def("load_concentrations", &Simulations::SequenceSimulator::loadConcentrations,
            R"docstr(
         Loads a csv file containing the concentrations to be used in this simulation.
         file_name: string with the path to the file containing the concentrations.
       )docstr")
-      .def("loadConcentrationsFromString",
+      .def("load_concentrations_from_string",
            &Simulations::SequenceSimulator::loadConcentrationsFromString, R"docstr(
         Loads a csv string containing the concentrations to be used in this simulation.
         data: string containing the concentrations. this could be the content of the csv concentrations file.
       )docstr")
-      .def("setInitiationRate", &Simulations::SequenceSimulator::setInitiationRate,
+      .def("set_initiation_rate", &Simulations::SequenceSimulator::setInitiationRate,
            R"docstr(
         Sets the initiation rate in initations/sec.
         init_rate: float with the initiation rate.
       )docstr")
-      .def("setTerminationRate", &Simulations::SequenceSimulator::setTerminationRate,
+      .def("set_termination_rate", &Simulations::SequenceSimulator::setTerminationRate,
            R"docstr(
         Sets the termination rate in initations/sec.
         term_rate: float with the termination rate.
       )docstr")
-      .def("setIterationLimit", &Simulations::SequenceSimulator::setIterationLimit,
+      .def("set_iteration_limit", &Simulations::SequenceSimulator::setIterationLimit,
            R"docstr(
         Stop condition. Only one can be set.
         Sets number of iterations (ribosome movements) wich will halt the simulation.
         i: integer with the maximum number of iterations to simulate.
       )docstr")
-      .def("setTimeLimit", &Simulations::SequenceSimulator::setTimeLimit, R"docstr(
+      .def("set_time_limit", &Simulations::SequenceSimulator::setTimeLimit, R"docstr(
         Stop condition. Only one can be set.
         Set the time (in cell time, seconds) by wich the simulation will halt.
         t: float maximum time where the simulation will halt.
       )docstr")
-      .def("setFinishedRibosomes",
+      .def("set_finished_ribosomes",
            &Simulations::SequenceSimulator::setFinishedRibosomes, R"docstr(
              Stop condition. Only one can be set.
              Set the maximum number of terminating ribosomes. The simulation will halt when this number of ribosomes finishes.
              n_ribosomes: integer with the maximum number of terminating ribosomes to simualte.
            )docstr")
-      .def("setSimulateToSteadyState",
+      .def("set_simulate_to_steady_state",
            &Simulations::SequenceSimulator::setSimulateToSteadyState, R"docstr(
         Stop condition. This one has to be set with one of these: setSteadyStateTime or setSteadyStateTerminations.
         When setSimulateToSteadyState is set to True, the simulator will first have to reach a steady state situation.
         A steady state situation is when (rate of observed initiations/rate of observed terminations) is between 0.9 and 1.1
         It is worth noticing that depending on the parameters set for the simulation, this could be unreacheable.
       )docstr")
-      .def("setSteadyStateTime", &Simulations::SequenceSimulator::setSteadyStateTime,
+      .def("set_steady_state_time", &Simulations::SequenceSimulator::setSteadyStateTime,
            R"docstr(
         Once the simulation enters the steady state, it will run for at most the time set in this method.
         time: float with the time (in seconds) the simulation will run after reaching steady state.
@@ -119,7 +119,7 @@ PYBIND11_MODULE(sequence_simulator, mod) {
         Once the simulation enters the steady state, it will run for at most the number of ribosomes informed in this method terminates.
         terminations: integer with the max number of ribosomes to terminate after reaching steady state.
       )docstr")
-      .def("setHistorySize", &Simulations::SequenceSimulator::setHistorySize,
+      .def("set_history_size", &Simulations::SequenceSimulator::setHistorySize,
            R"docstr(
         Sets the maximum size of the history log (ribosome positions and time) in entries (lines). If the simulation generates more entries, the old ones
         will be removed. Default size = 100000 entries.
@@ -136,34 +136,34 @@ PYBIND11_MODULE(sequence_simulator, mod) {
              * setFinishedRibosomes or setIterationLimit or setTimeLimit 
                or setSimulateToSteadyState and either setSteadyStateTerminations or setSteadystateTime
            )docstr")
-      .def("getElongationDuration",
+      .def("get_elongation_duration",
            &Simulations::SequenceSimulator::getElongationDuration, R"docstr(
              Analysis the simulation log (dt_history and ribosome_positions_history) and calculates the times (in seconds) each ribosome takes from initiation to termination.
              returns two lists: 
              the first list contains the durations
              the second contains the indexes in dt_history and ribosome_positions_history when the ribosome initiated
            )docstr")
-      .def("setPrepopulate", &Simulations::SequenceSimulator::setPrepopulate,
+      .def("set_prepopulate", &Simulations::SequenceSimulator::setPrepopulate,
            R"docstr(
         This is an optional method to be called BEFORE the simulation.
         It tries to create an approximated configuration where ribosomes would be located in the mRNA
         in a steady state, and use this configutation as the starting state for the simulation. 
       )docstr")
-      .def("getRibosomesPositions",
+      .def("get_ribosomes_positions",
            &Simulations::SequenceSimulator::getRibosomesPositions, R"docstr(
              Return the codon number of all ribosomes in the current simulation state.
            )docstr")
-      .def("setRibosomePositions",
+      .def("set_ribosome_positions",
            &Simulations::SequenceSimulator::setRibosomePositions, R"docstr(
              Set ribosome positions in the mRNA strip. Used before starting the
              simulation.
              positions: list of integers with the positions of the ribosomes in the mRNA.
            )docstr")
-      .def("setLogCodonStates", &Simulations::SequenceSimulator::setLogCodonStates,
+      .def("set_log_codon_states", &Simulations::SequenceSimulator::setLogCodonStates,
            R"docstr(
         If set to true, in addition to logging the ribosome positions in the mRNA, it also log the ribosome's internal states.
       )docstr")
-      .def("getLogCodonStates", &Simulations::SequenceSimulator::getLogCodonStates,
+      .def("get_log_codon_states", &Simulations::SequenceSimulator::getLogCodonStates,
            R"docstr(
         This method returns a list of lists with the states of the ribosomes in each codon as follows:
         Each element of the list represents a codon in the mRNA.
@@ -171,17 +171,17 @@ PYBIND11_MODULE(sequence_simulator, mod) {
         - the first one with the state, 
         - the second one, with the total time spent in that state.
       )docstr")
-      .def("setPropensities", &Simulations::SequenceSimulator::setPropensities,
+      .def("set_propensities", &Simulations::SequenceSimulator::setPropensities,
            R"docstr(
         This method changes the reactions propensities of all codons.
         prop: a vector with the same size as the mRNA where each entry consists of a dictionary 
         with new propensities. The original propensities vector can obtained by calling getPropensities().
       )docstr")
-      .def("setNonCognate", &Simulations::SequenceSimulator::setNoNonCognate,
+      .def("set_nonCognate", &Simulations::SequenceSimulator::setNoNonCognate,
            R"docstr(
         Optimization: this option will disable the non-cognate pathway in the ribosomes.
       )docstr")
-      .def("getPropensities", &Simulations::SequenceSimulator::getPropensities,
+      .def("get_propensities", &Simulations::SequenceSimulator::getPropensities,
            R"docstr(
         This method returns a vector with the same size as the mRNA where each entry consists of 
         a dictionary with the reactions labels and their propensities.
@@ -210,11 +210,11 @@ PYBIND11_MODULE(sequence_simulator, mod) {
                       All codons are zero-based. Each entry in this list has a corresponding dt_history with the time taken between 
                       two consecutive entries of this list.
                     )docstr")
-      .def_readonly("initiationRate",
+      .def_readonly("initiation_rate",
                     &Simulations::SequenceSimulator::initiation_rate, R"docstr(
                       Attribute: the initiation rate set by setInitiationRate.
                     )docstr")
-      .def_readonly("terminationRate",
+      .def_readonly("termination_rate",
                     &Simulations::SequenceSimulator::termination_rate, R"docstr(
                       Attribute: the termination rate set by setInitiationRate.
                     )docstr")
