@@ -87,18 +87,18 @@ PYBIND11_MODULE(sequence_simulator, mod) {
       )docstr")
       .def("set_iteration_limit", &Simulations::SequenceSimulator::setIterationLimit,
            R"docstr(
-        Stop condition. Only one can be set.
+        Stop condition. Only one stop condition can be set.
         Sets number of iterations (ribosome movements) wich will halt the simulation.
         i: integer with the maximum number of iterations to simulate.
       )docstr")
       .def("set_time_limit", &Simulations::SequenceSimulator::setTimeLimit, R"docstr(
-        Stop condition. Only one can be set.
+        Stop condition. Only one stop condition can be set.
         Set the time (in cell time, seconds) by wich the simulation will halt.
         t: float maximum time where the simulation will halt.
       )docstr")
       .def("set_finished_ribosomes",
            &Simulations::SequenceSimulator::setFinishedRibosomes, R"docstr(
-             Stop condition. Only one can be set.
+             Stop condition. Only one stop condition can be set.
              Set the maximum number of terminating ribosomes. The simulation will halt when this number of ribosomes finishes.
              n_ribosomes: integer with the maximum number of terminating ribosomes to simualte.
            )docstr")
@@ -254,7 +254,7 @@ PYBIND11_MODULE(sequence_simulator, mod) {
             return sim.colliding_ribosomes;
           },
           R"docstr(
-            Attribute: vector with the positions of the colliding ribosomes. By definition a ribosome is only colliding if another one is stopping it moving forward.
+            Attribute: vector with the positions of the colliding ribosomes. A ribosome is only colliding if another one is stopping it moving forward.
           )docstr")
       .def_property_readonly(
           "stalled_ribosomes",
@@ -263,7 +263,7 @@ PYBIND11_MODULE(sequence_simulator, mod) {
             return sim.stalled_ribosomes;
           },
           R"docstr(
-            Attribute: vector with the positions of stalling ribosomes. By definition a stalled ribosome can move forward but is blocking another ribosome to move forward.
+            Attribute: vector with the positions of stalling ribosomes. A stalled ribosome can move forward but is blocking another ribosome to move forward.
           )docstr")
       .def_property_readonly(
           "saccharomyces_cerevisiae_concentrations",
@@ -283,7 +283,7 @@ PYBIND11_MODULE(sequence_simulator, mod) {
           },
           R"docstr(
                                This attribute can be use as a parameter when setting the concentrations file to the saccharomyces cerevisiae.
-                               E.g: sim.loadConcentrations(sim.saccharomyces_cerevisiae_concentrations)
+                               E.g: sim.load_concentrations(sim.saccharomyces_cerevisiae_concentrations)
                              )docstr");
   ;
 

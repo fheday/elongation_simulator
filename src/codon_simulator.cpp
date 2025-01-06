@@ -52,7 +52,7 @@ PYBIND11_MODULE(codon_simulator, mod)
            )docstr")
       .def("set_state", &Simulations::CodonSimulator::setState,py::arg("target_state"), R"docstr(
         Optional method: Set the ribosome's state accordingly to the reactions map.
-        When creating a simaultion, the state is zero.
+        When creating a simulation, the state is zero.
         target_state: State to set the ribosome.
       )docstr")
       .def("run_and_get_times",
@@ -82,9 +82,9 @@ PYBIND11_MODULE(codon_simulator, mod)
       )docstr")
       .def("get_propensities", &Simulations::CodonSimulator::getPropensities, R"docstr(
         This method returns a dictionary with the reactions labels and their propensities.
-        This method should be used after the setCodonForSimulation.
+        This method should be used after the set_codon_for_simulation.
         The dictionary returned by this method can be changed and used as an input parameter for 
-        setPropensities, in order to change a specific reaction's propensity. 
+        set_propensities, in order to change a specific reaction's propensity. 
       )docstr")
       .def("get_propensity", &Simulations::CodonSimulator::getPropensity, py::arg("reaction"), R"docstr(
         This method returns the propensity of the given reaction label.
@@ -118,7 +118,7 @@ PYBIND11_MODULE(codon_simulator, mod)
                                return conc_path_string + file_name;
                              }, R"docstr(
                                This attribute can be use as a parameter when setting the concentrations file to the saccharomyces cerevisiae.
-                               E.g: sim.loadConcentrations(sim.saccharomyces_cerevisiae_concentrations)
+                               E.g: sim.load_concentrations(sim.saccharomyces_cerevisiae_concentrations)
                              )docstr");
 }
 #endif
