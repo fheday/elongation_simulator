@@ -40,7 +40,7 @@ jobs:
 
   build_sdist:
     name: Build source distribution
-    runs-on: ${{matrix.os}}
+    #runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v4
 
