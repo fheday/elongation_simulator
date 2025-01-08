@@ -1,14 +1,14 @@
-# Gillespie C++
-[![CMake](https://github.com/fheday/elongation_simulators/actions/workflows/cmake.yml/badge.svg)](https://github.com/fheday/elongation_simulators/actions/workflows/cmake.yml)
+# Elongation Simulator
 
-This is repository contains a C++ version of the Gillespie algorithm. 
-This should address some disadvantages of the python version. 
+This is the repository containing the source code of the Protein Synthesis.
 
-PROS (hopefully): 
-+ Speed 
-+ Memory footprint 
-+ Organization 
-+ Can be exposed to Python, R, etc. (currently only exported to Python 3.x)
+It contains python scripts to calculate tRNA concentrations and two simulators:
++ codon_simulator
++ sequence_simulator
 
-CONS: 
-- C++ demands more in-depth knowledge and some level of memory management.
+## Codon Simulator
+This class is essentially an implementation of the Gillespie algorithm, and allows running stochastic simulations of the decoding of individual codons efficiently.
+
+## Sequence Simulator
+This class relies on a modified implementation of the Gillespie algorithm. This simulator tracks ribosome positional information, allowing the simulation of mRNA transcripts containing any number of elongating ribosomes. It also allows for setting their initiation and termination rates, and a choice of criteria to stop the simulations.
+
