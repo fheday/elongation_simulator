@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-        repository: fheday/elongation_simulators
+          repository: fheday/elongation_simulators
 
       #- name: Checkout submodules
         #  run: git submodule update --init --recursive
