@@ -26,9 +26,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{github.token}}
 
-      - name: Checkout submodules
-        run: git submodule update --init --recursive
+      #- name: Checkout submodules
+        #  run: git submodule update --init --recursive
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.22.0
