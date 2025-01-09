@@ -1,3 +1,19 @@
+[project]
+name = "elongation_simulator"
+version = "v1.0.6"
+readme = "README.md"
+description="High-performance codon simulator and elongation simulator for eukaryotic organism"
+
+authors = [
+  {name = "Fabio Hedayioglu", email="fheday@gmail.com"}
+]
+
+maintainers = [
+  {name="Fabio Hedayioglu", email="fheday@gmail.com"}
+]
+license = {file="LICENSE"}
+requires-python = ">=3.9"
+
 [tool.cibuildwheel]
 skip = ["*musllinux*", "*pp*win*", "pp*manylinux*", "cp36*", "cp37*", "cp38*"]
 

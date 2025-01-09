@@ -80,7 +80,7 @@ if not WIN:
 setup(
     name='elongation_simulator',
     version=VERSION,
-    description='High-performance Ribosome simulator"\
+    description='High-performance Codon simulator"\
      " and elongation simulator for eukaryotic organism',
     long_description=LONG_DESCRIPTION + '\n\n' + CHANGES,
     # long_description_content_type='text/x-rst',
