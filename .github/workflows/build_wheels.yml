@@ -68,6 +68,7 @@ jobs:
 
       - uses: pypa/gh-action-pypi-publish@v1.5.0
         with:
+          repository-url: https://pypi.org/project/elongation-simulators/
           user: __token__
           password: ${{ secrets.pypi_password }}
       - name: Upload to GitHub Release
