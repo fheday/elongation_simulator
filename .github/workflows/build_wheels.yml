@@ -20,7 +20,7 @@ jobs:
           - {os: windows-latest, arch: AMD64}
     environment:
       name: pypi
-      url: https://pypi.org/p/elongation-simulators
+      url: https://pypi.org/project/elongation-simulators
     permissions:
       contents: read
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
