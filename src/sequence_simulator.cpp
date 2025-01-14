@@ -104,7 +104,7 @@ PYBIND11_MODULE(sequence_simulator, mod) {
            )docstr")
       .def("set_simulate_to_steady_state",
            &Simulations::SequenceSimulator::setSimulateToSteadyState, R"docstr(
-        Stop condition. This one has to be set with one of these: setSteadyStateTime or setSteadyStateTerminations.
+        Stop condition. This one has to be set with one of these: set_steady_state_time or set_steady_state_terminations.
         When setSimulateToSteadyState is set to True, the simulator will first have to reach a steady state situation.
         A steady state situation is when (rate of observed initiations/rate of observed terminations) is between 0.9 and 1.1
         It is worth noticing that depending on the parameters set for the simulation, this could be unreacheable.
@@ -114,7 +114,7 @@ PYBIND11_MODULE(sequence_simulator, mod) {
         Once the simulation enters the steady state, it will run for at most the time set in this method.
         time: float with the time (in seconds) the simulation will run after reaching steady state.
       )docstr")
-      .def("setSteadyStateTerminations",
+      .def("set_steady_state_terminations",
            &Simulations::SequenceSimulator::setSteadyStateTerminations, R"docstr(
         Once the simulation enters the steady state, it will run for at most the number of ribosomes informed in this method terminates.
         terminations: integer with the max number of ribosomes to terminate after reaching steady state.
@@ -978,7 +978,7 @@ void Simulations::SequenceSimulator::setRibosomePositions(
   insertRibosome(positions[0], true);
   for (std::size_t i = 1; i < positions.size(); i++) {
     if (positions[i] - positions[i - 1] < RIBOSOME_SIZE) {
-      throw std::out_of_range("Ribosome " + std::to_string(positions[i]) +
+      throw std::out_of_range("Ribosome " + std::to_string(positions[i - 1]) +
                               " too close to ribosome " +
                               std::to_string(positions[i]));
     } else {
