@@ -63,7 +63,7 @@ if sys.version_info < (3,):
 with open('version.txt', encoding='utf-8') as f:
     VERSION = f.read()
 
-with open('README.rst', encoding='utf-8') as f:
+with open('README.md', encoding='utf-8') as f:
     LONG_DESCRIPTION = f.read()
 
 with open('CHANGES.rst', encoding='utf-8') as f:
@@ -83,7 +83,7 @@ setup(
     description='High-performance Codon simulator"\
      " and elongation simulator for eukaryotic organism',
     long_description=LONG_DESCRIPTION + '\n\n' + CHANGES,
-    # long_description_content_type='text/x-rst',
+    long_description_content_type='text/markdown',
     license='MIT License',
     keywords='elongation translation',
     author='Fabio Hedayioglu',
