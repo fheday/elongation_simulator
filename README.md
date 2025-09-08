@@ -35,8 +35,8 @@ sim.run_repeatedly_get_average_time(1000) # simulates the codon 1k times and ret
 This class relies on a modified implementation of the Gillespie algorithm. This simulator tracks ribosome positional information, allowing the simulation of mRNA transcripts containing any number of elongating ribosomes. It also allows for setting their initiation and termination rates, and a choice of criteria to stop the simulations. Below is an example of a simple use of the Sequence Simulator:
 
 ```python
-from codon_simulator import CodonSimulator
-sim = CodonSimulator()
+from sequence_simulator import SequenceSimulator
+sim = SequenceSimulator()
 sim.load_concentrations(sim.saccharomyces_cerevisiae_concentrations) # the simulator already comes with the yeast concentrations
 sim.input_MRNA("ATGTTCAGCGAATTAATTAACTTCCAAAATGAAGGTCATGAGTGCCAATGCCAATGTGGTAGCTGCAAAAATAATGAACAATGCCAAAAATCATGTAGCTGCCCAACGGGGTGTAACAGCGACGACAAATGCCCCTGCGGTAACAAGTCTGAAGAAACCTGA")
 sim.set_initiation_rate(100) # sets the rate of initiation to 100 ribosomes per second.
