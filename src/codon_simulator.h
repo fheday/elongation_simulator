@@ -115,7 +115,7 @@ class CodonSimulator {
   // Non-cognates are assumed to not undergo any significant
   // interaction but to simply dissociate quickly.
   std::map<std::string, float> non1f;
-  float non1r = 1e5;
+  float non1r = 2e3;
 
   // based on yeast value of 226000 molecules per cell as determined
   // in von der Haar 2008 (PMID 18925958)
