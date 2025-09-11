@@ -1,11 +1,42 @@
+#include <filesystem>
 #include <gtest/gtest.h>
 #include "../mrna_reader.h"
+
+namespace fs = std::filesystem;
+
+
+std::string find_subdir_upwards(const fs::path& target_subdir)
+{
+    fs::path current_path = fs::absolute(fs::current_path());
+    // Continue until we reach the root directory
+    while (current_path.has_parent_path()) {
+        // Check if target subdirectory exists in current path
+        for (const auto& entry : fs::directory_iterator(current_path)) {
+            if (entry.is_directory() && entry.path().filename() == target_subdir) {
+                return current_path;
+            }
+        }
+        // Move up one directory
+        current_path = current_path.parent_path();
+    }
+    // Check the root directory as the last step
+    for (const auto& entry : fs::directory_iterator(current_path)) {
+        if (entry.is_directory() && entry.path().filename() == target_subdir) {
+            return current_path.string();
+        }
+    }
+
+    // Return empty optional if subdirectory not found
+    return {};
+}
+
+const std::string project_path = find_subdir_upwards("data");
 
 TEST(mRNAReaderTester, open_simple_fasta_file)
 {
     //Test to read file with only one DNA sequence without header.
     mRNA_utils::mRNAReader reader;
-    reader.loadmRNAFile("../../data/mRNAs/MaxCFLuc.txt");
+    reader.loadmRNAFile(project_path + "/data/mRNAs/MaxCFLuc.txt");
     ASSERT_EQ(reader.getCodon(23), "GAA");
     ASSERT_EQ(reader.getCodon(21), "GCU"); // the reader converts T's to U's automatically.
 }
@@ -13,13 +44,13 @@ TEST(mRNAReaderTester, open_simple_fasta_file)
 TEST(mRNAReaderTester, open_fasta_file_one_gene_with_header) {
     //Test to read file with only one DNA sequence with header.
     mRNA_utils::mRNAReader reader;
-    reader.loadmRNAFile("../../data/mRNAs/RTN3.txt");
+    reader.loadmRNAFile(project_path + "/data/mRNAs/RTN3.txt");
     ASSERT_EQ(reader.getCodon(23), "GCG");
     ASSERT_EQ(reader.getCodon(22), "UCC"); // the reader converts T's to U's automatically.
     ASSERT_EQ(reader.getCodon(21), "CCG");
     //check if this works when a file has more than one gene.
     //In this case, we should get the first one only.
-    reader.loadmRNAFile("../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa");
+    reader.loadmRNAFile(project_path + "/data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa");
     ASSERT_EQ(reader.getCodon(0), "AUG");
     ASSERT_EQ(reader.getCodon(1), "UUC");
     ASSERT_EQ(reader.getCodon(2), "AGC");
@@ -29,7 +60,7 @@ TEST(mRNAReaderTester, open_fasta_file_one_gene_with_header) {
 TEST(mRNAReaderTester, open_fasta_file_many_genes_with_header) {
     //Test to read file with only one DNA sequence with header.
     mRNA_utils::mRNAReader reader;
-    const std::string fasta_file = "../../data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa";
+    const std::string fasta_file = project_path + "/data/mRNAs/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa";
     reader.loadGene(fasta_file, "YHR055C");
     ASSERT_EQ(reader.getCodon(0), "AUG");
     ASSERT_EQ(reader.getCodon(1), "UUC");
