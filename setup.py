@@ -92,7 +92,7 @@ setup(
     maintainer_email='fheday@gmail.com',
     url='https://github.com/fheday/elongation_simulator/',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Stable',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: C++',
@@ -103,7 +103,6 @@ setup(
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
-        'Programming Language :: Python',
     ],
     install_requires=['setuptools', 'pybind11', 'pytest', 'numpy', 'pyqt5'],
     packages=["concentrations", "elongation"],
