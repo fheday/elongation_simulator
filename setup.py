@@ -92,7 +92,7 @@ setup(
     maintainer_email='fheday@gmail.com',
     url='https://github.com/fheday/elongation_simulator/',
     classifiers=[
-        'Development Status :: 5 - Stable',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: C++',
