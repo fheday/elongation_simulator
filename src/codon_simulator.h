@@ -78,8 +78,8 @@ class CodonSimulator {
   // constants for WCcognate interaction in 1/sec
   std::map<std::string, float> WC1f;
   float WC1r = 85.f;
-  float WC2f = 190.f;
-  float WC2r = 0.23f;
+  float WC2f = 180.f;
+  float WC2r = 0.22f;
   float WC3f = 260.f;
   float WC4f = 1000.f;
   float WC5f = 1000.f;
